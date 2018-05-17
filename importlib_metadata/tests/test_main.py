@@ -21,3 +21,7 @@ class BasicTests(unittest.TestCase):
         dist = importlib_metadata.Distribution.for_module(pip)
         assert isinstance(dist.version, str)
         assert re.match(self.version_pattern, dist.version)
+
+    def test_for_name_does_not_exist(self):
+        with self.assertRaises(importlib_metadata.PackageNotFound):
+            importlib_metadata.Distribution.for_name('does-not-exist')

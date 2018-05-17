@@ -6,6 +6,10 @@ import itertools
 import contextlib
 
 
+class PackageNotFound(Exception):
+    "Package Not Found"
+
+
 class Distribution:
     """
     A Python Distribution package.
@@ -25,7 +29,11 @@ class Distribution:
         """
         glob_groups = map(glob.iglob, cls._search_globs(name, path))
         globs = itertools.chain.from_iterable(glob_groups)
-        return cls(next(globs))
+        try:
+            dist_path = next(globs)
+        except StopIteration:
+            raise PackageNotFound()
+        return cls(dist_path)
 
     @staticmethod
     def _search_globs(name, path):
