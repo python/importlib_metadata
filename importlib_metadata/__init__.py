@@ -15,14 +15,19 @@ class Distribution:
 
     @classmethod
     def for_name(cls, name, path=sys.path):
+        glob_groups = map(glob.iglob, cls._search_globs(name, path))
+        globs = itertools.chain.from_iterable(glob_groups)
+        return cls(next(globs))
+
+    @staticmethod
+    def _search_globs(name, path):
+        """
+        Generate search globs for locating distribution metadata in path
+        """
         for path_item in path:
-            glob_specs = (
-                os.path.join(path_item, f'{name}-*.*-info'),
-                os.path.join(path_item, f'{name}.*-info'),
-                )
-            globs = itertools.chain.from_iterable(map(glob.iglob, glob_specs))
-            match = next(globs)
-            return cls(os.path.join(path_item, match))
+                yield os.path.join(path_item, f'{name}-*.*-info')
+                # in develop install, no version is present
+                yield os.path.join(path_item, f'{name}.*-info')
 
     @classmethod
     def for_module(cls, mod):
