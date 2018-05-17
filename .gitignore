@@ -6,3 +6,4 @@ importlib_metadata.egg-info
 .mypy_cache
 /.coverage
 /.DS_Store
+artifacts
