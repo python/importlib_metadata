@@ -22,7 +22,7 @@ class Distribution:
         self.path = path
 
     @classmethod
-    def for_name(cls, name, path=sys.path):
+    def from_name(cls, name, path=sys.path):
         """
         Given the name of a distribution (the name of the package as
         installed), return a Distribution.
@@ -46,12 +46,12 @@ class Distribution:
                 yield os.path.join(path_item, f'{name}.*-info')
 
     @classmethod
-    def for_module(cls, mod):
+    def from_module(cls, mod):
         """
         Given a module, discover the Distribution package for that
         month.
         """
-        return cls.for_name(cls.name_for_module(mod))
+        return cls.from_name(cls.name_for_module(mod))
 
     @staticmethod
     def name_for_module(mod):
