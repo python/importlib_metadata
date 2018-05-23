@@ -4,6 +4,7 @@ import glob
 import email
 import itertools
 import contextlib
+import importlib
 
 
 class PackageNotFound(Exception):
@@ -22,7 +23,7 @@ class Distribution:
         self.path = path
 
     @classmethod
-    def for_name(cls, name, path=sys.path):
+    def from_name(cls, name, path=sys.path):
         """
         Given the name of a distribution (the name of the package as
         installed), return a Distribution.
@@ -46,12 +47,16 @@ class Distribution:
                 yield os.path.join(path_item, f'{name}.*-info')
 
     @classmethod
-    def for_module(cls, mod):
+    def from_module(cls, mod):
         """
         Given a module, discover the Distribution package for that
         month.
         """
-        return cls.for_name(cls.name_for_module(mod))
+        return cls.from_name(cls.name_for_module(mod))
+
+    @classmethod
+    def from_named_module(cls, mod_name):
+        return cls.from_module(importlib.import_module(mod_name))
 
     @staticmethod
     def name_for_module(mod):
