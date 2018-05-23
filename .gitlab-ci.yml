@@ -1,0 +1,36 @@
+image: quay.io/python-devs/ci-image
+
+stages:
+  - test
+  - codecov
+
+qa:
+  script:
+    - tox -e qa
+
+tests:
+  script:
+    - tox -e py27-nocov,py34-nocov,py35-nocov,py36-nocov
+
+coverage:
+  script:
+    - tox -e py27-cov,py34-cov,py35-cov,py36-cov
+  artifacts:
+    paths:
+      - coverage.xml
+
+diffcov:
+  script:
+    - tox -e py27-diffcov,py34-diffcov,py35-diffcov,py36-diffcov
+
+docs:
+  script:
+    - tox -e docs
+
+codecov:
+  stage: codecov
+  dependencies:
+    - coverage
+  script:
+    - codecov -t $CODECOV_TOKEN
+  when: on_success
