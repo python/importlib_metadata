@@ -31,6 +31,18 @@ a known distribution package name with :meth:`Distribution.from_name`:
     >>> dist = importlib_resources.Distribution.from_name('importlib_resources')
 
 
+Package Version
+===============
+
+`PEP 396 <https://www.python.org/dev/peps/pep-0396/>` specifies
+a convention for presenting a package's version. For many packages,
+this version is not defined in code, but is primarily or only defined
+in the package metadata. In this case, use of ``importlib_metadata``
+can present this version::
+
+    __version__ = importlib_metadata.Distribution.from_module('mypkg').version
+
+
 Distribution Name
 =================
 
