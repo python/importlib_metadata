@@ -4,6 +4,7 @@ import glob
 import email
 import itertools
 import contextlib
+import importlib
 
 
 class PackageNotFound(Exception):
@@ -52,6 +53,10 @@ class Distribution:
         month.
         """
         return cls.from_name(cls.name_for_module(mod))
+
+    @classmethod
+    def from_named_module(cls, mod_name):
+        return cls.from_module(importlib.import_module(mod_name))
 
     @staticmethod
     def name_for_module(mod):

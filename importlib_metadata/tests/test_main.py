@@ -25,3 +25,7 @@ class BasicTests(unittest.TestCase):
     def test_for_name_does_not_exist(self):
         with self.assertRaises(importlib_metadata.PackageNotFound):
             importlib_metadata.Distribution.from_name('does-not-exist')
+
+    def test_for_module_by_name(self):
+        name = 'importlib_metadata'
+        importlib_metadata.Distribution.from_named_module(name)

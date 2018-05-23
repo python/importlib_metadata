@@ -40,7 +40,7 @@ this version is not defined in code, but is primarily or only defined
 in the package metadata. In this case, use of ``importlib_metadata``
 can present this version::
 
-    __version__ = importlib_metadata.Distribution.from_module('mypkg').version
+    __version__ = importlib_metadata.Distribution.from_named_module(__name__).version
 
 
 Distribution Name
