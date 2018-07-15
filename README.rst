@@ -16,19 +16,18 @@ package as installed by pip or similar).
 The main feature is the :class:`Distribution` class.
 
 Construct one by passing a top-level module (or package) to
-:meth:`Distribution.from_module`:
+:func:`distribution`:
 
-    >>> dist = importlib_resources.Distribution.from_module(importlib_resources)
+    >>> dist = importlib_resources.distribution(importlib_resources)
 
 From there, the package metadata is available on ``dist.metadata``:
 
 	>>> 'Version' in dist.metadata
 	True
 
-The package also provides an interface to load the metadata for
-a known distribution package name with :meth:`Distribution.from_name`:
+:func:`distribution` also accepts a known distribution package name:
 
-    >>> dist = importlib_resources.Distribution.from_name('importlib_resources')
+    >>> dist = importlib_resources.distribution('importlib_resources')
 
 
 Package Version
