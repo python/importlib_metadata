@@ -7,3 +7,4 @@ importlib_metadata.egg-info
 /.coverage
 /.DS_Store
 artifacts
+.eggs
