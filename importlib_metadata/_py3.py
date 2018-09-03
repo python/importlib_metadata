@@ -17,7 +17,9 @@ class PathResolver:
     """
     def resolve(self, name):
         glob_groups = map(glob.iglob, self._search_globs(name))
-        return next(itertools.chain.from_iterable(glob_groups), None)
+        paths = itertools.chain.from_iterable(glob_groups)
+        dists = map(Distribution, paths)
+        return next(dists, None)
 
     @staticmethod
     def _search_globs(name):
@@ -64,10 +66,9 @@ class Distribution:
         resolvers = cls._discover_resolvers()
         resolved = filter(None, (resolver(name) for resolver in resolvers))
         try:
-            dist_path = next(resolved)
+            return next(resolved)
         except StopIteration:
             raise PackageNotFound
-        return cls(dist_path)
 
     @staticmethod
     def _discover_resolvers():
