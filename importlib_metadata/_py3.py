@@ -5,6 +5,7 @@ import email
 import itertools
 import contextlib
 import importlib
+import abc
 
 
 class PackageNotFound(Exception):
@@ -18,7 +19,7 @@ class PathResolver:
     def resolve(self, name):
         glob_groups = map(glob.iglob, self._search_globs(name))
         paths = itertools.chain.from_iterable(glob_groups)
-        dists = map(Distribution, paths)
+        dists = map(PathDistribution, paths)
         return next(dists, None)
 
     @staticmethod
@@ -51,11 +52,11 @@ class Distribution:
     A Python Distribution package.
     """
 
-    def __init__(self, path):
+    @abc.abstractmethod
+    def load_metadata(self, name):
         """
-        Construct a distribution from a path to the metadata dir.
+        Attempt to load metadata given by the name. Return None if not found.
         """
-        self.path = path
 
     @classmethod
     def from_name(cls, name):
@@ -109,6 +110,18 @@ class Distribution:
             self.load_metadata('METADATA') or self.load_metadata('PKG-INFO')
             )
 
+    @property
+    def version(self):
+        return self.metadata['Version']
+
+
+class PathDistribution(Distribution):
+    def __init__(self, path):
+        """
+        Construct a distribution from a path to the metadata dir.
+        """
+        self.path = path
+
     def load_metadata(self, name):
         """
         Attempt to load metadata given by the name. Return None if not found.
@@ -117,7 +130,3 @@ class Distribution:
         with contextlib.suppress(FileNotFoundError):
             with open(fn, encoding='utf-8') as strm:
                 return strm.read()
-
-    @property
-    def version(self):
-        return self.metadata['Version']
