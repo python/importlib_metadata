@@ -11,6 +11,39 @@ class PackageNotFound(Exception):
     """Package Not Found"""
 
 
+class PathResolver:
+    """
+    The default Distribution resolver for the PathFinder.
+    """
+    def resolve(self, name):
+        glob_groups = map(glob.iglob, self._search_globs(name))
+        return next(itertools.chain.from_iterable(glob_groups), None)
+
+    @staticmethod
+    def _search_globs(name):
+        """
+        Generate search globs for locating distribution metadata in path.
+        """
+        for path_item in sys.path:
+            # Matches versioned dist-info directories.
+            yield os.path.join(path_item, f'{name}-*.*-info')
+            # In develop install, no version is present in the egg-info
+            # directory name.
+            yield os.path.join(path_item, f'{name}.*-info')
+
+    @staticmethod
+    def install():
+        path_finder, = (
+            finder
+            for finder in sys.meta_path
+            if finder.__name__ == 'PathFinder'
+            )
+        path_finder.distribution_resolver = PathResolver().resolve
+
+
+PathResolver.install()
+
+
 class Distribution:
     """
     A Python Distribution package.
@@ -28,25 +61,24 @@ class Distribution:
         Given the name of a distribution (the name of the package as
         installed), return a Distribution.
         """
-        glob_groups = map(glob.iglob, cls._search_globs(name))
-        globs = itertools.chain.from_iterable(glob_groups)
+        resolvers = cls._discover_resolvers()
+        resolved = filter(None, (resolver(name) for resolver in resolvers))
         try:
-            dist_path = next(globs)
+            dist_path = next(resolved)
         except StopIteration:
             raise PackageNotFound
         return cls(dist_path)
 
     @staticmethod
-    def _search_globs(name):
+    def _discover_resolvers():
         """
-        Generate search globs for locating distribution metadata in path.
+        Search the meta_path for resolvers.
         """
-        for path_item in sys.path:
-            # Matches versioned dist-info directories.
-            yield os.path.join(path_item, f'{name}-*.*-info')
-            # In develop install, no version is present in the egg-info
-            # directory name.
-            yield os.path.join(path_item, f'{name}.*-info')
+        declared = (
+            vars(finder).get('distribution_resolver')
+            for finder in sys.meta_path
+            )
+        return filter(None, declared)
 
     @classmethod
     def from_module(cls, mod):
