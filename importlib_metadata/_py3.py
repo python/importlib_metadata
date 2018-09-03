@@ -23,12 +23,12 @@ class Distribution:
         self.path = path
 
     @classmethod
-    def from_name(cls, name, path=sys.path):
+    def from_name(cls, name):
         """
         Given the name of a distribution (the name of the package as
         installed), return a Distribution.
         """
-        glob_groups = map(glob.iglob, cls._search_globs(name, path))
+        glob_groups = map(glob.iglob, cls._search_globs(name))
         globs = itertools.chain.from_iterable(glob_groups)
         try:
             dist_path = next(globs)
@@ -37,11 +37,11 @@ class Distribution:
         return cls(dist_path)
 
     @staticmethod
-    def _search_globs(name, path):
+    def _search_globs(name):
         """
         Generate search globs for locating distribution metadata in path.
         """
-        for path_item in path:
+        for path_item in sys.path:
             # Matches versioned dist-info directories.
             yield os.path.join(path_item, f'{name}-*.*-info')
             # In develop install, no version is present in the egg-info
