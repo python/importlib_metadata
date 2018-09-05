@@ -20,7 +20,7 @@ class MetadataPathFinder:
     PathFinder find_distribution.
     """
     @staticmethod
-    def find_module(*args, **kwargs):
+    def find_spec(*args, **kwargs):
         return None
 
     @classmethod

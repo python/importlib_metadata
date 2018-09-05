@@ -51,3 +51,13 @@ class APITests(unittest.TestCase):
     def test_for_module_by_name(self):
         name = 'importlib_metadata'
         importlib_metadata.distribution(name)
+
+
+class ImportTests(unittest.TestCase):
+    def test_import_nonexistent_module(self):
+        """
+        Ensure that the MetadataPathFinder does not crash
+        an import of a non-existant module.
+        """
+        with self.assertRaises(ImportError):
+            importlib.import_module('does_not_exist')
