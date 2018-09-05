@@ -15,16 +15,16 @@ class PackageNotFound(Exception):
 @sys.meta_path.append
 class MetadataPathFinder:
     """
-    A stand-in finder, supplying only a distribution_resolver
-    for versions of Python that do not have a PathFinder
-    with a distribution_resolver.
+    A degenerate finder, supplying only a find_distribution
+    method for versions of Python that do not have a
+    PathFinder find_distribution.
     """
     @staticmethod
     def find_module(*args, **kwargs):
         return None
 
     @classmethod
-    def distribution_resolver(cls, name):
+    def find_distribution(cls, name):
         glob_groups = map(glob.iglob, cls._search_globs(name))
         paths = itertools.chain.from_iterable(glob_groups)
         dists = map(PathDistribution, paths)
@@ -73,7 +73,7 @@ class Distribution:
         Search the meta_path for resolvers.
         """
         declared = (
-            getattr(finder, 'distribution_resolver', None)
+            getattr(finder, 'find_distribution', None)
             for finder in sys.meta_path
             )
         return filter(None, declared)
