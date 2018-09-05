@@ -12,12 +12,20 @@ class PackageNotFound(Exception):
     """Package Not Found"""
 
 
-class PathResolver:
+@sys.meta_path.append
+class MetadataPathFinder:
     """
-    The default Distribution resolver for the PathFinder.
+    A stand-in finder, supplying only a distribution_resolver
+    for versions of Python that do not have a PathFinder
+    with a distribution_resolver.
     """
-    def resolve(self, name):
-        glob_groups = map(glob.iglob, self._search_globs(name))
+    @staticmethod
+    def find_module(*args, **kwargs):
+        return None
+
+    @classmethod
+    def distribution_resolver(cls, name):
+        glob_groups = map(glob.iglob, cls._search_globs(name))
         paths = itertools.chain.from_iterable(glob_groups)
         dists = map(PathDistribution, paths)
         return next(dists, None)
@@ -33,18 +41,6 @@ class PathResolver:
             # In develop install, no version is present in the egg-info
             # directory name.
             yield os.path.join(path_item, f'{name}.*-info')
-
-    @staticmethod
-    def install():
-        path_finder, = (
-            finder
-            for finder in sys.meta_path
-            if finder.__name__ == 'PathFinder'
-            )
-        path_finder.distribution_resolver = PathResolver().resolve
-
-
-PathResolver.install()
 
 
 class Distribution:
@@ -77,7 +73,7 @@ class Distribution:
         Search the meta_path for resolvers.
         """
         declared = (
-            vars(finder).get('distribution_resolver')
+            getattr(finder, 'distribution_resolver', None)
             for finder in sys.meta_path
             )
         return filter(None, declared)
