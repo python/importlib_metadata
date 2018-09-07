@@ -1,18 +1,18 @@
 import os
+import abc
 import sys
 import glob
 import email
 import itertools
 import contextlib
 import importlib
-import abc
 
 
 class PackageNotFound(Exception):
     """Package Not Found"""
 
 
-@sys.meta_path.append
+@sys.meta_path.append                               # type: ignore
 class MetadataPathFinder:
     """
     A degenerate finder, supplying only a find_distribution
@@ -60,12 +60,12 @@ class Distribution:
         Given the name of a distribution (the name of the package as
         installed), return a Distribution.
         """
-        resolvers = cls._discover_resolvers()
-        resolved = filter(None, (resolver(name) for resolver in resolvers))
-        try:
-            return next(resolved)
-        except StopIteration:
-            raise PackageNotFound
+        for resolver in cls._discover_resolvers():
+            resolved = resolver(name)
+            if resolved is not None:
+                return resolved
+        else:
+            raise PackageNotFound(name)
 
     @staticmethod
     def _discover_resolvers():
