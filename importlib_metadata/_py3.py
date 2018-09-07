@@ -12,7 +12,7 @@ class PackageNotFound(Exception):
     """Package Not Found"""
 
 
-@sys.meta_path.append
+@sys.meta_path.append          # type: ignore
 class MetadataPathFinder:
     """
     A degenerate finder, supplying only a find_distribution
