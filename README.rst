@@ -74,6 +74,7 @@ the name of a package will return a ``Distribution`` instance capable
 of loading the metadata for that named package (or None if that finder
 has no knowledge of that package or its metadata).
 
+
 Caveats
 =======
 
@@ -83,6 +84,7 @@ tools (or other conforming packages). It does not support:
 - Packages in the stdlib.
 - Packages installed without metadata.
 - Zip packages.
+
 
 Project details
 ===============
