@@ -63,6 +63,18 @@ and this property will be used by importlib_metadata to resolve the
 metadata for those Python packages.
 
 
+Support for Custom Package Installers
+=====================================
+
+``importlib_metadata`` provides hooks for third-party package installers
+through their declared finders. A custom installer, if it provides its
+own finder for installed packages, should also provide on that finder
+a ``find_distribution`` callable that when called with
+the name of a package will return a ``Distribution`` instance capable
+of loading the metadata for that named package (or None if that finder
+has no knowledge of that package or its metadata).
+
+
 Caveats
 =======
 
@@ -72,7 +84,7 @@ tools (or other conforming packages). It does not support:
 - Packages in the stdlib.
 - Packages installed without metadata.
 - Zip packages.
-- Packages loaded with custom loaders.
+
 
 Project details
 ===============

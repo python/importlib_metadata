@@ -1,4 +1,5 @@
 import os
+import abc
 import sys
 import glob
 import email
@@ -11,42 +12,71 @@ class PackageNotFound(Exception):
     """Package Not Found"""
 
 
-class Distribution:
+@sys.meta_path.append                               # type: ignore
+class MetadataPathFinder:
     """
-    A Python Distribution package.
+    A degenerate finder, supplying only a find_distribution
+    method for versions of Python that do not have a
+    PathFinder find_distribution.
     """
-
-    def __init__(self, path):
-        """
-        Construct a distribution from a path to the metadata dir.
-        """
-        self.path = path
+    @staticmethod
+    def find_spec(*args, **kwargs):
+        return None
 
     @classmethod
-    def from_name(cls, name, path=sys.path):
-        """
-        Given the name of a distribution (the name of the package as
-        installed), return a Distribution.
-        """
-        glob_groups = map(glob.iglob, cls._search_globs(name, path))
-        globs = itertools.chain.from_iterable(glob_groups)
-        try:
-            dist_path = next(globs)
-        except StopIteration:
-            raise PackageNotFound
-        return cls(dist_path)
+    def find_distribution(cls, name):
+        glob_groups = map(glob.iglob, cls._search_globs(name))
+        paths = itertools.chain.from_iterable(glob_groups)
+        dists = map(PathDistribution, paths)
+        return next(dists, None)
 
     @staticmethod
-    def _search_globs(name, path):
+    def _search_globs(name):
         """
         Generate search globs for locating distribution metadata in path.
         """
-        for path_item in path:
+        for path_item in sys.path:
             # Matches versioned dist-info directories.
             yield os.path.join(path_item, f'{name}-*.*-info')
             # In develop install, no version is present in the egg-info
             # directory name.
             yield os.path.join(path_item, f'{name}.*-info')
+
+
+class Distribution:
+    """
+    A Python Distribution package.
+    """
+
+    @abc.abstractmethod
+    def load_metadata(self, name):
+        """
+        Attempt to load metadata given by the name. Return None if not found.
+        """
+
+    @classmethod
+    def from_name(cls, name):
+        """
+        Given the name of a distribution (the name of the package as
+        installed), return a Distribution.
+        """
+        for resolver in cls._discover_resolvers():
+            resolved = resolver(name)
+            if resolved is not None:
+                return resolved
+        else:
+            raise PackageNotFound(name)
+
+    @staticmethod
+    def _discover_resolvers():
+        """
+        Search the meta_path for resolvers.
+        """
+        declared = (
+            getattr(finder, 'find_distribution', None)
+            for finder in sys.meta_path
+            )
+        return filter(None, declared)
 
     @classmethod
     def from_module(cls, mod):
@@ -76,6 +106,18 @@ class Distribution:
             self.load_metadata('METADATA') or self.load_metadata('PKG-INFO')
             )
 
+    @property
+    def version(self):
+        return self.metadata['Version']
+
+
+class PathDistribution(Distribution):
+    def __init__(self, path):
+        """
+        Construct a distribution from a path to the metadata dir.
+        """
+        self.path = path
+
     def load_metadata(self, name):
         """
         Attempt to load metadata given by the name. Return None if not found.
@@ -84,7 +126,3 @@ class Distribution:
         with contextlib.suppress(FileNotFoundError):
             with open(fn, encoding='utf-8') as strm:
                 return strm.read()
-
-    @property
-    def version(self):
-        return self.metadata['Version']
