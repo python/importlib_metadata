@@ -1,12 +1,12 @@
 import os
+import re
 import abc
 import sys
-import re
 import email
+import pathlib
 import itertools
 import contextlib
 import importlib
-import pathlib
 
 
 class PackageNotFound(Exception):
@@ -26,7 +26,7 @@ class MetadataPathFinder:
 
     @classmethod
     def find_distribution(cls, name):
-        paths = self._search_paths(name)
+        paths = cls._search_paths(name)
         dists = map(PathDistribution, paths)
         return next(dists, None)
 
