@@ -1,8 +1,9 @@
 import os
+import re
 import abc
 import sys
-import glob
 import email
+import pathlib
 import itertools
 import contextlib
 import importlib
@@ -25,22 +26,31 @@ class MetadataPathFinder:
 
     @classmethod
     def find_distribution(cls, name):
-        glob_groups = map(glob.iglob, cls._search_globs(name))
-        paths = itertools.chain.from_iterable(glob_groups)
+        paths = cls._search_paths(name)
         dists = map(PathDistribution, paths)
         return next(dists, None)
 
-    @staticmethod
-    def _search_globs(name):
+    @classmethod
+    def _search_paths(cls, name):
         """
-        Generate search globs for locating distribution metadata in path.
+        Find metadata directories in sys.path heuristically.
         """
-        for path_item in sys.path:
-            # Matches versioned dist-info directories.
-            yield os.path.join(path_item, f'{name}-*.*-info')
-            # In develop install, no version is present in the egg-info
-            # directory name.
-            yield os.path.join(path_item, f'{name}.*-info')
+        return itertools.chain.from_iterable(
+            cls._search_path(path, name)
+            for path in map(pathlib.Path, sys.path)
+            )
+
+    @classmethod
+    def _search_path(cls, root, name):
+        if not root.is_dir():
+            return ()
+        return (
+            item
+            for item in root.iterdir()
+            if item.is_dir()
+            and str(item.name).startswith(name)
+            and re.match(rf'{name}(-.*)?\.(dist|egg)-info', str(item.name))
+            )
 
 
 class Distribution:
