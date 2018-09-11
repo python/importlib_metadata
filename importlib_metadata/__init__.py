@@ -1,6 +1,7 @@
 import sys
 
 from .api import Distribution, PackageNotFound      # noqa: F401
+from importlib import import_module
 from types import ModuleType
 
 if sys.version_info < (3, ):                      # pragma: nocover
@@ -12,6 +13,7 @@ else:
 __all__ = [
     'distribution',
     'entry_points',
+    'resolve',
     'version',
     ]
 
@@ -25,6 +27,14 @@ def distribution(package):
 
 def version(name):
     return distribution(name).version
+
+
+def resolve(entry_point):
+    path, colon, name = entry_point.rpartition(':')
+    if colon != ':':
+        raise ValueError('Not an entry point: {}'.format(entry_point))
+    module = import_module(path)
+    return getattr(module, name)
 
 
 def _install():                                     # pragma: nocover
