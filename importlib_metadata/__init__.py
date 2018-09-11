@@ -11,6 +11,7 @@ else:
 
 __all__ = [
     'distribution',
+    'entry_points',
     'version',
     ]
 
