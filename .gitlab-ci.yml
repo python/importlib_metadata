@@ -37,9 +37,6 @@ codecov:
   when: on_success
 
 release:
-  variables:
-    TWINE_USERNAME: SECURE
-    TWINE_PASSWORD: SECURE
   stage: deploy
   only:
     - /^\d+\.\d+(\.\d+)?([abc]\d*)?$/
