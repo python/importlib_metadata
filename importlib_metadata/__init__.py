@@ -1,7 +1,12 @@
-from ._py3 import PackageNotFound                   # noqa: F401
-from ._py3 import Distribution
-from configparser import ConfigParser
+import sys
+
+from .api import Distribution, PackageNotFound      # noqa: F401
 from types import ModuleType
+
+if sys.version_info < (3, ):                      # pragma: nocover
+    from ._py2 import entry_points
+else:
+    from ._py3 import entry_points                # noqa: F401 pragma: nocover
 
 
 __all__ = [
@@ -21,10 +26,16 @@ def version(name):
     return distribution(name).version
 
 
-def entry_points(name):
-    as_string = distribution(name).load_metadata('entry_points.txt')
-    # 2018-09-10(barry): Should we provide any options here, or let the caller
-    # send options to the underlying ConfigParser?   For now, YAGNI.
-    config = ConfigParser()
-    config.read_string(as_string)
-    return config
+def _install():                                     # pragma: nocover
+    if sys.version_info < (3, ):
+        from ._py2 import MetadataPathFinder
+        sys.meta_path.append(MetadataPathFinder)
+    # XXX Until we port the API into Python 3.8, use importlib_metadata.
+    elif sys.version_info < (3, 9):
+        from ._py3 import MetadataPathFinder
+        sys.meta_path.append(MetadataPathFinder)
+    else:
+        pass
+
+
+_install()

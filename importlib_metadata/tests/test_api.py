@@ -35,5 +35,5 @@ class APITests(unittest.TestCase):
         parser = importlib_metadata.entry_points('pip')
         # We should probably not be dependent on a third party package's
         # internal API staying stable.
-        entry_point = parser['console_scripts']['pip']
+        entry_point = parser.get('console_scripts', 'pip')
         self.assertEqual(entry_point, 'pip._internal:main')
