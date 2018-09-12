@@ -12,10 +12,10 @@ from pathlib2 import Path
 
 
 class MetadataPathFinder:
-    """
-    A degenerate finder, supplying only a find_distribution
-    method for versions of Python that do not have a
-    PathFinder find_distribution.
+    """A degenerate finder for distribution packages.
+
+    This finder supplies only a find_distribution() method for versions
+    of Python that do not have a PathFinder find_distribution().
     """
     @staticmethod
     def find_module(*args, **kwargs):
@@ -31,9 +31,6 @@ class MetadataPathFinder:
 
     @classmethod
     def _search_paths(cls, name):
-        """
-        Find metadata directories in sys.path heuristically.
-        """
         return itertools.chain.from_iterable(
             cls._search_path(path, name)
             for path in map(Path, sys.path)
@@ -53,14 +50,14 @@ class MetadataPathFinder:
 
 class PathDistribution(Distribution):
     def __init__(self, path):
-        """
-        Construct a distribution from a path to the metadata dir.
-        """
+        """Construct a distribution from a path to the metadata directory."""
         self.path = path
 
     def load_metadata(self, name):
-        """
-        Attempt to load metadata given by the name. Return None if not found.
+        """Attempt to load metadata given by the name.
+
+        :param name: The name of the distribution package.
+        :return: The metadata string if found, otherwise None.
         """
         filename = os.path.join(str(self.path), name)
         try:
@@ -73,6 +70,12 @@ class PathDistribution(Distribution):
 
 
 def entry_points(name):
+    """Return the entry points for the named distribution package.
+
+    :param name: The name of the distribution package to query.
+    :return: A ConfigParser instance where the sections and keys are taken
+        from the entry_points.txt ini-style contents.
+    """
     # Avoid circular imports.
     from importlib_metadata import distribution
     as_string = distribution(name).load_metadata('entry_points.txt')
