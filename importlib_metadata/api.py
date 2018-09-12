@@ -5,25 +5,29 @@ import importlib
 
 
 class PackageNotFound(Exception):
-    """Package Not Found"""
+    """The package was not found."""
 
 
 class Distribution:
-    """
-    A Python Distribution package.
-    """
+    """A Python distribution package."""
 
     @abc.abstractmethod
     def load_metadata(self, name):
-        """
-        Attempt to load metadata given by the name. Return None if not found.
+        """Attempt to load metadata given by the name.
+
+        :param name: The name of the distribution package.
+        :return: The metadata string if found, otherwise None.
         """
 
     @classmethod
     def from_name(cls, name):
-        """
-        Given the name of a distribution (the name of the package as
-        installed), return a Distribution.
+        """Return the Distribution for the given package name.
+
+        :param name: The name of the distribution package to search for.
+        :return: The Distribution instance (or subclass thereof) for the named
+            package, if found.
+        :raises PackageNotFound: When the named package's distribution
+            metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
             resolved = resolver(name)
@@ -34,9 +38,7 @@ class Distribution:
 
     @staticmethod
     def _discover_resolvers():
-        """
-        Search the meta_path for resolvers.
-        """
+        """Search the meta_path for resolvers."""
         declared = (
             getattr(finder, 'find_distribution', None)
             for finder in sys.meta_path
@@ -44,28 +46,25 @@ class Distribution:
         return filter(None, declared)
 
     @classmethod
-    def from_module(cls, mod):
-        """
-        Given a module, discover the Distribution package for that
-        module.
-        """
-        return cls.from_name(cls.name_for_module(mod))
+    def from_module(cls, module):
+        """Discover the Distribution package for a module."""
+        return cls.from_name(cls.name_for_module(module))
 
     @classmethod
     def from_named_module(cls, mod_name):
         return cls.from_module(importlib.import_module(mod_name))
 
     @staticmethod
-    def name_for_module(mod):
-        """
-        Given an imported module, infer the distribution package name.
-        """
-        return getattr(mod, '__dist_name__', mod.__name__)
+    def name_for_module(module):
+        """Given an imported module, infer the distribution package name."""
+        return getattr(module, '__dist_name__', module.__name__)
 
     @property
     def metadata(self):
-        """
-        Return metadata for this Distribution, parsed.
+        """Return the parsed metadata for this Distribution.
+
+        The returned object will have keys that name the various bits of
+        metadata.  See PEP 566 for details.
         """
         return email.message_from_string(
             self.load_metadata('METADATA') or self.load_metadata('PKG-INFO')
@@ -73,4 +72,5 @@ class Distribution:
 
     @property
     def version(self):
+        """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']

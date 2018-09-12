@@ -19,17 +19,37 @@ __all__ = [
 
 
 def distribution(package):
+    """Get the ``Distribution`` instance for the given package.
+
+    :param package: The module object for the package or the name of the
+        package as a string.
+    :return: A ``Distribution`` instance (or subclass thereof).
+    """
     if isinstance(package, ModuleType):
         return Distribution.from_module(package)
     else:
         return Distribution.from_name(package)
 
 
-def version(name):
-    return distribution(name).version
+def version(package):
+    """Get the version string for the named package.
+
+    :param package: The module object for the package or the name of the
+        package as a string.
+    :return: The version string for the package as defined in the package's
+        "Version" metadata key.
+    """
+    return distribution(package).version
 
 
 def resolve(entry_point):
+    """Resolve an entry point string into the named callable.
+
+    :param entry_point: An entry point string of the form
+        `path.to.module:callable`.
+    :return: The actual callable object `path.to.module.callable`
+    :raises ValueError: When `entry_point` doesn't have the proper format.
+    """
     path, colon, name = entry_point.rpartition(':')
     if colon != ':':
         raise ValueError('Not an entry point: {}'.format(entry_point))
@@ -38,6 +58,7 @@ def resolve(entry_point):
 
 
 def _install():                                     # pragma: nocover
+    """Install the appropriate sys.meta_path finder for the Python version."""
     if sys.version_info < (3, ):
         from ._py2 import MetadataPathFinder
         sys.meta_path.append(MetadataPathFinder)
