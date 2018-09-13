@@ -4,7 +4,13 @@ import email
 import importlib
 
 
-class PackageNotFound(Exception):
+try:
+    BaseClass = ModuleNotFoundError
+except NameError:                                 # pragma: nocover
+    BaseClass = ImportError                       # type: ignore
+
+
+class PackageNotFoundError(BaseClass):
     """The package was not found."""
 
 
@@ -26,7 +32,7 @@ class Distribution:
         :param name: The name of the distribution package to search for.
         :return: The Distribution instance (or subclass thereof) for the named
             package, if found.
-        :raises PackageNotFound: When the named package's distribution
+        :raises PackageNotFoundError: When the named package's distribution
             metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
@@ -34,7 +40,7 @@ class Distribution:
             if resolved is not None:
                 return resolved
         else:
-            raise PackageNotFound(name)
+            raise PackageNotFoundError(name)
 
     @staticmethod
     def _discover_resolvers():
