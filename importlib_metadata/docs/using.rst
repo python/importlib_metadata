@@ -16,9 +16,9 @@ By "installed package" we generally mean a third party package installed into
 Python's ``site-packages`` directory via tools such as ``pip``.  Specifically,
 it means a package with either a discoverable ``dist-info`` or ``egg-info``
 directory, and metadata defined by `PEP 566`_ or its older specifications.
-However, through an extension mechanism, the metadata can live almost anywhere
-within Python's ``sys.path``, e.g. on the file system or inside a container
-such as a zip or wheel file.
+By default, package metadata can live on the file system or in wheels on
+``sys.path``.  Through an extension mechanism, the metadata can live almost
+anywhere.
 
 
 Overview

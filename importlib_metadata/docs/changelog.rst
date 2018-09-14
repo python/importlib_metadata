@@ -5,6 +5,7 @@
 0.3 (201X-XX-XX)
 ================
 * Added usage documentation.  Closes #8
+* Add support for getting metadata from wheels on ``sys.path``.  Closes #9
 
 0.2 (2018-09-11)
 ================

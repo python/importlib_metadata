@@ -21,7 +21,7 @@ class APITests(unittest.TestCase):
         assert re.match(self.version_pattern, version)
 
     def test_for_name_does_not_exist(self):
-        with self.assertRaises(importlib_metadata.PackageNotFound):
+        with self.assertRaises(importlib_metadata.PackageNotFoundError):
             importlib_metadata.distribution('does-not-exist')
 
     def test_for_module_by_name(self):
