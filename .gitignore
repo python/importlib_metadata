@@ -8,3 +8,4 @@ importlib_metadata.egg-info
 /.DS_Store
 artifacts
 .eggs
+.doctrees

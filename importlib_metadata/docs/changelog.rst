@@ -2,7 +2,7 @@
  importlib_metadata NEWS
 =========================
 
-0.3 (201X-XX-XX)
+0.3 (2018-09-14)
 ================
 * Added usage documentation.  Closes #8
 * Add support for getting metadata from wheels on ``sys.path``.  Closes #9
