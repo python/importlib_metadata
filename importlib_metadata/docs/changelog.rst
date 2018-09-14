@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.4 (2018-09-14)
+================
+* Housekeeping.
+
 0.3 (2018-09-14)
 ================
 * Added usage documentation.  Closes #8
