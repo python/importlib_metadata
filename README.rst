@@ -18,7 +18,7 @@ The main feature is the :class:`Distribution` class.
 Construct one by passing a top-level module (or package) to
 :func:`distribution`:
 
-    >>> dist = importlib_resources.distribution(importlib_resources)
+    >>> dist = importlib_metadata.distribution(importlib_metadata)
 
 From there, the package metadata is available on ``dist.metadata``:
 
@@ -27,7 +27,7 @@ From there, the package metadata is available on ``dist.metadata``:
 
 :func:`distribution` also accepts a known distribution package name:
 
-    >>> dist = importlib_resources.distribution('importlib_resources')
+    >>> dist = importlib_metadata.distribution('importlib_metadata')
 
 
 Package Version
