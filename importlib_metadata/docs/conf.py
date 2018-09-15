@@ -33,11 +33,14 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
-    'sphinx.ext.viewcode']
+    'sphinx.ext.viewcode',
+    'rst.linker',
+    ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -178,3 +181,15 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     }
+
+
+link_files = {
+    'changelog.rst': dict(
+        replace=[
+            dict(
+                pattern=r'^(?m)((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n',
+                with_scm='{text}\n{rev[timestamp]:%Y-%m-%d}\n\n',
+            ),
+        ],
+    ),
+}
