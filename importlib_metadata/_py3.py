@@ -1,4 +1,3 @@
-import os
 import re
 import sys
 import itertools
@@ -64,9 +63,8 @@ class PathDistribution(Distribution):
         :param name: The name of the distribution package.
         :return: The metadata string if found, otherwise None.
         """
-        filename = os.path.join(self._path, name)
         with contextlib.suppress(FileNotFoundError):
-            with open(filename, encoding='utf-8') as fp:
+            with self._path.joinpath(name).open(encoding='utf-8') as fp:
                 return fp.read()
         return None
 
