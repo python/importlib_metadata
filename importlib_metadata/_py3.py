@@ -47,7 +47,7 @@ class MetadataPathFinder:
             and str(item.name).startswith(name)
             and re.match(
                 r'{name}(-.*)?\.(dist|egg)-info'.format(name=name),
-                str(item.name)
+                str(item.name),
                 )
             )
 
