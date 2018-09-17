@@ -73,3 +73,5 @@ def _install():                                     # pragma: nocover
 
 
 _install()
+
+__version__ = version(__name__)
