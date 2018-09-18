@@ -1,7 +1,6 @@
 import abc
 import sys
 import email
-import importlib
 
 
 try:
@@ -50,20 +49,6 @@ class Distribution:
             for finder in sys.meta_path
             )
         return filter(None, declared)
-
-    @classmethod
-    def from_module(cls, module):
-        """Discover the Distribution package for a module."""
-        return cls.from_name(cls.name_for_module(module))
-
-    @classmethod
-    def from_named_module(cls, mod_name):
-        return cls.from_module(importlib.import_module(mod_name))
-
-    @staticmethod
-    def name_for_module(module):
-        """Given an imported module, infer the distribution package name."""
-        return getattr(module, '__dist_name__', module.__name__)
 
     @property
     def metadata(self):

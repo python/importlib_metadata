@@ -2,7 +2,6 @@ import sys
 
 from .api import Distribution, PackageNotFoundError              # noqa: F401
 from importlib import import_module
-from types import ModuleType
 
 from . import _common
 from ._common import entry_points
@@ -22,10 +21,7 @@ def distribution(package):
         package as a string.
     :return: A ``Distribution`` instance (or subclass thereof).
     """
-    if isinstance(package, ModuleType):
-        return Distribution.from_module(package)
-    else:
-        return Distribution.from_name(package)
+    return Distribution.from_name(package)
 
 
 def version(package):
