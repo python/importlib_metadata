@@ -4,11 +4,8 @@ from .api import Distribution, PackageNotFoundError              # noqa: F401
 from importlib import import_module
 from types import ModuleType
 
-if sys.version_info < (3, ):                      # pragma: nocover
-    from ._py2 import entry_points
-else:
-    from ._py3 import entry_points                # noqa: F401 pragma: nocover
-
+from . import _common
+from ._common import entry_points
 
 __all__ = [
     'distribution',
@@ -57,19 +54,10 @@ def resolve(entry_point):
     return getattr(module, name)
 
 
-def _install():                                     # pragma: nocover
+def _install():
     """Install the appropriate sys.meta_path finder for the Python version."""
-    if sys.version_info < (3, ):
-        from ._py2 import MetadataPathFinder, WheelMetadataFinder
-        sys.meta_path.append(MetadataPathFinder)
-        sys.meta_path.append(WheelMetadataFinder)
-    # XXX Until we port the API into Python 3.8, use importlib_metadata.
-    elif sys.version_info < (3, 9):
-        from ._py3 import MetadataPathFinder, WheelMetadataFinder
-        sys.meta_path.append(MetadataPathFinder)
-        sys.meta_path.append(WheelMetadataFinder)
-    else:
-        pass
+    sys.meta_path.append(_common.MetadataPathFinder)
+    sys.meta_path.append(_common.WheelMetadataFinder)
 
 
 _install()
