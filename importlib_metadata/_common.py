@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, absolute_import
 
-import io
 import re
 import sys
 import itertools
@@ -11,10 +10,8 @@ from zipfile import ZipFile
 
 if sys.version_info >= (3,):  # pragma: nocover
     from contextlib import suppress
-    from configparser import ConfigParser
     from pathlib import Path
 else:  # pragma: nocover
-    from ConfigParser import SafeConfigParser as ConfigParser
     from contextlib2 import suppress  # noqa
     from itertools import imap as map  # type: ignore
     from pathlib2 import Path
@@ -147,22 +144,10 @@ class WheelDistribution(Distribution):
         return None
 
 
-def entry_points(name):
-    """Return the entry points for the named distribution package.
+def _install():
+    """Install the appropriate sys.meta_path finder for the Python version."""
+    sys.meta_path.append(MetadataPathFinder)
+    sys.meta_path.append(WheelMetadataFinder)
 
-    :param name: The name of the distribution package to query.
-    :return: A ConfigParser instance where the sections and keys are taken
-        from the entry_points.txt ini-style contents.
-    """
-    # Avoid circular imports.
-    from importlib_metadata import distribution
-    as_string = distribution(name).load_metadata('entry_points.txt')
-    # 2018-09-10(barry): Should we provide any options here, or let the caller
-    # send options to the underlying ConfigParser?   For now, YAGNI.
-    config = ConfigParser()
-    try:
-        config.read_string(as_string)
-    except AttributeError:  # pragma: nocover
-        # Python 2 has no read_string
-        config.readfp(io.StringIO(as_string))
-    return config
+
+_install()
