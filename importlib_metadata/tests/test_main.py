@@ -1,8 +1,9 @@
 import re
 import unittest
 import importlib
-
 import importlib_metadata
+
+from importlib_metadata import _hooks
 
 
 class BasicTests(unittest.TestCase):
@@ -20,12 +21,9 @@ class BasicTests(unittest.TestCase):
 
     def test_new_style_classes(self):
         self.assertIsInstance(importlib_metadata.Distribution, type)
-        self.assertIsInstance(
-            importlib_metadata._common.MetadataPathFinder, type)
-        self.assertIsInstance(
-            importlib_metadata._common.WheelMetadataFinder, type)
-        self.assertIsInstance(
-            importlib_metadata._common.WheelDistribution, type)
+        self.assertIsInstance(_hooks.MetadataPathFinder, type)
+        self.assertIsInstance(_hooks.WheelMetadataFinder, type)
+        self.assertIsInstance(_hooks.WheelDistribution, type)
 
 
 class ImportTests(unittest.TestCase):

@@ -1,7 +1,14 @@
+import io
 import abc
 import sys
 import email
 
+from importlib import import_module
+
+if sys.version_info > (3,):  # pragma: nocover
+    from configparser import ConfigParser
+else:  # pragma: nocover
+    from ConfigParser import SafeConfigParser as ConfigParser
 
 try:
     BaseClass = ModuleNotFoundError
@@ -68,3 +75,58 @@ class Distribution:
     def version(self):
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
+
+
+def distribution(package):
+    """Get the ``Distribution`` instance for the given package.
+
+    :param package: The module object for the package or the name of the
+        package as a string.
+    :return: A ``Distribution`` instance (or subclass thereof).
+    """
+    return Distribution.from_name(package)
+
+
+def version(package):
+    """Get the version string for the named package.
+
+    :param package: The module object for the package or the name of the
+        package as a string.
+    :return: The version string for the package as defined in the package's
+        "Version" metadata key.
+    """
+    return distribution(package).version
+
+
+def entry_points(name):
+    """Return the entry points for the named distribution package.
+
+    :param name: The name of the distribution package to query.
+    :return: A ConfigParser instance where the sections and keys are taken
+        from the entry_points.txt ini-style contents.
+    """
+    as_string = distribution(name).load_metadata('entry_points.txt')
+    # 2018-09-10(barry): Should we provide any options here, or let the caller
+    # send options to the underlying ConfigParser?   For now, YAGNI.
+    config = ConfigParser()
+    try:
+        config.read_string(as_string)
+    except AttributeError:  # pragma: nocover
+        # Python 2 has no read_string
+        config.readfp(io.StringIO(as_string))
+    return config
+
+
+def resolve(entry_point):
+    """Resolve an entry point string into the named callable.
+
+    :param entry_point: An entry point string of the form
+        `path.to.module:callable`.
+    :return: The actual callable object `path.to.module.callable`
+    :raises ValueError: When `entry_point` doesn't have the proper format.
+    """
+    path, colon, name = entry_point.rpartition(':')
+    if colon != ':':
+        raise ValueError('Not an entry point: {}'.format(entry_point))
+    module = import_module(path)
+    return getattr(module, name)
