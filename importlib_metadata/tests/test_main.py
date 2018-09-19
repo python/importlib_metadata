@@ -18,6 +18,15 @@ class BasicTests(unittest.TestCase):
         with self.assertRaises(importlib_metadata.PackageNotFoundError):
             importlib_metadata.Distribution.from_name('does-not-exist')
 
+    def test_new_style_classes(self):
+        self.assertIsInstance(importlib_metadata.Distribution, type)
+        self.assertIsInstance(
+            importlib_metadata._common.MetadataPathFinder, type)
+        self.assertIsInstance(
+            importlib_metadata._common.WheelMetadataFinder, type)
+        self.assertIsInstance(
+            importlib_metadata._common.WheelDistribution, type)
+
 
 class ImportTests(unittest.TestCase):
     def test_import_nonexistent_module(self):

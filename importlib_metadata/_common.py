@@ -20,6 +20,7 @@ else:  # pragma: nocover
     from pathlib2 import Path
 
     FileNotFoundError = IOError, OSError
+    __metaclass__ = type
 
 
 class NullFinder:
