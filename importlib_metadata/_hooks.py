@@ -32,21 +32,17 @@ class MetaPathAdder(type):
                 sys.meta_path.remove(base)
 
 
-if sys.version_info > (3,):  # pragma: nocover
-    class NullFinder(metaclass=MetaPathAdder):
-        @staticmethod
-        def find_spec(*args, **kwargs):
-            return None
-else:  # pragma: nocover
-    class NullFinder:
-        __metaclass__ = MetaPathAdder
-
-        @staticmethod
-        def find_module(*args, **kwargs):
-            return None
+NullFinder = MetaPathAdder(
+    str('NullFinder'),
+    (),
+    {
+        'find_spec' if sys.version_info > (3,) else 'find_module':
+        staticmethod(lambda *args, **kwargs: None),
+        }
+    )
 
 
-class MetadataPathFinder(NullFinder):
+class MetadataPathFinder(NullFinder):  # type: ignore
     """A degenerate finder for distribution packages on the file system.
 
     This finder supplies only a find_distribution() method for versions
@@ -102,7 +98,7 @@ class PathDistribution(Distribution):
         return None
 
 
-class WheelMetadataFinder(NullFinder):
+class WheelMetadataFinder(NullFinder):  # type: ignore
     """A degenerate finder for distribution packages in wheels.
 
     This finder supplies only a find_distribution() method for versions
