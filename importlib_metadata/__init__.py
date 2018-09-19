@@ -1,6 +1,6 @@
 from .api import Distribution, PackageNotFoundError              # noqa: F401
 from .api import distribution, entry_points, resolve, version
-from ._hooks import _install
+from . import _hooks  # noqa: F401
 
 __all__ = [
     'distribution',
@@ -8,7 +8,5 @@ __all__ = [
     'resolve',
     'version',
     ]
-
-_install()
 
 __version__ = version(__name__)
