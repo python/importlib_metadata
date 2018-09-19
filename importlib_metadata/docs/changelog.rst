@@ -2,8 +2,13 @@
  importlib_metadata NEWS
 =========================
 
-0.5 (XXXX-XX-XX)
+0.5 (2018-09-18)
 ================
+* Updated README and removed details about Distribution
+  class, now considered private. Closes #15.
+* Added test suite support for Python 3.4+.
+* Fixed SyntaxErrors on Python 3.4 and 3.5. !12
+* Fixed errors on Windows joining Path elements. !15
 
 0.4 (2018-09-14)
 ================
