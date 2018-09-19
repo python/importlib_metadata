@@ -9,6 +9,9 @@ except NameError:                                 # pragma: nocover
     BaseClass = ImportError                       # type: ignore
 
 
+__metaclass__ = type
+
+
 class PackageNotFoundError(BaseClass):
     """The package was not found."""
 
