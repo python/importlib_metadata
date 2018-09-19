@@ -2,6 +2,9 @@
  importlib_metadata NEWS
 =========================
 
+0.6 (unreleased)
+================
+
 0.5 (2018-09-18)
 ================
 * Updated README and removed details about Distribution
