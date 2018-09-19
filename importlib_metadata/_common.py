@@ -148,6 +148,3 @@ def _install():
     """Install the appropriate sys.meta_path finder for the Python version."""
     sys.meta_path.append(MetadataPathFinder)
     sys.meta_path.append(WheelMetadataFinder)
-
-
-_install()

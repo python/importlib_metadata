@@ -1,7 +1,6 @@
-from importlib import import_module
-
 from .api import Distribution, PackageNotFoundError              # noqa: F401
 from .api import distribution, entry_points, resolve, version
+from ._common import _install
 
 __all__ = [
     'distribution',
@@ -10,6 +9,6 @@ __all__ = [
     'version',
     ]
 
-import_module('._common', __package__)
+_install()
 
 __version__ = version(__name__)
