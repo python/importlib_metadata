@@ -57,4 +57,4 @@ class TestZip(unittest.TestCase):
 
     def test_missing_metadata(self):
         distribution = importlib_metadata.distribution('example')
-        self.assertIsNone(distribution.load_metadata('does not exist'))
+        self.assertIsNone(distribution.read_text('does not exist'))

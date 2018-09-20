@@ -25,6 +25,9 @@ a structure of entry points declared by that package.
 :func:`entry_points` and resolves it to the module or callable that
 it references.
 
+:func:`read_text` takes the distribution package name and a filename
+in that package's info directory and return the text of that file.
+
 Support for Custom Package Installers
 =====================================
 

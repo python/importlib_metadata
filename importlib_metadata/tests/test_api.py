@@ -25,7 +25,7 @@ class APITests(unittest.TestCase):
     def test_for_top_level(self):
         distribution = importlib_metadata.distribution('importlib_metadata')
         self.assertEqual(
-            distribution.load_metadata('top_level.txt').strip(),
+            distribution.read_text('top_level.txt').strip(),
             'importlib_metadata')
 
     def test_entry_points(self):

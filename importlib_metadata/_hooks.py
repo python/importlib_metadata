@@ -85,16 +85,12 @@ class PathDistribution(Distribution):
         """Construct a distribution from a path to the metadata directory."""
         self._path = path
 
-    def load_metadata(self, name):
-        """Attempt to load metadata given by the name.
-
-        :param name: The name of the distribution package.
-        :return: The metadata string if found, otherwise None.
-        """
+    def read_text(self, filename):
         with suppress(FileNotFoundError):
-            with self._path.joinpath(name).open(encoding='utf-8') as fp:
+            with self._path.joinpath(filename).open(encoding='utf-8') as fp:
                 return fp.read()
         return None
+    read_text.__doc__ = Distribution.__doc__
 
 
 @install
@@ -138,16 +134,12 @@ class WheelDistribution(Distribution):
         self._dist_info = dist_info
         self._metadata = metadata
 
-    def load_metadata(self, name):
-        """Attempt to load metadata given by the name.
-
-        :param name: The name of the distribution package.
-        :return: The metadata string if found, otherwise None.
-        """
-        if name == 'METADATA':
+    def read_text(self, filename):
+        if filename == 'METADATA':
             return self._metadata
         with ZipFile(self._archive) as zf:
             with suppress(KeyError):
-                as_bytes = zf.read('{}/{}'.format(self._dist_info, name))
+                as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
                 return as_bytes.decode('utf-8')
         return None
+    read_text.__doc__ = Distribution.__doc__

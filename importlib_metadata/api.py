@@ -27,11 +27,11 @@ class Distribution:
     """A Python distribution package."""
 
     @abc.abstractmethod
-    def load_metadata(self, name):
-        """Attempt to load metadata given by the name.
+    def read_text(self, filename):
+        """Attempt to load metadata file given by the name.
 
-        :param name: The name of the distribution package.
-        :return: The metadata string if found, otherwise None.
+        :param filename: The name of the file in the distribution info.
+        :return: The text if found, otherwise None.
         """
 
     @classmethod
@@ -68,7 +68,7 @@ class Distribution:
         metadata.  See PEP 566 for details.
         """
         return email.message_from_string(
-            self.load_metadata('METADATA') or self.load_metadata('PKG-INFO')
+            self.read_text('METADATA') or self.read_text('PKG-INFO')
             )
 
     @property
@@ -103,7 +103,7 @@ def entry_points(name):
     :return: A ConfigParser instance where the sections and keys are taken
         from the entry_points.txt ini-style contents.
     """
-    as_string = distribution(name).load_metadata('entry_points.txt')
+    as_string = read_text(name, 'entry_points.txt')
     # 2018-09-10(barry): Should we provide any options here, or let the caller
     # send options to the underlying ConfigParser?   For now, YAGNI.
     config = ConfigParser()
@@ -128,3 +128,10 @@ def resolve(entry_point):
         raise ValueError('Not an entry point: {}'.format(entry_point))
     module = import_module(path)
     return getattr(module, name)
+
+
+def read_text(package, filename):
+    """
+    Read the text of the file in the distribution info directory.
+    """
+    return distribution(package).read_text(filename)
