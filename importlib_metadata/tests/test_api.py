@@ -34,3 +34,11 @@ class APITests(unittest.TestCase):
         # internal API staying stable.
         entry_point = parser.get('console_scripts', 'pip')
         self.assertEqual(entry_point, 'pip._internal:main')
+
+    def test_metadata_for_this_package(self):
+        md = importlib_metadata.metadata('importlib_metadata')
+        assert md['author'] == 'Barry Warsaw'
+        assert md['LICENSE'] == 'Apache Software License'
+        assert md['Name'] == 'importlib-metadata'
+        classifiers = md.get_all('Classifier')
+        assert 'Topic :: Software Development :: Libraries' in classifiers
