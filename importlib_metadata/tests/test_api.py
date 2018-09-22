@@ -1,6 +1,11 @@
 import re
 import unittest
 
+try:
+    from collections.abc import Iterator
+except ImportError:
+    from collections import Iterator  # noqa: F401
+
 import importlib_metadata
 
 
@@ -42,3 +47,14 @@ class APITests(unittest.TestCase):
         assert md['Name'] == 'importlib-metadata'
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
+
+    def test_files(self):
+        files_iter = importlib_metadata.files('pip')
+        assert isinstance(files_iter, Iterator)
+        files = list(files_iter)
+        root = files[0].root
+        for file in files:
+            assert file.root == root
+            assert re.match(r'[0-9a-f]$', file.hash) or not file.hash
+            assert file.size >= 0 or not file.size
+            assert (file.root / file).exists()
