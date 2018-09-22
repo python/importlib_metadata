@@ -48,6 +48,13 @@ class Distribution:
         :return: The text if found, otherwise None.
         """
 
+    @abc.abstractmethod
+    def locate_file(self, path):
+        """
+        Given a path to a file in this distribution, return a path
+        to it.
+        """
+
     @classmethod
     def from_name(cls, name):
         """Return the Distribution for the given package name.
@@ -92,10 +99,7 @@ class Distribution:
 
     @property
     def files(self):
-        file_lines = (
-            self.read_text('RECORD').splitlines()
-            or self._add_quotes(self.read_text('SOURCES.txt'))
-            )
+        file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
         def make_file(name, hash=None, size_str=None):
             result = PosixPath(name)
@@ -106,19 +110,20 @@ class Distribution:
 
         return file_lines and starmap(make_file, csv.reader(file_lines))
 
-    def _add_quotes(lines):
+    def _read_files_distinfo(self):
+        """
+        Read the lines of RECORD
+        """
+        text = self.read_text('RECORD')
+        return text and text.splitlines()
+
+    def _read_files_egginfo(self):
         """
         SOURCES.txt might contain literal commas, so wrap each line
         in quotes.
         """
-        return lines and map('"{}"'.format, lines.splitlines())
-
-    def locate_file(self, path):
-        """
-        Given a path to a file in this distribution, return a path
-        to it.
-        """
-        return path
+        text = self.read_text('SOURCES.txt')
+        return text and map('"{}"'.format, text.splitlines())
 
 
 def distribution(package):

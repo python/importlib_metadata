@@ -48,8 +48,20 @@ class APITests(unittest.TestCase):
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
-    def test_files(self):
+    def test_files_dist_info(self):
         files_iter = importlib_metadata.files('pip')
+        assert isinstance(files_iter, Iterator)
+        files = list(files_iter)
+        root = files[0].root
+        for file in files:
+            assert file.root == root
+            assert not file.hash or file.hash.value
+            assert not file.hash or file.hash.mode == 'sha256'
+            assert not file.size or file.size >= 0
+            assert file.dist.locate_file(file).exists()
+
+    def test_files_egg_info(self):
+        files_iter = importlib_metadata.files('importlib_metadata')
         assert isinstance(files_iter, Iterator)
         files = list(files_iter)
         root = files[0].root
