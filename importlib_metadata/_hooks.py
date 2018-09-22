@@ -93,6 +93,9 @@ class PathDistribution(Distribution):
         return None
     read_text.__doc__ = Distribution.read_text.__doc__
 
+    def locate_file(self, path):
+        return self._path.parent / path
+
 
 @install
 class WheelMetadataFinder(NullFinder):
@@ -135,6 +138,9 @@ class WheelDistribution(Distribution):
                 return as_bytes.decode('utf-8')
         return None
     read_text.__doc__ = Distribution.read_text.__doc__
+
+    def locate_file(self, path):
+        return self._archive / path
 
 
 def _path_to_filename(path):  # pragma: nocover

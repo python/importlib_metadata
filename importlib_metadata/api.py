@@ -2,13 +2,18 @@ import io
 import abc
 import sys
 import email
+import csv
 
+from itertools import starmap
 from importlib import import_module
 
 if sys.version_info > (3,):  # pragma: nocover
+    import pathlib
     from configparser import ConfigParser
 else:  # pragma: nocover
+    import pathlib2 as pathlib
     from ConfigParser import SafeConfigParser as ConfigParser
+    from itertools import imap as map  # type: ignore
 
 try:
     BaseClass = ModuleNotFoundError
@@ -21,6 +26,15 @@ __metaclass__ = type
 
 class PackageNotFoundError(BaseClass):
     """The package was not found."""
+
+
+class PosixPath(pathlib.PosixPath):
+    "A subclass of PosixPath that accepts properties"
+
+
+class FileHash:
+    def __init__(self, spec):
+        self.mode, _, self.value = spec.partition('=')
 
 
 class Distribution:
@@ -75,6 +89,36 @@ class Distribution:
     def version(self):
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
+
+    @property
+    def files(self):
+        file_lines = (
+            self.read_text('RECORD').splitlines()
+            or self._add_quotes(self.read_text('SOURCES.txt'))
+            )
+
+        def make_file(name, hash=None, size_str=None):
+            result = PosixPath(name)
+            result.hash = hash and FileHash(hash)
+            result.size = size_str and int(size_str)
+            result.dist = self
+            return result
+
+        return file_lines and starmap(make_file, csv.reader(file_lines))
+
+    def _add_quotes(lines):
+        """
+        SOURCES.txt might contain literal commas, so wrap each line
+        in quotes.
+        """
+        return lines and map('"{}"'.format, lines.splitlines())
+
+    def locate_file(self, path):
+        """
+        Given a path to a file in this distribution, return a path
+        to it.
+        """
+        return path
 
 
 def distribution(package):
@@ -144,3 +188,7 @@ def read_text(package, filename):
     Read the text of the file in the distribution info directory.
     """
     return distribution(package).read_text(filename)
+
+
+def files(package):
+    return distribution(package).files

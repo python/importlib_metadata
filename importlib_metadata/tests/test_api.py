@@ -55,6 +55,7 @@ class APITests(unittest.TestCase):
         root = files[0].root
         for file in files:
             assert file.root == root
-            assert re.match(r'[0-9a-f]$', file.hash) or not file.hash
-            assert file.size >= 0 or not file.size
-            assert (file.root / file).exists()
+            assert not file.hash or file.hash.value
+            assert not file.hash or file.hash.mode == 'sha256'
+            assert not file.size or file.size >= 0
+            assert file.dist.locate_file(file).exists()
