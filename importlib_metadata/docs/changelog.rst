@@ -2,6 +2,9 @@
  importlib_metadata NEWS
 =========================
 
+0.7 (unreleased)
+================
+
 0.6 (2018-10-07)
 ================
 * Removed ``importlib_metadata.distribution`` function. Now
