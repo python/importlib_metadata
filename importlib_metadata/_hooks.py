@@ -90,7 +90,7 @@ class PathDistribution(Distribution):
             with self._path.joinpath(filename).open(encoding='utf-8') as fp:
                 return fp.read()
         return None
-    read_text.__doc__ = Distribution.__doc__
+    read_text.__doc__ = Distribution.read_text.__doc__
 
 
 @install
@@ -142,4 +142,4 @@ class WheelDistribution(Distribution):
                 as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
                 return as_bytes.decode('utf-8')
         return None
-    read_text.__doc__ = Distribution.__doc__
+    read_text.__doc__ = Distribution.read_text.__doc__
