@@ -15,6 +15,9 @@ package as installed by pip or similar).
 
 This module exposes a few functions:
 
+:func:`metadata` takes a distribution package name and returns
+the metadata for that package (as :class:`email.Message`).
+
 :func:`version` takes a distribution package name and returns the
 version for that package.
 

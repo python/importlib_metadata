@@ -2,8 +2,13 @@
  importlib_metadata NEWS
 =========================
 
-0.6 (unreleased)
+0.6 (2018-10-07)
 ================
+* Removed ``importlib_metadata.distribution`` function. Now
+  the public interface is primarily the utility functions exposed
+  in ``importlib_metadata.__all__``. Closes #14.
+* Added two new utility functions ``read_text`` and
+  ``metadata``.
 
 0.5 (2018-09-18)
 ================
