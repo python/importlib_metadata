@@ -89,8 +89,7 @@ def distribution(package):
 def metadata(package):
     """Get the metadata for the package.
 
-    :param package: The module object for the package or the name of the
-        package as a string.
+    :param package: The name of the distribution package to query.
     :return: An email.Message containing the parsed metadata.
     """
     return Distribution.from_name(package).metadata
