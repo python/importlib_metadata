@@ -31,6 +31,15 @@ it references.
 `read_text` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
 
+:func:`files` takes a distribution package name and returns all
+of the files installed by this distribution. Each file object returned
+is a :class:`pathlib.PosixPath` object with additional ``dist``,
+``size``, and ``hash`` properties as indicated by the metadata.
+Each of these path objects may be passed to
+:method:`Distribution.locate_file()` to resolve the path to a
+path in the distribution.
+
+
 Support for Custom Package Installers
 =====================================
 

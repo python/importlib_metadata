@@ -4,6 +4,9 @@
 
 0.8 (unreleased)
 ================
+* Added ``importlib_metadata.files`` function and
+  ``Distribution.locate_file`` for resolving each of those files
+  to a distribution.
 
 0.7 (2018-11-27)
 ================
