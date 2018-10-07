@@ -80,8 +80,7 @@ class Distribution:
 def distribution(package):
     """Get the ``Distribution`` instance for the given package.
 
-    :param package: The module object for the package or the name of the
-        package as a string.
+    :param package: The name of the package as a string.
     :return: A ``Distribution`` instance (or subclass thereof).
     """
     return Distribution.from_name(package)
@@ -90,8 +89,7 @@ def distribution(package):
 def version(package):
     """Get the version string for the named package.
 
-    :param package: The module object for the package or the name of the
-        package as a string.
+    :param package: The name of the distribution package to query.
     :return: The version string for the package as defined in the package's
         "Version" metadata key.
     """
