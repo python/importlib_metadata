@@ -70,9 +70,9 @@ Additionally, any project defining ``setup_requires`` may get those
 dependencies installed as eggs if those dependencies aren't met before
 setup.py is invoked (for any command).
 
-Because importlib_metadata doesn't support loading metadata from
-eggs and because importlib_metadata calls itself to get its own version,
-simply importing importlib_metadata will fail if it is installed as an
+Because ``importlib_metadata`` doesn't support loading metadata from
+eggs and because ``importlib_metadata`` calls itself to get its own version,
+simply importing ``importlib_metadata`` will fail if it is installed as an
 egg. Any package that incorporates ``importlib_metadata`` (directly
 or indirectly) should be prepared to guide its users to tools that avoid
 installing eggs (such as `pip <https://pypi.org/project/pip>`_ and
