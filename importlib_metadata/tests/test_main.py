@@ -1,11 +1,22 @@
+from __future__ import unicode_literals
+
 import re
 import unittest
 import importlib
 import importlib_metadata
 import sys
-import contextlib
 import tempfile
-import pathlib
+import contextlib
+
+try:
+    from contextlib import ExitStack
+except ImportError:
+    from contextlib2 import ExitStack
+
+try:
+    import pathlib
+except ImportError:
+    import pathlib2 as pathlib
 
 from importlib_metadata import _hooks
 
@@ -69,7 +80,7 @@ class NameNormalizationTests(unittest.TestCase):
             sys.path.remove(tmpdir)
 
     def setUp(self):
-        self.fixtures = contextlib.ExitStack()
+        self.fixtures = ExitStack()
         self.site_dir = self.fixtures.enter_context(self.site_dir())
 
     def tearDown(self):
