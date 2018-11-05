@@ -62,6 +62,10 @@ class ImportTests(unittest.TestCase):
 class NameNormalizationTests(unittest.TestCase):
     @staticmethod
     def pkg_with_dashes(site_dir):
+        """
+        Create minimal metadata for a package with dashes
+        in the name (and thus underscores in the filename).
+        """
         metadata_dir = site_dir / 'my_pkg.dist-info'
         metadata_dir.mkdir()
         metadata = metadata_dir / 'METADATA'
