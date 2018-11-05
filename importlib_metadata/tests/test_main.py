@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
 import re
-import unittest
-import importlib
-import importlib_metadata
 import sys
 import tempfile
+import unittest
+import importlib
 import contextlib
+import importlib_metadata
 
 try:
     from contextlib import ExitStack
