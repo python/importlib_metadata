@@ -2,8 +2,8 @@
  importlib_metadata NEWS
 =========================
 
-0.6.1 (unreleased)
-==================
+0.7 (unreleased)
+================
 * Fixed issue where packages with dashes in their names would
   not be discovered. Closes #21.
 
