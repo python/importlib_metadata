@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import re
 import sys
+import shutil
 import tempfile
 import unittest
 import importlib
@@ -82,6 +83,7 @@ class NameNormalizationTests(unittest.TestCase):
             yield pathlib.Path(tmpdir)
         finally:
             sys.path.remove(tmpdir)
+            shutil.rmtree(tmpdir)
 
     def setUp(self):
         self.fixtures = ExitStack()
