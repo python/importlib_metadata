@@ -87,10 +87,8 @@ class NameNormalizationTests(unittest.TestCase):
 
     def setUp(self):
         self.fixtures = ExitStack()
+        self.addCleanup(self.fixtures.close)
         self.site_dir = self.fixtures.enter_context(self.site_dir())
-
-    def tearDown(self):
-        self.fixtures.close()
 
     def test_dashes_in_dist_name_found_as_underscores(self):
         """
