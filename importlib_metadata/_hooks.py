@@ -72,7 +72,6 @@ class MetadataPathFinder(NullFinder):
             item
             for item in root.iterdir()
             if item.is_dir()
-            and str(item.name).startswith(name)
             and re.match(
                 r'{name}(-.*)?\.(dist|egg)-info'.format(name=name),
                 str(item.name),
