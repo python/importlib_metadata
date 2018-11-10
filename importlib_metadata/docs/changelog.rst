@@ -4,6 +4,10 @@
 
 0.7 (unreleased)
 ================
+* Distribution lookup is now case-insensitive. Closes #20.
+* Wheel distributions can no longer be discovered by their module
+  name. Like Path distributions, they must be indicated by their
+  distribution package name.
 
 0.6 (2018-10-07)
 ================
