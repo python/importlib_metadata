@@ -128,9 +128,20 @@ class WheelDistribution(Distribution):
         self._dist_info = '{}-{}.dist-info'.format(name, version)
 
     def read_text(self, filename):
-        with ZipFile(self._archive) as zf:
+        with ZipFile(_path_to_filename(self._archive)) as zf:
             with suppress(KeyError):
                 as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
                 return as_bytes.decode('utf-8')
         return None
     read_text.__doc__ = Distribution.read_text.__doc__
+
+
+def _path_to_filename(path):  # pragma: nocover
+    """
+    On non-compliant systems, ensure a path-like object is
+    a string.
+    """
+    try:
+        return path.__fspath__()
+    except AttributeError:
+        return str(path)
