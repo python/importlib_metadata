@@ -47,6 +47,7 @@ class MetadataPathFinder(NullFinder):
     This finder supplies only a find_distribution() method for versions
     of Python that do not have a PathFinder find_distribution().
     """
+    search_template = r'{name}(-.*)?\.(dist|egg)-info'
 
     @classmethod
     def find_distribution(cls, name):
@@ -73,7 +74,7 @@ class MetadataPathFinder(NullFinder):
             for item in root.iterdir()
             if item.is_dir()
             and re.match(
-                r'{name}(-.*)?\.(dist|egg)-info'.format(name=name),
+                cls.search_template.format(name=name),
                 str(item.name),
                 flags=re.IGNORECASE,
                 )
