@@ -2,8 +2,6 @@ import sys
 import unittest
 import importlib_metadata
 
-from types import ModuleType
-
 try:
     from contextlib import ExitStack
 except ImportError:
@@ -35,25 +33,6 @@ class TestZip(unittest.TestCase):
         parser = importlib_metadata.entry_points('example')
         entry_point = parser.get('console_scripts', 'example')
         self.assertEqual(entry_point, 'example:main')
-
-    def test_not_a_zip(self):
-        # For coverage purposes, this module is importable, but has neither a
-        # location on the file system, nor a .archive attribute.
-        sys.modules['bespoke'] = ModuleType('bespoke')
-        self.resources.callback(sys.modules.pop, 'bespoke')
-        self.assertRaises(ImportError,
-                          importlib_metadata.version,
-                          'bespoke')
-
-    def test_unversioned_dist_info(self):
-        # For coverage purposes, give the module an unversioned .archive
-        # attribute.
-        bespoke = sys.modules['bespoke'] = ModuleType('bespoke')
-        bespoke.__loader__ = BespokeLoader()
-        self.resources.callback(sys.modules.pop, 'bespoke')
-        self.assertRaises(ImportError,
-                          importlib_metadata.version,
-                          'bespoke')
 
     def test_missing_metadata(self):
         distribution = importlib_metadata.distribution('example')
