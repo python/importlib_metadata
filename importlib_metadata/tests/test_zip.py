@@ -37,3 +37,6 @@ class TestZip(unittest.TestCase):
     def test_missing_metadata(self):
         distribution = importlib_metadata.distribution('example')
         self.assertIsNone(distribution.read_text('does not exist'))
+
+    def test_case_insensitive(self):
+        self.assertEqual(importlib_metadata.version('Example'), '21.12')
