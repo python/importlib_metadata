@@ -75,6 +75,7 @@ class MetadataPathFinder(NullFinder):
             and re.match(
                 r'{name}(-.*)?\.(dist|egg)-info'.format(name=name),
                 str(item.name),
+                flags=re.IGNORECASE,
                 )
             )
 
