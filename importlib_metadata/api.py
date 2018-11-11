@@ -1,7 +1,10 @@
 import io
+import re
 import abc
 import sys
 import email
+import operator
+import itertools
 
 from importlib import import_module
 
@@ -75,6 +78,32 @@ class Distribution:
     def version(self):
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
+
+    @property
+    def requires(self):
+        return self._read_dist_info_reqs() or self._read_egg_info_reqs()
+
+    def _read_dist_info_reqs(self):
+        return self.metadata['Requires-Dist']
+
+    def _read_egg_info_reqs(self):
+        source = self.read_text('requires.txt')
+        section_pairs = self._read_sections(source.splitlines())
+        sections = {
+            section: list(map(operator.itemgetter('line'), results))
+            for section, results in
+            itertools.groupby(section_pairs, operator.itemgetter('section'))
+            }
+        return sections[None]
+
+    def _read_sections(self, lines):
+        section = None
+        for line in filter(None, lines):
+            section_match = re.match(r'\[(.*)\]$', line)
+            if section_match:
+                section = section_match.group(1)
+                continue
+            yield locals()
 
 
 def distribution(package):
