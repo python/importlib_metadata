@@ -112,9 +112,10 @@ def entry_points(name):
     :return: A ConfigParser instance where the sections and keys are taken
         from the entry_points.txt ini-style contents.
     """
-    as_string = read_text(name, 'entry_points.txt')
-    # 2018-09-10(barry): Should we provide any options here, or let the caller
-    # send options to the underlying ConfigParser?   For now, YAGNI.
+    return _read_config(read_text(name, 'entry_points.txt'))
+
+
+def _read_config(as_string):
     config = ConfigParser()
     try:
         config.read_string(as_string)
