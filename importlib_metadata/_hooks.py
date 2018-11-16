@@ -2,6 +2,7 @@ from __future__ import unicode_literals, absolute_import
 
 import re
 import sys
+import zipp
 import itertools
 
 from .api import Distribution
@@ -127,16 +128,13 @@ class WheelMetadataFinder(NullFinder):
 
 class WheelDistribution(Distribution):
     def __init__(self, archive):
-        self._archive = archive
+        self._archive = zipp.Path(archive)
         name, version = archive.name.split('-')[0:2]
         self._dist_info = '{}-{}.dist-info'.format(name, version)
 
     def read_text(self, filename):
-        with ZipFile(_path_to_filename(self._archive)) as zf:
-            with suppress(KeyError):
-                as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
-                return as_bytes.decode('utf-8')
-        return None
+        target = self._archive / self._dist_info / filename
+        return target.read_text() if target.exists() else None
     read_text.__doc__ = Distribution.read_text.__doc__
 
     def locate_file(self, path):
