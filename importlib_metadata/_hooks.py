@@ -68,13 +68,14 @@ class MetadataPathFinder(NullFinder):
     def _search_path(cls, root, name):
         if not root.is_dir():
             return ()
+        normalized = name.replace('-', '_')
         return (
             item
             for item in root.iterdir()
             if item.is_dir()
-            and str(item.name).startswith(name)
+            and str(item.name).startswith(normalized)
             and re.match(
-                r'{name}(-.*)?\.(dist|egg)-info'.format(name=name),
+                r'{name}(-.*)?\.(dist|egg)-info'.format(name=normalized),
                 str(item.name),
                 )
             )

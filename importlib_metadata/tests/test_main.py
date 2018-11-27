@@ -1,7 +1,23 @@
+from __future__ import unicode_literals
+
 import re
+import sys
+import shutil
+import tempfile
 import unittest
 import importlib
+import contextlib
 import importlib_metadata
+
+try:
+    from contextlib import ExitStack
+except ImportError:
+    from contextlib2 import ExitStack
+
+try:
+    import pathlib
+except ImportError:
+    import pathlib2 as pathlib
 
 from importlib_metadata import _hooks
 
@@ -42,3 +58,42 @@ class ImportTests(unittest.TestCase):
 
     def test_resolve_invalid(self):
         self.assertRaises(ValueError, importlib_metadata.resolve, 'bogus.ep')
+
+
+class NameNormalizationTests(unittest.TestCase):
+    @staticmethod
+    def pkg_with_dashes(site_dir):
+        """
+        Create minimal metadata for a package with dashes
+        in the name (and thus underscores in the filename).
+        """
+        metadata_dir = site_dir / 'my_pkg.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w') as strm:
+            strm.write('Version: 1.0\n')
+        return 'my-pkg'
+
+    @staticmethod
+    @contextlib.contextmanager
+    def site_dir():
+        tmpdir = tempfile.mkdtemp()
+        sys.path[:0] = [tmpdir]
+        try:
+            yield pathlib.Path(tmpdir)
+        finally:
+            sys.path.remove(tmpdir)
+            shutil.rmtree(tmpdir)
+
+    def setUp(self):
+        self.fixtures = ExitStack()
+        self.addCleanup(self.fixtures.close)
+        self.site_dir = self.fixtures.enter_context(self.site_dir())
+
+    def test_dashes_in_dist_name_found_as_underscores(self):
+        """
+        For a package with a dash in the name, the dist-info metadata
+        uses underscores in the name. Ensure the metadata loads.
+        """
+        pkg_name = self.pkg_with_dashes(self.site_dir)
+        assert importlib_metadata.version(pkg_name) == '1.0'
