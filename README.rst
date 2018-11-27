@@ -15,20 +15,20 @@ package as installed by pip or similar).
 
 This module exposes a few functions:
 
-:func:`metadata` takes a distribution package name and returns
-the metadata for that package (as :class:`email.Message`).
+`metadata` takes a distribution package name and returns
+the metadata for that package (as `email.Message`).
 
-:func:`version` takes a distribution package name and returns the
+`version` takes a distribution package name and returns the
 version for that package.
 
-:func:`entry_points` takes a distribution package name and returns
+`entry_points` takes a distribution package name and returns
 a structure of entry points declared by that package.
 
-:func:`resolve` accepts an entry point as returned by
-:func:`entry_points` and resolves it to the module or callable that
+`resolve` accepts an entry point as returned by
+`entry_points` and resolves it to the module or callable that
 it references.
 
-:func:`read_text` takes the distribution package name and a filename
+`read_text` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
 
 Support for Custom Package Installers
