@@ -5,7 +5,6 @@ import sys
 import itertools
 
 from .api import Distribution
-from importlib import import_module
 from zipfile import ZipFile
 
 if sys.version_info >= (3,):  # pragma: nocover
@@ -47,6 +46,7 @@ class MetadataPathFinder(NullFinder):
     This finder supplies only a find_distribution() method for versions
     of Python that do not have a PathFinder find_distribution().
     """
+    search_template = r'{name}(-.*)?\.(dist|egg)-info'
 
     @classmethod
     def find_distribution(cls, name):
@@ -73,10 +73,10 @@ class MetadataPathFinder(NullFinder):
             item
             for item in root.iterdir()
             if item.is_dir()
-            and str(item.name).startswith(normalized)
             and re.match(
-                r'{name}(-.*)?\.(dist|egg)-info'.format(name=normalized),
+                cls.search_template.format(name=normalized),
                 str(item.name),
+                flags=re.IGNORECASE,
                 )
             )
 
@@ -101,46 +101,48 @@ class WheelMetadataFinder(NullFinder):
     This finder supplies only a find_distribution() method for versions
     of Python that do not have a PathFinder find_distribution().
     """
+    search_template = r'{name}(-.*)?\.whl'
+
     @classmethod
     def find_distribution(cls, name):
-        try:
-            module = import_module(name)
-        except ImportError:
-            return None
+        paths = cls._search_paths(name)
+        dists = map(WheelDistribution, paths)
+        return next(dists, None)
 
-        # Python 2: allow modules without a loader.
-        # Only modules with a __loader__.archive are relevant.
-        loader = getattr(module, '__loader__', None)
-        archive = getattr(loader, 'archive', None)
-        if archive is None:
-            return None
-
-        try:
-            name, version = Path(archive).name.split('-')[0:2]
-        except ValueError:
-            return None
-        dist_info = '{}-{}.dist-info'.format(name, version)
-        with ZipFile(archive) as zf:
-            # Since we're opening the zip file anyway to see if there's a
-            # METADATA file in the .dist-info directory, we might as well
-            # read it and cache it here.
-            zi = zf.getinfo('{}/{}'.format(dist_info, 'METADATA'))
-            metadata = zf.read(zi).decode('utf-8')
-        return WheelDistribution(archive, dist_info, metadata)
+    @classmethod
+    def _search_paths(cls, name):
+        return (
+            item
+            for item in map(Path, sys.path)
+            if re.match(
+                cls.search_template.format(name=name),
+                str(item.name),
+                flags=re.IGNORECASE,
+                )
+            )
 
 
 class WheelDistribution(Distribution):
-    def __init__(self, archive, dist_info, metadata):
+    def __init__(self, archive):
         self._archive = archive
-        self._dist_info = dist_info
-        self._metadata = metadata
+        name, version = archive.name.split('-')[0:2]
+        self._dist_info = '{}-{}.dist-info'.format(name, version)
 
     def read_text(self, filename):
-        if filename == 'METADATA':
-            return self._metadata
-        with ZipFile(self._archive) as zf:
+        with ZipFile(_path_to_filename(self._archive)) as zf:
             with suppress(KeyError):
                 as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
                 return as_bytes.decode('utf-8')
         return None
     read_text.__doc__ = Distribution.read_text.__doc__
+
+
+def _path_to_filename(path):  # pragma: nocover
+    """
+    On non-compliant systems, ensure a path-like object is
+    a string.
+    """
+    try:
+        return path.__fspath__()
+    except AttributeError:
+        return str(path)

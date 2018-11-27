@@ -97,3 +97,25 @@ class NameNormalizationTests(unittest.TestCase):
         """
         pkg_name = self.pkg_with_dashes(self.site_dir)
         assert importlib_metadata.version(pkg_name) == '1.0'
+
+    @staticmethod
+    def pkg_with_mixed_case(site_dir):
+        """
+        Create minimal metadata for a package with mixed case
+        in the name.
+        """
+        metadata_dir = site_dir / 'CherryPy.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w') as strm:
+            strm.write('Version: 1.0\n')
+        return 'CherryPy'
+
+    def test_dist_name_found_as_any_case(self):
+        """
+        Ensure the metadata loads when queried with any case.
+        """
+        pkg_name = self.pkg_with_mixed_case(self.site_dir)
+        assert importlib_metadata.version(pkg_name) == '1.0'
+        assert importlib_metadata.version(pkg_name.lower()) == '1.0'
+        assert importlib_metadata.version(pkg_name.upper()) == '1.0'
