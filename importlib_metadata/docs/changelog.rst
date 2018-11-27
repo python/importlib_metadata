@@ -2,6 +2,9 @@
  importlib_metadata NEWS
 =========================
 
+0.8 (unreleased)
+================
+
 0.7 (2018-11-27)
 ================
 * Fixed issue where packages with dashes in their names would
