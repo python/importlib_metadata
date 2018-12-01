@@ -49,3 +49,7 @@ class APITests(unittest.TestCase):
 
     def test_importlib_metadata_version(self):
         assert re.match(self.version_pattern, importlib_metadata.__version__)
+
+    def test_find_local(self):
+        dist = importlib_metadata.api.local_distribution()
+        assert dist.metadata['Name'] == 'importlib-metadata'

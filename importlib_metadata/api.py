@@ -73,6 +73,14 @@ class Distribution:
             )
         return filter(None, declared)
 
+    @staticmethod
+    def find_local():
+        from . import _hooks
+        root = _hooks.Path('.')
+        paths = _hooks.MetadataPathFinder._search_path(root, '.*')
+        dist, = map(_hooks.PathDistribution, paths)
+        return dist
+
     @property
     def metadata(self):
         """Return the parsed metadata for this Distribution.
@@ -113,6 +121,14 @@ def distributions():
     :return: An iterable of ``Distribution`` instances.
     """
     return Distribution.discover()
+
+
+def local_distribution():
+    """Get the ``Distribution`` instance for the package in CWD.
+
+    :return: A ``Distribution`` instance (or subclass thereof).
+    """
+    return Distribution.find_local()
 
 
 def metadata(package):
