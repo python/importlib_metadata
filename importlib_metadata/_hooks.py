@@ -6,7 +6,6 @@ import zipp
 import itertools
 
 from .api import Distribution
-from zipfile import ZipFile
 
 if sys.version_info >= (3,):  # pragma: nocover
     from contextlib import suppress
@@ -139,14 +138,3 @@ class WheelDistribution(Distribution):
 
     def locate_file(self, path):
         return self._archive / path
-
-
-def _path_to_filename(path):  # pragma: nocover
-    """
-    On non-compliant systems, ensure a path-like object is
-    a string.
-    """
-    try:
-        return path.__fspath__()
-    except AttributeError:
-        return str(path)
