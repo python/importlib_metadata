@@ -4,6 +4,8 @@
 
 0.8
 ===
+* Release dates are now automatically injected into the changelog
+  based on SCM tags.
 
 0.7
 ===
