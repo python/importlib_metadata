@@ -6,12 +6,12 @@ from . import _hooks  # noqa: F401
 
 
 __all__ = [
-    'metadata',
     'entry_points',
+    'files',
+    'metadata',
+    'read_text',
     'resolve',
     'version',
-    'read_text',
-    'files',
     ]
 
 
