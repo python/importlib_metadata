@@ -25,7 +25,7 @@ The documentation here includes a general :ref:`usage <using>` guide.
    :caption: Contents:
 
    using.rst
-   changelog.rst
+   changelog (links).rst
 
 
 Project details
