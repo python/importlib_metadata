@@ -9,6 +9,8 @@ import importlib
 import contextlib
 import importlib_metadata
 
+from importlib_metadata import _hooks
+
 try:
     from contextlib import ExitStack
 except ImportError:
@@ -18,8 +20,6 @@ try:
     import pathlib
 except ImportError:
     import pathlib2 as pathlib
-
-from importlib_metadata import _hooks
 
 
 class BasicTests(unittest.TestCase):
