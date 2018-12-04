@@ -34,12 +34,12 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'rst.linker',
     'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
-    'rst.linker',
     ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -183,6 +183,7 @@ intersphinx_mapping = {
     }
 
 
+# For rst.linker, inject release dates into changelog.rst
 link_files = {
     'changelog.rst': dict(
         replace=[
