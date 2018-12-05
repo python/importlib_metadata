@@ -71,7 +71,7 @@ class Distribution:
         return self.__email_message_from_string(text)
 
     @staticmethod
-    def __email_message_from_string(text):
+    def __email_message_from_string(text):  # pragma: nocover
         """Work around bug that email.message_from_string cannot
         handling Unicode on Python 2.
         """

@@ -2,6 +2,11 @@ import re
 import unittest
 import importlib_metadata
 
+try:
+    from builtins import str
+except ImportError:
+    from __builtin__ import unicode as str
+
 
 class APITests(unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'

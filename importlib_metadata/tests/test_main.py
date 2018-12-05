@@ -11,6 +11,11 @@ import importlib_metadata
 from importlib_metadata import _hooks
 from . import fixtures
 
+try:
+    from builtins import str
+except ImportError:
+    from __builtin__ import unicode as str
+
 
 class BasicTests(unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
