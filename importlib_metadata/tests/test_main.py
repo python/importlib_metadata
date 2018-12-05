@@ -1,25 +1,12 @@
 from __future__ import unicode_literals
 
 import re
-import sys
-import shutil
-import tempfile
 import unittest
 import importlib
-import contextlib
 import importlib_metadata
 
 from importlib_metadata import _hooks
-
-try:
-    from contextlib import ExitStack
-except ImportError:
-    from contextlib2 import ExitStack
-
-try:
-    import pathlib
-except ImportError:
-    import pathlib2 as pathlib
+from . import fixtures
 
 
 class BasicTests(unittest.TestCase):
@@ -60,7 +47,7 @@ class ImportTests(unittest.TestCase):
         self.assertRaises(ValueError, importlib_metadata.resolve, 'bogus.ep')
 
 
-class NameNormalizationTests(unittest.TestCase):
+class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
     @staticmethod
     def pkg_with_dashes(site_dir):
         """
@@ -73,22 +60,6 @@ class NameNormalizationTests(unittest.TestCase):
         with metadata.open('w') as strm:
             strm.write('Version: 1.0\n')
         return 'my-pkg'
-
-    @staticmethod
-    @contextlib.contextmanager
-    def site_dir():
-        tmpdir = tempfile.mkdtemp()
-        sys.path[:0] = [tmpdir]
-        try:
-            yield pathlib.Path(tmpdir)
-        finally:
-            sys.path.remove(tmpdir)
-            shutil.rmtree(tmpdir)
-
-    def setUp(self):
-        self.fixtures = ExitStack()
-        self.addCleanup(self.fixtures.close)
-        self.site_dir = self.fixtures.enter_context(self.site_dir())
 
     def test_dashes_in_dist_name_found_as_underscores(self):
         """
