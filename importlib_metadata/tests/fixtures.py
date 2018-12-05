@@ -1,7 +1,7 @@
 import sys
 import shutil
-import contextlib
 import tempfile
+import contextlib
 
 try:
     from contextlib import ExitStack
