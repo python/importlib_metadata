@@ -1,3 +1,4 @@
+# coding: utf-8
 # flake8: noqa (https://gitlab.com/python-devs/importlib_metadata/issues/31)
 
 from __future__ import unicode_literals
@@ -92,3 +93,23 @@ class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
         assert importlib_metadata.version(pkg_name) == '1.0'
         assert importlib_metadata.version(pkg_name.lower()) == '1.0'
         assert importlib_metadata.version(pkg_name.upper()) == '1.0'
+
+
+class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
+    @staticmethod
+    def pkg_with_non_ascii_description(site_dir):
+        """
+        Create minimal metadata for a package with non-ASCII in
+        the description.
+        """
+        metadata_dir = site_dir / 'portend.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w') as strm:
+            strm.write('Description: pôrˈtend\n')
+        return 'portend'
+
+    def test_metadata_loads(self):
+        pkg_name = self.pkg_with_non_ascii_description(self.site_dir)
+        meta = importlib_metadata.metadata(pkg_name)
+        assert meta['Description'] == 'pôrˈtend'
