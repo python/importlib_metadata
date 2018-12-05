@@ -67,9 +67,8 @@ class Distribution:
         The returned object will have keys that name the various bits of
         metadata.  See PEP 566 for details.
         """
-        return email.message_from_string(
-            self.read_text('METADATA') or self.read_text('PKG-INFO')
-            )
+        text = self.read_text('METADATA') or self.read_text('PKG-INFO')
+        return email.message_from_string(text)
 
     @property
     def version(self):
