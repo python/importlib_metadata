@@ -68,6 +68,16 @@ class Distribution:
         metadata.  See PEP 566 for details.
         """
         text = self.read_text('METADATA') or self.read_text('PKG-INFO')
+        return self.__email_message_from_string(text)
+
+    @staticmethod
+    def __email_message_from_string(text):
+        """Work around bug that email.message_from_string cannot
+        handling Unicode on Python 2.
+        """
+        if sys.version_info < (3,):
+            buffer = io.StringIO(text)
+            return email.message_from_file(buffer)
         return email.message_from_string(text)
 
     @property
