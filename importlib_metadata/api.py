@@ -103,8 +103,8 @@ class Distribution:
 
         def make_file(name, hash=None, size_str=None):
             result = PosixPath(name)
-            result.hash = FileHash(hash) if hash is not None else None
-            result.size = int(size_str) if size_str is not None else None
+            result.hash = FileHash(hash) if hash else None
+            result.size = int(size_str) if size_str else None
             result.dist = self
             return result
 
