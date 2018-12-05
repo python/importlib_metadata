@@ -110,7 +110,7 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         metadata_dir = site_dir / 'portend.dist-info'
         metadata_dir.mkdir()
         metadata = metadata_dir / 'METADATA'
-        with metadata.open('w') as strm:
+        with metadata.open('w', encoding='utf-8') as strm:
             strm.write('Description: pôrˈtend\n')
         return 'portend'
 
