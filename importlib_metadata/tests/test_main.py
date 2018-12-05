@@ -1,3 +1,5 @@
+# flake8: noqa (https://gitlab.com/python-devs/importlib_metadata/issues/31)
+
 from __future__ import unicode_literals
 
 import re
