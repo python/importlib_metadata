@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 import re
+import textwrap
 import unittest
 import importlib
 import importlib_metadata
@@ -114,7 +115,29 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
             strm.write('Description: pôrˈtend\n')
         return 'portend'
 
+    @staticmethod
+    def pkg_with_non_ascii_description_egg_info(site_dir):
+        """
+        Create minimal metadata for an egg-info package with
+        non-ASCII in the description.
+        """
+        metadata_dir = site_dir / 'portend.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w', encoding='utf-8') as strm:
+            strm.write(textwrap.dedent("""
+                Name: portend
+
+                pôrˈtend
+                """).lstrip())
+        return 'portend'
+
     def test_metadata_loads(self):
         pkg_name = self.pkg_with_non_ascii_description(self.site_dir)
         meta = importlib_metadata.metadata(pkg_name)
         assert meta['Description'] == 'pôrˈtend'
+
+    def test_metadata_loads_egg_info(self):
+        pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
+        meta = importlib_metadata.metadata(pkg_name)
+        assert meta.get_payload() == 'pôrˈtend\n'
