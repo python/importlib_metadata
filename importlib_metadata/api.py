@@ -1,11 +1,11 @@
 import io
 import abc
+import csv
 import sys
 import email
-import csv
 
-from itertools import starmap
 from importlib import import_module
+from itertools import starmap
 
 if sys.version_info > (3,):  # pragma: nocover
     import pathlib
