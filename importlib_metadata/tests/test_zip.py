@@ -2,12 +2,12 @@ import sys
 import unittest
 import importlib_metadata
 
+from importlib_resources import path
+
 try:
     from contextlib import ExitStack
 except ImportError:
     from contextlib2 import ExitStack
-
-from importlib_resources import path
 
 
 class BespokeLoader:

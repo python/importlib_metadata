@@ -100,9 +100,8 @@ class Distribution:
         The returned object will have keys that name the various bits of
         metadata.  See PEP 566 for details.
         """
-        return email.message_from_string(
-            self.read_text('METADATA') or self.read_text('PKG-INFO')
-            )
+        text = self.read_text('METADATA') or self.read_text('PKG-INFO')
+        return _email_message_from_string(text)
 
     @property
     def version(self):
@@ -136,6 +135,16 @@ class Distribution:
         """
         text = self.read_text('SOURCES.txt')
         return text and map('"{}"'.format, text.splitlines())
+
+
+def _email_message_from_string(text):  # pragma: nocover
+    """Work around bug that email.message_from_string cannot
+    handle Unicode on Python 2.
+    """
+    if sys.version_info < (3,):
+        buffer = io.StringIO(text)
+        return email.message_from_file(buffer)
+    return email.message_from_string(text)
 
 
 def distribution(package):
