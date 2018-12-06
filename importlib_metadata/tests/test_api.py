@@ -48,8 +48,8 @@ class APITests(unittest.TestCase):
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
-    def test_files_dist_info(self):
-        files_iter = importlib_metadata.files('pip')
+    @staticmethod
+    def _test_files(files_iter):
         assert isinstance(files_iter, Iterator)
         files = list(files_iter)
         root = files[0].root
@@ -63,17 +63,8 @@ class APITests(unittest.TestCase):
             if file.name.endswith('.py'):
                 file.read_text()
 
+    def test_files_dist_info(self):
+        self._test_files(importlib_metadata.files('pip'))
+
     def test_files_egg_info(self):
-        files_iter = importlib_metadata.files('importlib_metadata')
-        assert isinstance(files_iter, Iterator)
-        files = list(files_iter)
-        root = files[0].root
-        for file in files:
-            assert file.root == root
-            assert not file.hash or file.hash.value
-            assert not file.hash or file.hash.mode == 'sha256'
-            assert not file.size or file.size >= 0
-            assert file.locate().exists()
-            assert isinstance(file.read_binary(), bytes)
-            if file.name.endswith('.py'):
-                file.read_text()
+        self._test_files(importlib_metadata.files('importlib_metadata'))
