@@ -13,9 +13,9 @@ from importlib_metadata import _hooks
 from . import fixtures
 
 try:
-    from builtins import str
+    from builtins import str as text
 except ImportError:
-    from __builtin__ import unicode as str
+    from __builtin__ import unicode as text
 
 
 class BasicTests(unittest.TestCase):
@@ -24,7 +24,7 @@ class BasicTests(unittest.TestCase):
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
         dist = importlib_metadata.Distribution.from_name('pip')
-        assert isinstance(dist.version, str)
+        assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
 
     def test_for_name_does_not_exist(self):
