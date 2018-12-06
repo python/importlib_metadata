@@ -1,5 +1,5 @@
-import abc
 import io
+import abc
 import sys
 import email
 
