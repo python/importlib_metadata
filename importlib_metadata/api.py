@@ -28,8 +28,20 @@ class PackageNotFoundError(BaseClass):
     """The package was not found."""
 
 
-class PosixPath(pathlib.PosixPath):
-    "A subclass of PosixPath that accepts properties"
+class PackagePath(pathlib.PosixPath):
+    """A reference to a path in a package"""
+
+    def read_text(self):
+        with self.locate().open() as stream:
+            return stream.read()
+
+    def read_binary(self):
+        with self.locate().open('rb') as stream:
+            return stream.read()
+
+    def locate(self):
+        """Return a path-like object for this path"""
+        return self.dist.locate_file(self)
 
 
 class FileHash:
@@ -102,7 +114,7 @@ class Distribution:
         file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
         def make_file(name, hash=None, size_str=None):
-            result = PosixPath(name)
+            result = PackagePath(name)
             result.hash = FileHash(hash) if hash else None
             result.size = int(size_str) if size_str else None
             result.dist = self

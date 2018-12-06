@@ -6,9 +6,8 @@
 ===
 * Release dates are now automatically injected into the changelog
   based on SCM tags.
-* Added ``importlib_metadata.files`` function and
-  ``Distribution.locate_file`` for resolving each of those files
-  to a distribution.
+* Added ``importlib_metadata.files`` function for resolving files
+  from a distribution.
 
 0.7
 ===

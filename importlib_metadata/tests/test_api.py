@@ -58,7 +58,10 @@ class APITests(unittest.TestCase):
             assert not file.hash or file.hash.value
             assert not file.hash or file.hash.mode == 'sha256'
             assert not file.size or file.size >= 0
-            assert file.dist.locate_file(file).exists()
+            assert file.locate().exists()
+            assert isinstance(file.read_binary(), bytes)
+            if file.name.endswith('.py'):
+                file.read_text()
 
     def test_files_egg_info(self):
         files_iter = importlib_metadata.files('importlib_metadata')
@@ -70,4 +73,7 @@ class APITests(unittest.TestCase):
             assert not file.hash or file.hash.value
             assert not file.hash or file.hash.mode == 'sha256'
             assert not file.size or file.size >= 0
-            assert file.dist.locate_file(file).exists()
+            assert file.locate().exists()
+            assert isinstance(file.read_binary(), bytes)
+            if file.name.endswith('.py'):
+                file.read_text()

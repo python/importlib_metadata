@@ -33,13 +33,8 @@ in that package's info directory and return the text of that file.
 
 `files` takes a distribution package name and returns all
 of the files installed by this distribution. Each file object returned
-is a `pathlib.PosixPath` object with additional ``dist``,
+is a `PackagePath`, a `pathlib.Path` object with additional ``dist``,
 ``size``, and ``hash`` properties as indicated by the metadata.
-Each of these path objects may be passed to
-`Distribution.locate_file()` to resolve the path to a
-path in the distribution. `.locate_file()` returns a path-like object
-that supplies at least `.read_text()` and `.read_binary()`
-methods.
 
 
 Support for Custom Package Installers
