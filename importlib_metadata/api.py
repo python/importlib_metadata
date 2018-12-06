@@ -31,8 +31,8 @@ class PackageNotFoundError(BaseClass):
 class PackagePath(pathlib.PosixPath):
     """A reference to a path in a package"""
 
-    def read_text(self):
-        with self.locate().open() as stream:
+    def read_text(self, encoding='utf-8'):
+        with self.locate().open(encoding=encoding) as stream:
             return stream.read()
 
     def read_binary(self):
