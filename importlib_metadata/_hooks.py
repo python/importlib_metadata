@@ -49,10 +49,6 @@ class MetadataPathFinder(NullFinder):
     search_template = r'{name}(-.*)?\.(dist|egg)-info'
 
     @classmethod
-    def find_distribution(cls, name):
-        return next(cls.find_distributions(name), None)
-
-    @classmethod
     def find_distributions(cls, name='.*'):
         paths = cls._search_paths(name)
         return map(PathDistribution, paths)
@@ -105,10 +101,6 @@ class WheelMetadataFinder(NullFinder):
     of Python that do not have a PathFinder find_distribution().
     """
     search_template = r'{name}(-.*)?\.whl'
-
-    @classmethod
-    def find_distribution(cls, name):
-        return next(cls.find_distributions(name), None)
 
     @classmethod
     def find_distributions(cls, name='.*'):

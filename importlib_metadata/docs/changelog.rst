@@ -8,6 +8,13 @@
   based on SCM tags.
 * Metadata is now always returned as Unicode text regardless of
   Python version. Closes #29.
+* Library can now discover/enumerate all installed packages. This
+  backward-incompatible change alters the protocol finders must
+  implement to support distribution package discovery. Now
+  ``find_distribution(name)`` returning one Distribution must be
+  replaced by ``find_distribution(name='.*')`` where name is
+  a regular expression and an iterable of all matching Distributions
+  is returned. Closes #24.
 
 0.7
 ===

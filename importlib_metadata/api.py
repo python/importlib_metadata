@@ -45,10 +45,11 @@ class Distribution:
         :raises PackageNotFoundError: When the named package's distribution
             metadata cannot be found.
         """
-        for resolver in cls._discover_resolvers('find_distribution'):
-            resolved = resolver(name)
-            if resolved is not None:
-                return resolved
+        for resolver in cls._discover_resolvers():
+            dists = resolver(name)
+            dist = next(dists, None)
+            if dist is not None:
+                return dist
         else:
             raise PackageNotFoundError(name)
 
@@ -60,14 +61,14 @@ class Distribution:
         """
         return itertools.chain.from_iterable(
             resolver()
-            for resolver in cls._discover_resolvers('find_distributions')
+            for resolver in cls._discover_resolvers()
             )
 
     @staticmethod
-    def _discover_resolvers(method):
+    def _discover_resolvers():
         """Search the meta_path for resolvers."""
         declared = (
-            getattr(finder, method, None)
+            getattr(finder, 'find_distributions', None)
             for finder in sys.meta_path
             )
         return filter(None, declared)

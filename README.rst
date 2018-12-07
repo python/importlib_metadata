@@ -37,10 +37,10 @@ Support for Custom Package Installers
 ``importlib_metadata`` provides hooks for third-party package installers
 through their declared finders. A custom installer, if it provides its
 own finder for installed packages, should also provide on that finder
-a ``find_distribution`` callable that when called with
-the name of a package will return a ``Distribution`` instance capable
-of loading the metadata for that named package (or None if that finder
-has no knowledge of that package or its metadata).
+a ``find_distributions`` callable that when called with
+a regular expression indicating a package name will return an
+iterable of all ``Distribution`` instances capable
+of loading the metadata for packages matching that expression.
 
 
 Caveats
