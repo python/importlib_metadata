@@ -6,6 +6,8 @@
 ===
 * Release dates are now automatically injected into the changelog
   based on SCM tags.
+* Metadata is now always returned as Unicode text regardless of
+  Python version. Closes #29.
 
 0.7
 ===

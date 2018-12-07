@@ -2,19 +2,24 @@ import re
 import unittest
 import importlib_metadata
 
+try:
+    from builtins import str as text
+except ImportError:
+    from __builtin__ import unicode as text
+
 
 class APITests(unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
         version = importlib_metadata.version('importlib_metadata')
-        assert isinstance(version, str)
+        assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
         version = importlib_metadata.version('pip')
-        assert isinstance(version, str)
+        assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
     def test_for_name_does_not_exist(self):

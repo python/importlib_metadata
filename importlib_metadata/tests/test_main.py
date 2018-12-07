@@ -1,12 +1,19 @@
+# coding: utf-8
 from __future__ import unicode_literals
 
 import re
+import textwrap
 import unittest
 import importlib
 import importlib_metadata
 
-from importlib_metadata import _hooks
 from . import fixtures
+from importlib_metadata import _hooks
+
+try:
+    from builtins import str as text
+except ImportError:
+    from __builtin__ import unicode as text
 
 
 class BasicTests(unittest.TestCase):
@@ -15,7 +22,7 @@ class BasicTests(unittest.TestCase):
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
         dist = importlib_metadata.Distribution.from_name('pip')
-        assert isinstance(dist.version, str)
+        assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
 
     def test_for_name_does_not_exist(self):
@@ -90,3 +97,45 @@ class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
         assert importlib_metadata.version(pkg_name) == '1.0'
         assert importlib_metadata.version(pkg_name.lower()) == '1.0'
         assert importlib_metadata.version(pkg_name.upper()) == '1.0'
+
+
+class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
+    @staticmethod
+    def pkg_with_non_ascii_description(site_dir):
+        """
+        Create minimal metadata for a package with non-ASCII in
+        the description.
+        """
+        metadata_dir = site_dir / 'portend.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w', encoding='utf-8') as fp:
+            fp.write('Description: pôrˈtend\n')
+        return 'portend'
+
+    @staticmethod
+    def pkg_with_non_ascii_description_egg_info(site_dir):
+        """
+        Create minimal metadata for an egg-info package with
+        non-ASCII in the description.
+        """
+        metadata_dir = site_dir / 'portend.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w', encoding='utf-8') as fp:
+            fp.write(textwrap.dedent("""
+                Name: portend
+
+                pôrˈtend
+                """).lstrip())
+        return 'portend'
+
+    def test_metadata_loads(self):
+        pkg_name = self.pkg_with_non_ascii_description(self.site_dir)
+        meta = importlib_metadata.metadata(pkg_name)
+        assert meta['Description'] == 'pôrˈtend'
+
+    def test_metadata_loads_egg_info(self):
+        pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
+        meta = importlib_metadata.metadata(pkg_name)
+        assert meta.get_payload() == 'pôrˈtend\n'
