@@ -49,18 +49,18 @@ class MetadataPathFinder(NullFinder):
     search_template = r'{name}(-.*)?\.(dist|egg)-info'
 
     @classmethod
-    def find_distributions(cls, name='.*'):
-        paths = cls._search_paths(name)
+    def find_distributions(cls, name='.*', where=sys.path):
+        paths = cls._search_paths(name, where)
         return map(PathDistribution, paths)
 
     @classmethod
-    def _search_paths(cls, name):
+    def _search_paths(cls, name, where):
         """
         Find metadata directories in sys.path heuristically.
         """
         return itertools.chain.from_iterable(
             cls._search_path(path, name)
-            for path in map(Path, sys.path)
+            for path in map(Path, where)
             )
 
     @classmethod
@@ -103,15 +103,15 @@ class WheelMetadataFinder(NullFinder):
     search_template = r'{name}(-.*)?\.whl'
 
     @classmethod
-    def find_distributions(cls, name='.*'):
-        paths = cls._search_paths(name)
+    def find_distributions(cls, name='.*', where=sys.path):
+        paths = cls._search_paths(name, where)
         return map(WheelDistribution, paths)
 
     @classmethod
-    def _search_paths(cls, name):
+    def _search_paths(cls, name, where):
         return (
             item
-            for item in map(Path, sys.path)
+            for item in map(Path, where)
             if re.match(
                 cls.search_template.format(name=name),
                 str(item.name),

@@ -73,12 +73,13 @@ class Distribution:
             )
         return filter(None, declared)
 
-    @staticmethod
-    def find_local():
-        from . import _hooks
-        root = _hooks.Path('.')
-        paths = _hooks.MetadataPathFinder._search_path(root, '.*')
-        dist, = map(_hooks.PathDistribution, paths)
+    @classmethod
+    def find_local(cls):
+        dists = itertools.chain.from_iterable(
+            resolver(where=['.'])
+            for resolver in cls._discover_resolvers()
+            )
+        dist, = dists
         return dist
 
     @property
