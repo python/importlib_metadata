@@ -10,4 +10,3 @@ artifacts
 .eggs
 .doctrees
 dist
-importlib_metadata/version.txt
