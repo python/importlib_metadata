@@ -50,9 +50,12 @@ class MetadataPathFinder(NullFinder):
 
     @classmethod
     def find_distribution(cls, name):
+        return next(cls.find_distributions(name), None)
+
+    @classmethod
+    def find_distributions(cls, name='.*'):
         paths = cls._search_paths(name)
-        dists = map(PathDistribution, paths)
-        return next(dists, None)
+        return map(PathDistribution, paths)
 
     @classmethod
     def _search_paths(cls, name):
@@ -105,9 +108,12 @@ class WheelMetadataFinder(NullFinder):
 
     @classmethod
     def find_distribution(cls, name):
+        return next(cls.find_distributions(name), None)
+
+    @classmethod
+    def find_distributions(cls, name='.*'):
         paths = cls._search_paths(name)
-        dists = map(WheelDistribution, paths)
-        return next(dists, None)
+        return map(WheelDistribution, paths)
 
     @classmethod
     def _search_paths(cls, name):

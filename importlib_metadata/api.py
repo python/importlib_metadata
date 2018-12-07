@@ -2,6 +2,7 @@ import io
 import abc
 import sys
 import email
+import itertools
 
 from importlib import import_module
 
@@ -44,18 +45,29 @@ class Distribution:
         :raises PackageNotFoundError: When the named package's distribution
             metadata cannot be found.
         """
-        for resolver in cls._discover_resolvers():
+        for resolver in cls._discover_resolvers('find_distribution'):
             resolved = resolver(name)
             if resolved is not None:
                 return resolved
         else:
             raise PackageNotFoundError(name)
 
+    @classmethod
+    def discover(cls):
+        """Return iterable of Distribution objects for all packages.
+
+        :return: Iterable of Distribution objects for all packages.
+        """
+        return itertools.chain.from_iterable(
+            resolver()
+            for resolver in cls._discover_resolvers('find_distributions')
+            )
+
     @staticmethod
-    def _discover_resolvers():
+    def _discover_resolvers(method):
         """Search the meta_path for resolvers."""
         declared = (
-            getattr(finder, 'find_distribution', None)
+            getattr(finder, method, None)
             for finder in sys.meta_path
             )
         return filter(None, declared)
@@ -92,6 +104,14 @@ def distribution(package):
     :return: A ``Distribution`` instance (or subclass thereof).
     """
     return Distribution.from_name(package)
+
+
+def distributions():
+    """Get all ``Distribution`` instances in the current environment.
+
+    :return: An iterable of ``Distribution`` instances.
+    """
+    return Distribution.discover()
 
 
 def metadata(package):
