@@ -37,11 +37,13 @@ Support for Custom Package Installers
 ``importlib_metadata`` provides hooks for third-party package installers
 through their declared finders. A custom installer, if it provides its
 own finder for installed packages, should also provide on that finder
-a ``find_distributions`` callable that when called with
-a regular expression indicating a package name will return an
-iterable of all ``Distribution`` instances capable
-of loading the metadata for packages matching that expression.
+a ``find_distributions`` method with the following signature:
 
+    def find_distributions(name='.*', where=sys.path):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the regular
+        expression name along the paths in where.
+        """
 
 Caveats
 =======
