@@ -52,6 +52,9 @@ class APITests(unittest.TestCase):
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
+    def test_importlib_metadata_version(self):
+        assert re.match(self.version_pattern, importlib_metadata.__version__)
+
     @staticmethod
     def _test_files(files_iter):
         assert isinstance(files_iter, Iterator)

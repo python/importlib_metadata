@@ -1,6 +1,4 @@
 # coding: utf-8
-# flake8: noqa (https://gitlab.com/python-devs/importlib_metadata/issues/31)
-
 from __future__ import unicode_literals
 
 import re
@@ -9,8 +7,8 @@ import unittest
 import importlib
 import importlib_metadata
 
-from importlib_metadata import _hooks
 from . import fixtures
+from importlib_metadata import _hooks
 
 try:
     from builtins import str as text
@@ -111,8 +109,8 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         metadata_dir = site_dir / 'portend.dist-info'
         metadata_dir.mkdir()
         metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as strm:
-            strm.write('Description: pôrˈtend\n')
+        with metadata.open('w', encoding='utf-8') as fp:
+            fp.write('Description: pôrˈtend\n')
         return 'portend'
 
     @staticmethod
@@ -124,8 +122,8 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         metadata_dir = site_dir / 'portend.dist-info'
         metadata_dir.mkdir()
         metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as strm:
-            strm.write(textwrap.dedent("""
+        with metadata.open('w', encoding='utf-8') as fp:
+            fp.write(textwrap.dedent("""
                 Name: portend
 
                 pôrˈtend

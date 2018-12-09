@@ -137,14 +137,13 @@ class Distribution:
         return text and map('"{}"'.format, text.splitlines())
 
 
-def _email_message_from_string(text):  # pragma: nocover
-    """Work around bug that email.message_from_string cannot
-    handle Unicode on Python 2.
-    """
-    if sys.version_info < (3,):
-        buffer = io.StringIO(text)
-        return email.message_from_file(buffer)
-    return email.message_from_string(text)
+def _email_message_from_string(text):
+    # Work around https://bugs.python.org/issue25545 where
+    # email.message_from_string cannot handle Unicode on Python 2.
+    if sys.version_info < (3,):                     # nocoverpy3
+        io_buffer = io.StringIO(text)
+        return email.message_from_file(io_buffer)
+    return email.message_from_string(text)          # nocoverpy2
 
 
 def distribution(package):
