@@ -55,7 +55,7 @@ class Distribution:
 
     @classmethod
     def discover(cls):
-        """Return iterable of Distribution objects for all packages.
+        """Return an iterable of Distribution objects for all packages.
 
         :return: Iterable of Distribution objects for all packages.
         """
