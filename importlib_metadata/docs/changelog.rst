@@ -8,10 +8,10 @@
   based on SCM tags.
 * Metadata is now always returned as Unicode text regardless of
   Python version. Closes #29.
-* Library can now discover/enumerate all installed packages. This
+* This library can now discover/enumerate all installed packages. This
   backward-incompatible change alters the protocol finders must
   implement to support distribution package discovery. Closes #24.
-* Library can now discover metadata for a 'local' package (found
+* This library can now discover metadata for a 'local' package (found
   in the current-working directory). Closes #27.
 * The signature of ``find_distribution`` on custom installer finders
   now must solicit two parameters, ``name`` and ``where`` and
