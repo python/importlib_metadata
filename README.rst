@@ -40,7 +40,7 @@ through their declared finders. A custom installer, if it provides its
 own finder for installed packages, should also provide on that finder
 a ``find_distributions`` method with the following signature::
 
-    def find_distributions(name='.*'):
+    def find_distributions(name=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name pattern.
         (or all names if not supplied).
