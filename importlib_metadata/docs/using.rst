@@ -108,18 +108,19 @@ find the package's metadata.
 The abstract class :py:class:`importlib.abc.MetaPathFinder` defines the
 interface expected of finders by Python's import system.
 ``importlib_metadata`` extends this protocol by looking for an optional
-``find_distribution()`` ``@classmethod`` on the finders from
+``find_distributions()`` ``@classmethod`` on the finders from
 ``sys.meta_path``.  If the finder has this method, it takes a single argument
-which is the name of the distribution package to find.  The method returns
-``None`` if it cannot find the distribution package, otherwise it returns an
-instance of the ``Distribution`` abstract class.
+which is the name of the distribution package to find, or a regular expression
+pattern to match against the distribution name.  The method returns ``None``
+if it cannot find the distribution package, otherwise it returns an iterator
+over instances of the ``Distribution`` abstract class.
 
 What this means in practice is that to support finding distribution package
 metadata in locations other than the file system, you should derive from
 ``Distribution`` and implement the ``load_metadata()`` method.  This takes a
 single argument which is the name of the package whose metadata is being
 found.  This instance of the ``Distribution`` base abstract class is what your
-finder's ``find_distribution()`` method should return.
+finder's ``find_distributions()`` method should return.
 
 
 .. _`entry point API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points
