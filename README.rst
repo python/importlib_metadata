@@ -15,21 +15,22 @@ package as installed by pip or similar).
 
 This module exposes a few functions:
 
-`metadata` takes a distribution package name and returns
-the metadata for that package (as `email.Message`).
+``metadata`` takes a distribution package name and returns
+the metadata for that package (as ``email.Message``).
 
-`version` takes a distribution package name and returns the
+``version`` takes a distribution package name and returns the
 version for that package.
 
-`entry_points` takes a distribution package name and returns
+``entry_points`` takes a distribution package name and returns
 a structure of entry points declared by that package.
 
-`resolve` accepts an entry point as returned by
-`entry_points` and resolves it to the module or callable that
+``resolve`` accepts an entry point as returned by
+``entry_points`` and resolves it to the module or callable that
 it references.
 
-`read_text` takes the distribution package name and a filename
+``read_text`` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
+
 
 Support for Custom Package Installers
 =====================================
@@ -37,10 +38,13 @@ Support for Custom Package Installers
 ``importlib_metadata`` provides hooks for third-party package installers
 through their declared finders. A custom installer, if it provides its
 own finder for installed packages, should also provide on that finder
-a ``find_distribution`` callable that when called with
-the name of a package will return a ``Distribution`` instance capable
-of loading the metadata for that named package (or None if that finder
-has no knowledge of that package or its metadata).
+a ``find_distributions`` method with the following signature::
+
+    def find_distributions(name=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied).
+        """
 
 
 Caveats
