@@ -43,8 +43,8 @@ class NullFinder:
 class MetadataPathFinder(NullFinder):
     """A degenerate finder for distribution packages on the file system.
 
-    This finder supplies only a find_distribution() method for versions
-    of Python that do not have a PathFinder find_distribution().
+    This finder supplies only a find_distributions() method for versions
+    of Python that do not have a PathFinder find_distributions().
     """
     search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
@@ -103,8 +103,8 @@ class PathDistribution(Distribution):
 class WheelMetadataFinder(NullFinder):
     """A degenerate finder for distribution packages in wheels.
 
-    This finder supplies only a find_distribution() method for versions
-    of Python that do not have a PathFinder find_distribution().
+    This finder supplies only a find_distributions() method for versions
+    of Python that do not have a PathFinder find_distributions().
     """
     search_template = r'{pattern}(-.*)?\.whl'
 
