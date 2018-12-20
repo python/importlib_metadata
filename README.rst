@@ -42,7 +42,7 @@ a ``find_distributions`` method with the following signature::
 
     def find_distributions(name=None):
         """Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name pattern.
+        loading the metadata for packages matching the name
         (or all names if not supplied).
         """
 
