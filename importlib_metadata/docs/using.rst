@@ -101,25 +101,30 @@ system `finders`_.  To find a distribution package's metadata,
 ``importlib_metadata`` queries the list of `meta path finders`_ on
 `sys.meta_path`_.
 
-By default ``importlib_metadata`` installs a finder for packages found on the
-file system.  This finder doesn't actually find any *packages*, but it cany
-find the package's metadata.
+By default ``importlib_metadata`` installs a finder for distribution packages
+found on the file system.  This finder doesn't actually find any *packages*,
+but it can find the packages' metadata.
 
 The abstract class :py:class:`importlib.abc.MetaPathFinder` defines the
 interface expected of finders by Python's import system.
 ``importlib_metadata`` extends this protocol by looking for an optional
-``find_distribution()`` ``@classmethod`` on the finders from
-``sys.meta_path``.  If the finder has this method, it takes a single argument
-which is the name of the distribution package to find.  The method returns
-``None`` if it cannot find the distribution package, otherwise it returns an
-instance of the ``Distribution`` abstract class.
+``find_distributions`` callable on the finders from
+``sys.meta_path``.  If the finder has this method, it must return
+an iterator over instances of the ``Distribution`` abstract class. This
+method must have the signature::
+
+    def find_distributions(name=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied).
+        """
 
 What this means in practice is that to support finding distribution package
 metadata in locations other than the file system, you should derive from
 ``Distribution`` and implement the ``load_metadata()`` method.  This takes a
 single argument which is the name of the package whose metadata is being
 found.  This instance of the ``Distribution`` base abstract class is what your
-finder's ``find_distribution()`` method should return.
+finder's ``find_distributions()`` method should return.
 
 
 .. _`entry point API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points
