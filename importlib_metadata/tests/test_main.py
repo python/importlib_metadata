@@ -139,3 +139,21 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
         meta = importlib_metadata.metadata(pkg_name)
         assert meta.get_payload() == 'pôrˈtend\n'
+
+
+class DiscoveryTests(unittest.TestCase):
+
+    def test_package_discovery(self):
+        dists = list(importlib_metadata.api.distributions())
+        assert all(
+            isinstance(dist, importlib_metadata.Distribution)
+            for dist in dists
+            )
+        assert any(
+            dist.metadata['Name'] == 'importlib-metadata'
+            for dist in dists
+            )
+        assert any(
+            dist.metadata['Name'] == 'pip'
+            for dist in dists
+            )
