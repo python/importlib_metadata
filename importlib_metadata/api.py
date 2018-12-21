@@ -76,7 +76,7 @@ class Distribution:
     @classmethod
     def find_local(cls):
         dists = itertools.chain.from_iterable(
-            resolver(where=['.'])
+            resolver(path=['.'])
             for resolver in cls._discover_resolvers()
             )
         dist, = dists
