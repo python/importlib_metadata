@@ -44,14 +44,10 @@ class ImportTests(unittest.TestCase):
             importlib.import_module('does_not_exist')
 
     def test_resolve(self):
-        entry_points = importlib_metadata.entry_points('pip')
-        main = importlib_metadata.resolve(
-            entry_points.get('console_scripts', 'pip'))
+        scripts = dict(importlib_metadata.entry_points()['console_scripts'])
+        pip_ep = scripts['pip']
         import pip._internal
-        self.assertEqual(main, pip._internal.main)
-
-    def test_resolve_invalid(self):
-        self.assertRaises(ValueError, importlib_metadata.resolve, 'bogus.ep')
+        self.assertEqual(pip_ep.load(), pip._internal.main)
 
 
 class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):

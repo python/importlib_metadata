@@ -30,9 +30,9 @@ class TestZip(unittest.TestCase):
         self.assertEqual(importlib_metadata.version('example'), '21.12')
 
     def test_zip_entry_points(self):
-        parser = importlib_metadata.entry_points('example')
-        entry_point = parser.get('console_scripts', 'example')
-        self.assertEqual(entry_point, 'example:main')
+        scripts = dict(importlib_metadata.entry_points()['console_scripts'])
+        entry_point = scripts['example']
+        self.assertEqual(entry_point.value, 'example:main')
 
     def test_missing_metadata(self):
         distribution = importlib_metadata.distribution('example')
