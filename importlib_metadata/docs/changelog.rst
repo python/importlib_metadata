@@ -20,6 +20,9 @@
   ``EntryPoint.group``. The ``resolve`` method has been removed. Instead,
   call ``EntryPoint.load()``, which has the same semantics as
   ``pkg_resources`` and ``entrypoints``.
+* Added a new ``requires()`` function, which returns the requirements
+  for a package suitable for parsing by
+  ``packaging.requirements.Requirement``. Closes #18.
 
 0.7
 ===

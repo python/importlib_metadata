@@ -33,6 +33,11 @@ for more information on entrypoints, their definition, and usage.
 ``read_text`` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
 
+``requires`` takes the distribution package name and returns
+the dependencies for that package as a list of strings suitable
+for parsing by ``packaging.requirements.Requirement`` as found
+in the `packaging <https://pypi.org/project/packaging>` library.
+
 
 Support for Custom Package Installers
 =====================================
