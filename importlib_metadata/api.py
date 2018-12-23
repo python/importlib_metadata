@@ -165,7 +165,8 @@ class Distribution:
         return self._read_dist_info_reqs() or self._read_egg_info_reqs()
 
     def _read_dist_info_reqs(self):
-        return self.metadata['Requires-Dist']
+        spec = self.metadata['Requires-Dist']
+        return spec and filter(None, spec.splitlines())
 
     def _read_egg_info_reqs(self):
         source = self.read_text('requires.txt')

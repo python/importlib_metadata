@@ -66,6 +66,12 @@ class APITests(unittest.TestCase):
             for dep in parsed
             )
 
+    def test_requires_dist_info(self):
+        # assume 'packaging' is installed as a wheel with dist-info
+        deps = importlib_metadata.requires('packaging')
+        parsed = list(map(packaging.requirements.Requirement, deps))
+        assert parsed
+
     def test_more_complex_deps_requires_text(self):
         requires = textwrap.dedent("""
             dep1
