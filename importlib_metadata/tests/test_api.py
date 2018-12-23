@@ -1,4 +1,5 @@
 import re
+import textwrap
 import unittest
 import importlib_metadata
 
@@ -57,3 +58,32 @@ class APITests(unittest.TestCase):
 
     def test_requires(self):
         importlib_metadata.requires('importlib_metadata')
+
+    def test_more_complex_deps_requires_text(self):
+        requires = textwrap.dedent("""
+            dep1
+            dep2
+
+            [:python_version < "3"]
+            dep3
+
+            [extra1]
+            dep4
+
+            [extra2:python_version < "3"]
+            dep5
+            """)
+        deps = importlib_metadata.api.Distribution._deps_from_requires_text(
+            requires)
+        expected = [
+            'dep1',
+            'dep2',
+            'dep3; python_version < "3"',
+            'dep4; extra == "extra1"',
+            'dep5; (python_version < "3") and extra == "extra2"',
+            ]
+        # It's important that the environment marker expression be
+        # wrapped in parentheses to avoid the following 'and' binding more
+        # tightly than some other part of the environment expression.
+
+        assert list(deps) == expected
