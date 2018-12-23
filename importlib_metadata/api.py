@@ -289,5 +289,8 @@ def read_text(package, filename):
 def requires(package):
     """
     Return a list of requirements for the indicated distribution.
+
+    :return: An iterator of requirements, suitable for
+    packaging.requirement.Requirement.
     """
     return distribution(package).requires
