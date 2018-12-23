@@ -21,12 +21,14 @@ the metadata for that package (as ``email.Message``).
 ``version`` takes a distribution package name and returns the
 version for that package.
 
-``entry_points`` takes a distribution package name and returns
-a structure of entry points declared by that package.
-
-``resolve`` accepts an entry point as returned by
-``entry_points`` and resolves it to the module or callable that
-it references.
+``entry_points`` returns a dictionary of all EntryPoints keyed by
+group. Each EntryPoint has a ``.name``, ``.group``, and ``.value``
+attributes and a ``.load()`` method to resolve the value. The
+``group`` and ``name`` are arbitrary values defined by the package
+author and usually a client will wish to resolve all entry points
+for a particular group. Read `the setuptools docs
+<https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
+for more information on entrypoints, their definition, and usage.
 
 ``read_text`` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.

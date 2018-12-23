@@ -32,12 +32,17 @@ class APITests(unittest.TestCase):
             distribution.read_text('top_level.txt').strip(),
             'importlib_metadata')
 
+    def test_read_text(self):
+        importlib_metadata.read_text('importlib_metadata', 'top_level.txt')
+
     def test_entry_points(self):
-        parser = importlib_metadata.entry_points('pip')
+        scripts = importlib_metadata.entry_points()['console_scripts']
+        scripts = dict(scripts)
+        pip_ep = scripts['pip']
         # We should probably not be dependent on a third party package's
         # internal API staying stable.
-        entry_point = parser.get('console_scripts', 'pip')
-        self.assertEqual(entry_point, 'pip._internal:main')
+        self.assertEqual(pip_ep.value, 'pip._internal:main')
+        self.assertEqual(pip_ep.extras, [])
 
     def test_metadata_for_this_package(self):
         md = importlib_metadata.metadata('importlib_metadata')
