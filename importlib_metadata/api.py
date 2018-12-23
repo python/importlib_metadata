@@ -253,3 +253,10 @@ def read_text(package, filename):
     Read the text of the file in the distribution info directory.
     """
     return distribution(package).read_text(filename)
+
+
+def requires(package):
+    """
+    Return a list of requirements for the indicated distribution.
+    """
+    return distribution(package).requires

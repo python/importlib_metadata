@@ -54,3 +54,6 @@ class APITests(unittest.TestCase):
 
     def test_importlib_metadata_version(self):
         assert re.match(self.version_pattern, importlib_metadata.__version__)
+
+    def test_requires(self):
+        importlib_metadata.requires('importlib_metadata')
