@@ -15,6 +15,11 @@
   replaced by ``find_distributions(name='.*')`` where name is
   a regular expression and an iterable of all matching Distributions
   is returned. Closes #24.
+* The ``entry_points()`` method no longer accepts a package name
+  but instead returns all entry points in a dictionary keyed by the
+  ``EntryPoint.group``. The ``resolve`` method has been removed. Instead,
+  call ``EntryPoint.load()``, which has the same semantics as
+  ``pkg_resources`` and ``entrypoints``.
 * Added ``importlib_metadata.files`` function for resolving files
   from a distribution.
 

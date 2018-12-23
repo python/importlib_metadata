@@ -1,9 +1,13 @@
 import io
+import re
 import abc
 import csv
 import sys
 import email
+import operator
+import functools
 import itertools
+import collections
 
 from importlib import import_module
 from itertools import starmap
@@ -13,7 +17,7 @@ if sys.version_info > (3,):  # pragma: nocover
     from configparser import ConfigParser
 else:  # pragma: nocover
     import pathlib2 as pathlib
-    from ConfigParser import SafeConfigParser as ConfigParser
+    from backports.configparser import ConfigParser
     from itertools import imap as map  # type: ignore
 
 try:
@@ -27,6 +31,70 @@ __metaclass__ = type
 
 class PackageNotFoundError(BaseClass):
     """The package was not found."""
+
+
+class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
+    """An entry point as defined by Python packaging conventions."""
+
+    pattern = re.compile(
+        r'(?P<module>[\w.]+)\s*'
+        r'(:\s*(?P<attr>[\w.]+))?\s*'
+        r'(?P<extras>\[.*\])?\s*$'
+        )
+    """
+    A regular expression describing the syntax for an entry point,
+    which might look like:
+
+        - module
+        - package.module
+        - package.module:attribute
+        - package.module:object.attribute
+        - package.module:attr [extra1, extra2]
+
+    Other combinations are possible as well.
+
+    The expression is lenient about whitespace around the ':',
+    following the attr, and following any extras.
+    """
+
+    def load(self):
+        """Load the entry point from its definition. If only a module
+        is indicated by the value, return that module. Otherwise,
+        return the named object.
+        """
+        match = self.pattern.match(self.value)
+        module = import_module(match.group('module'))
+        attrs = filter(None, match.group('attr').split('.'))
+        return functools.reduce(getattr, attrs, module)
+
+    @property
+    def extras(self):
+        match = self.pattern.match(self.value)
+        return list(re.finditer(r'\w+', match.group('extras') or ''))
+
+    @classmethod
+    def _from_config(cls, config):
+        return [
+            cls(name, value, group)
+            for group in config.sections()
+            for name, value in config.items(group)
+            ]
+
+    @classmethod
+    def _from_text(cls, text):
+        config = ConfigParser()
+        try:
+            config.read_string(text)
+        except AttributeError:  # pragma: nocover
+            # Python 2 has no read_string
+            config.readfp(io.StringIO(text))
+        return EntryPoint._from_config(config)
+
+    def __iter__(self):
+        """
+        Supply iter so one may construct dicts of EntryPoints easily.
+        """
+        return iter((self.name, self))
 
 
 class PackagePath(pathlib.PosixPath):
@@ -122,6 +190,10 @@ class Distribution:
         return self.metadata['Version']
 
     @property
+    def entry_points(self):
+        return EntryPoint._from_text(self.read_text('entry_points.txt'))
+
+    @property
     def files(self):
         file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
@@ -195,38 +267,20 @@ def version(package):
     return distribution(package).version
 
 
-def entry_points(name):
-    """Return the entry points for the named distribution package.
+def entry_points(name=None):
+    """Return EntryPoint objects for all installed packages.
 
-    :param name: The name of the distribution package to query.
-    :return: A ConfigParser instance where the sections and keys are taken
-        from the entry_points.txt ini-style contents.
+    :return: EntryPoint objects for all installed packages.
     """
-    as_string = read_text(name, 'entry_points.txt')
-    # 2018-09-10(barry): Should we provide any options here, or let the caller
-    # send options to the underlying ConfigParser?   For now, YAGNI.
-    config = ConfigParser()
-    try:
-        config.read_string(as_string)
-    except AttributeError:  # pragma: nocover
-        # Python 2 has no read_string
-        config.readfp(io.StringIO(as_string))
-    return config
-
-
-def resolve(entry_point):
-    """Resolve an entry point string into the named callable.
-
-    :param entry_point: An entry point string of the form
-        `path.to.module:callable`.
-    :return: The actual callable object `path.to.module.callable`
-    :raises ValueError: When `entry_point` doesn't have the proper format.
-    """
-    path, colon, name = entry_point.rpartition(':')
-    if colon != ':':
-        raise ValueError('Not an entry point: {}'.format(entry_point))
-    module = import_module(path)
-    return getattr(module, name)
+    eps = itertools.chain.from_iterable(
+        dist.entry_points for dist in distributions())
+    by_group = operator.attrgetter('group')
+    ordered = sorted(eps, key=by_group)
+    grouped = itertools.groupby(ordered, by_group)
+    return {
+        group: tuple(eps)
+        for group, eps in grouped
+        }
 
 
 def read_text(package, filename):
