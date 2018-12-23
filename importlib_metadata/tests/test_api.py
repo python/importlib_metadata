@@ -1,7 +1,11 @@
 import re
 import unittest
-
 import importlib_metadata
+
+try:
+    from builtins import str as text
+except ImportError:
+    from __builtin__ import unicode as text
 
 
 class APITests(unittest.TestCase):
@@ -9,13 +13,13 @@ class APITests(unittest.TestCase):
 
     def test_retrieves_version_of_self(self):
         version = importlib_metadata.version('importlib_metadata')
-        assert isinstance(version, str)
+        assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
         version = importlib_metadata.version('pip')
-        assert isinstance(version, str)
+        assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
     def test_for_name_does_not_exist(self):
@@ -28,12 +32,17 @@ class APITests(unittest.TestCase):
             distribution.read_text('top_level.txt').strip(),
             'importlib_metadata')
 
+    def test_read_text(self):
+        importlib_metadata.read_text('importlib_metadata', 'top_level.txt')
+
     def test_entry_points(self):
-        parser = importlib_metadata.entry_points('pip')
+        scripts = importlib_metadata.entry_points()['console_scripts']
+        scripts = dict(scripts)
+        pip_ep = scripts['pip']
         # We should probably not be dependent on a third party package's
         # internal API staying stable.
-        entry_point = parser.get('console_scripts', 'pip')
-        self.assertEqual(entry_point, 'pip._internal:main')
+        self.assertEqual(pip_ep.value, 'pip._internal:main')
+        self.assertEqual(pip_ep.extras, [])
 
     def test_metadata_for_this_package(self):
         md = importlib_metadata.metadata('importlib_metadata')
@@ -42,3 +51,6 @@ class APITests(unittest.TestCase):
         assert md['Name'] == 'importlib-metadata'
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
+
+    def test_importlib_metadata_version(self):
+        assert re.match(self.version_pattern, importlib_metadata.__version__)
