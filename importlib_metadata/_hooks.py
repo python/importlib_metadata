@@ -39,14 +39,6 @@ class NullFinder:
     find_module = find_spec
 
 
-class _SysPath:
-    """
-    A proxy for reading sys.path late.
-    """
-    def __iter__(self):
-        return iter(sys.path)
-
-
 @install
 class MetadataPathFinder(NullFinder):
     """A degenerate finder for distribution packages on the file system.
@@ -57,12 +49,14 @@ class MetadataPathFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     @classmethod
-    def find_distributions(cls, name=None, path=_SysPath()):
+    def find_distributions(cls, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
         (or all names if not supplied) along the paths in the list
         of directories ``path`` (defaults to sys.path).
         """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
         found = cls._search_paths(pattern, path)
         return map(PathDistribution, found)
@@ -117,12 +111,14 @@ class WheelMetadataFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.whl'
 
     @classmethod
-    def find_distributions(cls, name=None, path=_SysPath()):
+    def find_distributions(cls, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
         (or all names if not supplied) along the paths in the list
         of directories ``path`` (defaults to sys.path).
         """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
         found = cls._search_paths(pattern, path)
         return map(WheelDistribution, found)
