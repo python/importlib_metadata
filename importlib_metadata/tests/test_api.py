@@ -86,7 +86,7 @@ class APITests(unittest.TestCase):
             [extra2:python_version < "3"]
             dep5
             """)
-        deps = list(
+        deps = sorted(
             importlib_metadata.api.Distribution._deps_from_requires_text(
                 requires)
             )
