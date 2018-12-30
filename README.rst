@@ -33,6 +33,11 @@ for more information on entrypoints, their definition, and usage.
 ``read_text`` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
 
+``files`` takes a distribution package name and returns all
+of the files installed by this distribution. Each file object returned
+is a ``PackagePath``, a ``pathlib.Path`` object with additional ``dist``,
+``size``, and ``hash`` properties as indicated by the metadata.
+
 
 Support for Custom Package Installers
 =====================================

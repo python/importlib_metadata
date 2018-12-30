@@ -20,6 +20,8 @@
   ``EntryPoint.group``. The ``resolve`` method has been removed. Instead,
   call ``EntryPoint.load()``, which has the same semantics as
   ``pkg_resources`` and ``entrypoints``.
+* Added ``importlib_metadata.files`` function for resolving files
+  from a distribution.
 
 0.7
 ===
