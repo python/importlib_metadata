@@ -10,16 +10,19 @@
   Python version. Closes #29.
 * This library can now discover/enumerate all installed packages. This
   backward-incompatible change alters the protocol finders must
-  implement to support distribution package discovery. Now
-  ``find_distribution(name)`` returning one Distribution must be
-  replaced by ``find_distributions(name='.*')`` where name is
-  a regular expression and an iterable of all matching Distributions
-  is returned. Closes #24.
+  implement to support distribution package discovery. Closes #24.
+* This library can now discover metadata for a 'local' package (found
+  in the current-working directory). Closes #27.
+* The signature of ``find_distribution`` on custom installer finders
+  now must solicit two parameters, ``name`` and ``path`` and
+  these parameters must supply defaults.
 * The ``entry_points()`` method no longer accepts a package name
   but instead returns all entry points in a dictionary keyed by the
   ``EntryPoint.group``. The ``resolve`` method has been removed. Instead,
   call ``EntryPoint.load()``, which has the same semantics as
   ``pkg_resources`` and ``entrypoints``.
+* Added ``importlib_metadata.files`` function for resolving files
+  from a distribution.
 * Added a new ``requires()`` function, which returns the requirements
   for a package suitable for parsing by
   ``packaging.requirements.Requirement``. Closes #18.

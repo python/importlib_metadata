@@ -1,6 +1,7 @@
 import io
 import re
 import abc
+import csv
 import sys
 import email
 import operator
@@ -9,11 +10,15 @@ import itertools
 import collections
 
 from importlib import import_module
+from itertools import starmap
 
 if sys.version_info > (3,):  # pragma: nocover
+    import pathlib
     from configparser import ConfigParser
 else:  # pragma: nocover
+    import pathlib2 as pathlib
     from backports.configparser import ConfigParser
+    from itertools import imap as map  # type: ignore
 
 try:
     BaseClass = ModuleNotFoundError
@@ -92,6 +97,27 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         return iter((self.name, self))
 
 
+class PackagePath(pathlib.PosixPath):
+    """A reference to a path in a package"""
+
+    def read_text(self, encoding='utf-8'):
+        with self.locate().open(encoding=encoding) as stream:
+            return stream.read()
+
+    def read_binary(self):
+        with self.locate().open('rb') as stream:
+            return stream.read()
+
+    def locate(self):
+        """Return a path-like object for this path"""
+        return self.dist.locate_file(self)
+
+
+class FileHash:
+    def __init__(self, spec):
+        self.mode, _, self.value = spec.partition('=')
+
+
 class Distribution:
     """A Python distribution package."""
 
@@ -101,6 +127,13 @@ class Distribution:
 
         :param filename: The name of the file in the distribution info.
         :return: The text if found, otherwise None.
+        """
+
+    @abc.abstractmethod
+    def locate_file(self, path):
+        """
+        Given a path to a file in this distribution, return a path
+        to it.
         """
 
     @classmethod
@@ -141,6 +174,15 @@ class Distribution:
             )
         return filter(None, declared)
 
+    @classmethod
+    def find_local(cls):
+        dists = itertools.chain.from_iterable(
+            resolver(path=['.'])
+            for resolver in cls._discover_resolvers()
+            )
+        dist, = dists
+        return dist
+
     @property
     def metadata(self):
         """Return the parsed metadata for this Distribution.
@@ -159,6 +201,34 @@ class Distribution:
     @property
     def entry_points(self):
         return EntryPoint._from_text(self.read_text('entry_points.txt'))
+
+    @property
+    def files(self):
+        file_lines = self._read_files_distinfo() or self._read_files_egginfo()
+
+        def make_file(name, hash=None, size_str=None):
+            result = PackagePath(name)
+            result.hash = FileHash(hash) if hash else None
+            result.size = int(size_str) if size_str else None
+            result.dist = self
+            return result
+
+        return file_lines and starmap(make_file, csv.reader(file_lines))
+
+    def _read_files_distinfo(self):
+        """
+        Read the lines of RECORD
+        """
+        text = self.read_text('RECORD')
+        return text and text.splitlines()
+
+    def _read_files_egginfo(self):
+        """
+        SOURCES.txt might contain literal commas, so wrap each line
+        in quotes.
+        """
+        text = self.read_text('SOURCES.txt')
+        return text and map('"{}"'.format, text.splitlines())
 
     @property
     def requires(self):
@@ -245,6 +315,14 @@ def distributions():
     return Distribution.discover()
 
 
+def local_distribution():
+    """Get the ``Distribution`` instance for the package in CWD.
+
+    :return: A ``Distribution`` instance (or subclass thereof).
+    """
+    return Distribution.find_local()
+
+
 def metadata(package):
     """Get the metadata for the package.
 
@@ -285,6 +363,10 @@ def read_text(package, filename):
     Read the text of the file in the distribution info directory.
     """
     return distribution(package).read_text(filename)
+
+
+def files(package):
+    return distribution(package).files
 
 
 def requires(package):

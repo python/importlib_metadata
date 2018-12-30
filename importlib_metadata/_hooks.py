@@ -2,10 +2,10 @@ from __future__ import unicode_literals, absolute_import
 
 import re
 import sys
+import zipp
 import itertools
 
 from .api import Distribution
-from zipfile import ZipFile
 
 if sys.version_info >= (3,):  # pragma: nocover
     from contextlib import suppress
@@ -49,19 +49,26 @@ class MetadataPathFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     @classmethod
-    def find_distributions(cls, name=None):
+    def find_distributions(cls, name=None, path=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        paths = cls._search_paths(pattern)
-        return map(PathDistribution, paths)
+        found = cls._search_paths(pattern, path)
+        return map(PathDistribution, found)
 
     @classmethod
-    def _search_paths(cls, pattern):
+    def _search_paths(cls, pattern, paths):
         """
-        Find metadata directories in sys.path heuristically.
+        Find metadata directories in paths heuristically.
         """
         return itertools.chain.from_iterable(
             cls._search_path(path, pattern)
-            for path in map(Path, sys.path)
+            for path in map(Path, paths)
             )
 
     @classmethod
@@ -93,6 +100,9 @@ class PathDistribution(Distribution):
         return None
     read_text.__doc__ = Distribution.read_text.__doc__
 
+    def locate_file(self, path):
+        return self._path.parent / path
+
 
 @install
 class WheelMetadataFinder(NullFinder):
@@ -104,19 +114,26 @@ class WheelMetadataFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.whl'
 
     @classmethod
-    def find_distributions(cls, name=None):
+    def find_distributions(cls, name=None, path=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        paths = cls._search_paths(pattern)
-        return map(WheelDistribution, paths)
+        found = cls._search_paths(pattern, path)
+        return map(WheelDistribution, found)
 
     @classmethod
-    def _search_paths(cls, pattern):
+    def _search_paths(cls, pattern, paths):
         return (
-            item
-            for item in map(Path, sys.path)
+            path
+            for path in map(Path, paths)
             if re.match(
                 cls.search_template.format(pattern=pattern),
-                str(item.name),
+                str(path.name),
                 flags=re.IGNORECASE,
                 )
             )
@@ -124,25 +141,14 @@ class WheelMetadataFinder(NullFinder):
 
 class WheelDistribution(Distribution):
     def __init__(self, archive):
-        self._archive = archive
+        self._archive = zipp.Path(archive)
         name, version = archive.name.split('-')[0:2]
         self._dist_info = '{}-{}.dist-info'.format(name, version)
 
     def read_text(self, filename):
-        with ZipFile(_path_to_filename(self._archive)) as zf:
-            with suppress(KeyError):
-                as_bytes = zf.read('{}/{}'.format(self._dist_info, filename))
-                return as_bytes.decode('utf-8')
-        return None
+        target = self._archive / self._dist_info / filename
+        return target.read_text() if target.exists() else None
     read_text.__doc__ = Distribution.read_text.__doc__
 
-
-def _path_to_filename(path):  # pragma: nocover
-    """
-    On non-compliant systems, ensure a path-like object is
-    a string.
-    """
-    try:
-        return path.__fspath__()
-    except AttributeError:
-        return str(path)
+    def locate_file(self, path):
+        return self._archive / path

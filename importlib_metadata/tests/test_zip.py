@@ -40,3 +40,9 @@ class TestZip(unittest.TestCase):
 
     def test_case_insensitive(self):
         self.assertEqual(importlib_metadata.version('Example'), '21.12')
+
+    def test_files(self):
+        files = importlib_metadata.files('example')
+        for file in files:
+            path = str(file.dist.locate_file(file))
+            assert '.whl/' in path, path

@@ -33,6 +33,11 @@ for more information on entrypoints, their definition, and usage.
 ``read_text`` takes the distribution package name and a filename
 in that package's info directory and return the text of that file.
 
+``files`` takes a distribution package name and returns all
+of the files installed by this distribution. Each file object returned
+is a ``PackagePath``, a ``pathlib.Path`` object with additional ``dist``,
+``size``, and ``hash`` properties as indicated by the metadata.
+
 ``requires`` takes the distribution package name and returns
 the dependencies for that package as a list of strings suitable
 for parsing by ``packaging.requirements.Requirement`` as found
@@ -47,10 +52,11 @@ through their declared finders. A custom installer, if it provides its
 own finder for installed packages, should also provide on that finder
 a ``find_distributions`` method with the following signature::
 
-    def find_distributions(name=None):
+    def find_distributions(name=None, path=sys.path):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
-        (or all names if not supplied).
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
         """
 
 
