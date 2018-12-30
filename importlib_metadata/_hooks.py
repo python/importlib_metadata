@@ -49,19 +49,26 @@ class MetadataPathFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     @classmethod
-    def find_distributions(cls, name=None):
+    def find_distributions(cls, name=None, path=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        paths = cls._search_paths(pattern)
-        return map(PathDistribution, paths)
+        found = cls._search_paths(pattern, path)
+        return map(PathDistribution, found)
 
     @classmethod
-    def _search_paths(cls, pattern):
+    def _search_paths(cls, pattern, paths):
         """
-        Find metadata directories in sys.path heuristically.
+        Find metadata directories in paths heuristically.
         """
         return itertools.chain.from_iterable(
             cls._search_path(path, pattern)
-            for path in map(Path, sys.path)
+            for path in map(Path, paths)
             )
 
     @classmethod
@@ -107,19 +114,26 @@ class WheelMetadataFinder(NullFinder):
     search_template = r'{pattern}(-.*)?\.whl'
 
     @classmethod
-    def find_distributions(cls, name=None):
+    def find_distributions(cls, name=None, path=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+        if path is None:
+            path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        paths = cls._search_paths(pattern)
-        return map(WheelDistribution, paths)
+        found = cls._search_paths(pattern, path)
+        return map(WheelDistribution, found)
 
     @classmethod
-    def _search_paths(cls, pattern):
+    def _search_paths(cls, pattern, paths):
         return (
-            item
-            for item in map(Path, sys.path)
+            path
+            for path in map(Path, paths)
             if re.match(
                 cls.search_template.format(pattern=pattern),
-                str(item.name),
+                str(path.name),
                 flags=re.IGNORECASE,
                 )
             )

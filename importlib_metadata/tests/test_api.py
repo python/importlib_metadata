@@ -80,3 +80,7 @@ class APITests(unittest.TestCase):
 
     def test_files_egg_info(self):
         self._test_files(importlib_metadata.files('importlib_metadata'))
+
+    def test_find_local(self):
+        dist = importlib_metadata.api.local_distribution()
+        assert dist.metadata['Name'] == 'importlib-metadata'
