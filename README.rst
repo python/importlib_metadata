@@ -38,6 +38,11 @@ of the files installed by this distribution. Each file object returned
 is a ``PackagePath``, a ``pathlib.Path`` object with additional ``dist``,
 ``size``, and ``hash`` properties as indicated by the metadata.
 
+``requires`` takes the distribution package name and returns
+the dependencies for that package as a list of strings suitable
+for parsing by ``packaging.requirements.Requirement`` as found
+in the `packaging <https://pypi.org/project/packaging>` library.
+
 
 Support for Custom Package Installers
 =====================================

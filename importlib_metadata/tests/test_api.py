@@ -1,6 +1,8 @@
 import re
+import textwrap
 import unittest
 import importlib_metadata
+import packaging.requirements
 
 try:
     from collections.abc import Iterator
@@ -84,3 +86,50 @@ class APITests(unittest.TestCase):
     def test_find_local(self):
         dist = importlib_metadata.api.local_distribution()
         assert dist.metadata['Name'] == 'importlib-metadata'
+
+    def test_requires(self):
+        deps = importlib_metadata.requires('importlib_metadata')
+        parsed = list(map(packaging.requirements.Requirement, deps))
+        assert all(parsed)
+        assert any(
+            dep.name == 'pathlib2' and dep.marker
+            for dep in parsed
+            )
+
+    def test_requires_dist_info(self):
+        # assume 'packaging' is installed as a wheel with dist-info
+        deps = importlib_metadata.requires('packaging')
+        parsed = list(map(packaging.requirements.Requirement, deps))
+        assert parsed
+
+    def test_more_complex_deps_requires_text(self):
+        requires = textwrap.dedent("""
+            dep1
+            dep2
+
+            [:python_version < "3"]
+            dep3
+
+            [extra1]
+            dep4
+
+            [extra2:python_version < "3"]
+            dep5
+            """)
+        deps = sorted(
+            importlib_metadata.api.Distribution._deps_from_requires_text(
+                requires)
+            )
+        expected = [
+            'dep1',
+            'dep2',
+            'dep3; python_version < "3"',
+            'dep4; extra == "extra1"',
+            'dep5; (python_version < "3") and extra == "extra2"',
+            ]
+        # It's important that the environment marker expression be
+        # wrapped in parentheses to avoid the following 'and' binding more
+        # tightly than some other part of the environment expression.
+
+        assert deps == expected
+        assert all(map(packaging.requirements.Requirement, deps))

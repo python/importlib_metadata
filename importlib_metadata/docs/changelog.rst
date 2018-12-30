@@ -23,6 +23,9 @@
   ``pkg_resources`` and ``entrypoints``.
 * Added ``importlib_metadata.files`` function for resolving files
   from a distribution.
+* Added a new ``requires()`` function, which returns the requirements
+  for a package suitable for parsing by
+  ``packaging.requirements.Requirement``. Closes #18.
 
 0.7
 ===

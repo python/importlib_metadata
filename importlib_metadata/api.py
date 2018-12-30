@@ -230,6 +230,64 @@ class Distribution:
         text = self.read_text('SOURCES.txt')
         return text and map('"{}"'.format, text.splitlines())
 
+    @property
+    def requires(self):
+        return self._read_dist_info_reqs() or self._read_egg_info_reqs()
+
+    def _read_dist_info_reqs(self):
+        spec = self.metadata['Requires-Dist']
+        return spec and filter(None, spec.splitlines())
+
+    def _read_egg_info_reqs(self):
+        source = self.read_text('requires.txt')
+        return self._deps_from_requires_text(source)
+
+    @classmethod
+    def _deps_from_requires_text(cls, source):
+        section_pairs = cls._read_sections(source.splitlines())
+        sections = {
+            section: list(map(operator.itemgetter('line'), results))
+            for section, results in
+            itertools.groupby(section_pairs, operator.itemgetter('section'))
+            }
+        return cls._convert_egg_info_reqs_to_simple_reqs(sections)
+
+    @staticmethod
+    def _read_sections(lines):
+        section = None
+        for line in filter(None, lines):
+            section_match = re.match(r'\[(.*)\]$', line)
+            if section_match:
+                section = section_match.group(1)
+                continue
+            yield locals()
+
+    @staticmethod
+    def _convert_egg_info_reqs_to_simple_reqs(sections):
+        """
+        Historically, setuptools would solicit and store 'extra'
+        requirements, including those with environment markers,
+        in separate sections. More modern tools expect each
+        dependency to be defined separately, with any relevant
+        extras and environment markers attached directly to that
+        requirement. This method converts the former to the
+        latter. See _test_deps_from_requires_text for an example.
+        """
+        def make_condition(name):
+            return name and 'extra == "{name}"'.format(name=name)
+
+        def parse_condition(section):
+            section = section or ''
+            extra, sep, markers = section.partition(':')
+            if extra and markers:
+                markers = '({markers})'.format(markers=markers)
+            conditions = list(filter(None, [markers, make_condition(extra)]))
+            return '; ' + ' and '.join(conditions) if conditions else ''
+
+        for section, deps in sections.items():
+            for dep in deps:
+                yield dep + parse_condition(section)
+
 
 def _email_message_from_string(text):
     # Work around https://bugs.python.org/issue25545 where
@@ -309,3 +367,13 @@ def read_text(package, filename):
 
 def files(package):
     return distribution(package).files
+
+
+def requires(package):
+    """
+    Return a list of requirements for the indicated distribution.
+
+    :return: An iterator of requirements, suitable for
+    packaging.requirement.Requirement.
+    """
+    return distribution(package).requires
