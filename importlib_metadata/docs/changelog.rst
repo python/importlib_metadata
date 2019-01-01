@@ -4,28 +4,31 @@
 
 0.8
 ===
-* Release dates are now automatically injected into the changelog
-  based on SCM tags.
-* Metadata is now always returned as Unicode text regardless of
-  Python version. Closes #29.
-* This library can now discover/enumerate all installed packages. This
+* This library can now discover/enumerate all installed packages. **This
   backward-incompatible change alters the protocol finders must
-  implement to support distribution package discovery. Closes #24.
-* This library can now discover metadata for a 'local' package (found
-  in the current-working directory). Closes #27.
-* The signature of ``find_distribution`` on custom installer finders
-  now must solicit two parameters, ``name`` and ``path`` and
+  implement to support distribution package discovery.** Closes #24.
+* The signature of ``find_distributions()`` on custom installer finders
+  should now accept two parameters, ``name`` and ``path`` and
   these parameters must supply defaults.
 * The ``entry_points()`` method no longer accepts a package name
   but instead returns all entry points in a dictionary keyed by the
   ``EntryPoint.group``. The ``resolve`` method has been removed. Instead,
   call ``EntryPoint.load()``, which has the same semantics as
-  ``pkg_resources`` and ``entrypoints``.
-* Added ``importlib_metadata.files`` function for resolving files
-  from a distribution.
+  ``pkg_resources`` and ``entrypoints``.  **This is a backward incompatible
+  change.**
+* Metadata is now always returned as Unicode text regardless of
+  Python version. Closes #29.
+* This library can now discover metadata for a 'local' package (found
+  in the current-working directory). Closes #27.
+* Added ``files()`` function for resolving files from a distribution.
 * Added a new ``requires()`` function, which returns the requirements
   for a package suitable for parsing by
   ``packaging.requirements.Requirement``. Closes #18.
+* The top-level ``read_text()`` function has been removed.  Use
+  ``PackagePath.read_text()`` on instances returned by the ``files()``
+  function.  **This is a backward incompatible change.**
+* Release dates are now automatically injected into the changelog
+  based on SCM tags.
 
 0.7
 ===

@@ -117,6 +117,9 @@ class FileHash:
     def __init__(self, spec):
         self.mode, _, self.value = spec.partition('=')
 
+    def __repr__(self):
+        return '<FileHash mode: {} value: {}>'.format(self.mode, self.value)
+
 
 class Distribution:
     """A Python distribution package."""
@@ -356,13 +359,6 @@ def entry_points(name=None):
         group: tuple(eps)
         for group, eps in grouped
         }
-
-
-def read_text(package, filename):
-    """
-    Read the text of the file in the distribution info directory.
-    """
-    return distribution(package).read_text(filename)
 
 
 def files(package):
