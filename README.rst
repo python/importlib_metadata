@@ -9,55 +9,13 @@ package.  It is intended to be ported to Python 3.8.
 Usage
 =====
 
-``importlib_metadata``, unlike its sister packages importlib and
-importlib.resources, operates on Python Distribution packages (the
-package as installed by pip or similar).
+See the `online documentation <http://importlib_metadata.readthedocs.io/>`_
+for usage details.
 
-This module exposes a few functions:
-
-``metadata`` takes a distribution package name and returns
-the metadata for that package (as ``email.Message``).
-
-``version`` takes a distribution package name and returns the
-version for that package.
-
-``entry_points`` returns a dictionary of all EntryPoints keyed by
-group. Each EntryPoint has a ``.name``, ``.group``, and ``.value``
-attributes and a ``.load()`` method to resolve the value. The
-``group`` and ``name`` are arbitrary values defined by the package
-author and usually a client will wish to resolve all entry points
-for a particular group. Read `the setuptools docs
-<https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
-for more information on entrypoints, their definition, and usage.
-
-``read_text`` takes the distribution package name and a filename
-in that package's info directory and return the text of that file.
-
-``files`` takes a distribution package name and returns all
-of the files installed by this distribution. Each file object returned
-is a ``PackagePath``, a ``pathlib.Path`` object with additional ``dist``,
-``size``, and ``hash`` properties as indicated by the metadata.
-
-``requires`` takes the distribution package name and returns
-the dependencies for that package as a list of strings suitable
-for parsing by ``packaging.requirements.Requirement`` as found
-in the `packaging <https://pypi.org/project/packaging>` library.
-
-
-Support for Custom Package Installers
-=====================================
-
-``importlib_metadata`` provides hooks for third-party package installers
-through their declared finders. A custom installer, if it provides its
-own finder for installed packages, should also provide on that finder
-a ``find_distributions`` method with the following signature::
-
-    def find_distributions(name=None, path=sys.path):
-        """Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
-        """
+`Finder authors
+<https://docs.python.org/3/reference/import.html#finders-and-loaders>`_ can
+also add support for custom package installers.  See the above documentation
+for details.
 
 
 Caveats

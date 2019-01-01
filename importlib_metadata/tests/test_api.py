@@ -40,7 +40,11 @@ class APITests(unittest.TestCase):
             'importlib_metadata')
 
     def test_read_text(self):
-        importlib_metadata.read_text('importlib_metadata', 'top_level.txt')
+        top_level = [
+            path for path in importlib_metadata.files('importlib_metadata')
+            if path.name == 'top_level.txt'
+            ][0]
+        self.assertEqual(top_level.read_text(), 'importlib_metadata\n')
 
     def test_entry_points(self):
         scripts = importlib_metadata.entry_points()['console_scripts']
@@ -76,6 +80,21 @@ class APITests(unittest.TestCase):
             assert isinstance(file.read_binary(), bytes)
             if file.name.endswith('.py'):
                 file.read_text()
+
+    def test_file_hash_repr(self):
+        try:
+            assertRegex = self.assertRegex
+        except AttributeError:
+            # Python 2
+            assertRegex = self.assertRegexpMatches
+
+        util = [
+            p for p in importlib_metadata.files('wheel')
+            if p.name == 'util.py'
+            ][0]
+        assertRegex(
+            repr(util.hash),
+            '<FileHash mode: sha256 value: .*>')
 
     def test_files_dist_info(self):
         self._test_files(importlib_metadata.files('pip'))

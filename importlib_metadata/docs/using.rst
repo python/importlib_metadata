@@ -38,33 +38,29 @@ You can get the version string for ``wheel`` by running the following::
     (example) $ python
     >>> from importlib_metadata import version
     >>> version('wheel')
-    '0.31.1'
+    '0.32.3'
 
-You can also get the set of entry points for the ``wheel`` package.  Since the
-``entry_points.txt`` file is an ``.ini``-style, the ``entry_points()``
-function returns a `ConfigParser instance`_.  To get the list of command line
-entry points, extract the ``console_scripts`` section::
+You can also get the set of entry points keyed by group, such as
+``console_scripts``, ``distutils.commands`` and others.  Each group contains a
+sequence of :ref:`EntryPoint <entry-points>` objects.
 
-    >>> cp = entry_points('wheel')
-    >>> cp.options('console_scripts')
-    ['wheel']
+You can get the :ref:`metadata for a distribution <metadata>`::
 
-You can also get the callable that the entry point is mapped to::
+    >>> list(metadata('wheel'))
+    ['Metadata-Version', 'Name', 'Version', 'Summary', 'Home-page', 'Author', 'Author-email', 'Maintainer', 'Maintainer-email', 'License', 'Project-URL', 'Project-URL', 'Project-URL', 'Keywords', 'Platform', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Classifier', 'Requires-Python', 'Provides-Extra', 'Requires-Dist', 'Requires-Dist']
 
-    >>> cp.get('console_scripts', 'wheel')
-    'wheel.tool:main'
-
-Even more conveniently, you can resolve this entry point to the actual
-callable::
-
-    >>> from importlib_metadata import resolve
-    >>> ep = cp.get('console_scripts', 'wheel')
-    >>> resolve(ep)
-    <function main at 0x111b91bf8>
+You can also get a :ref:`distribution's version number <version>`, list its
+:ref:`constituent files <files>`_, and get a list of the distribution's
+:ref:`requirements`_.
 
 
 Distributions
 =============
+
+.. CAUTION:: The ``Distribution`` class described here may or may not end up
+             in the final stable public API.  Consider this class `provisional
+             <https://www.python.org/dev/peps/pep-0411/>`_ until the 1.0
+             release.
 
 While the above API is the most common and convenient usage, you can get all
 of that information from the ``Distribution`` class.  A ``Distribution`` is an
@@ -78,7 +74,7 @@ Thus, an alternative way to get the version number is through the
 ``Distribution`` instance::
 
     >>> dist.version
-    '0.31.1'
+    '0.32.3'
 
 There are all kinds of additional metadata available on the ``Distribution``
 instance::
@@ -88,8 +84,117 @@ instance::
     >>> d.metadata['License']
     'MIT'
 
-The full set of available metadata is not described here.  See PEP 566 for
-additional details.
+The full set of available metadata is not described here.  See `PEP 566
+<https://www.python.org/dev/peps/pep-0566/>`_ for additional details.
+
+
+Functional API
+==============
+
+This package provides the following functionality via its public API.
+
+
+.. _entry-points::
+
+Entry points
+------------
+
+The ``entry_points()`` function returns a dictionary of all entry points,
+keyed by group.  Entry points are represented by ``EntryPoint`` instances;
+each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes and
+a ``.load()`` method to resolve the value.
+
+    >>> eps = entry_points()
+    >>> list(eps)
+    ['console_scripts', 'distutils.commands', 'distutils.setup_keywords', 'egg_info.writers', 'setuptools.installation']
+    >>> scripts = eps['console_scripts']
+    >>> wheel = [ep for ep in scripts if ep.name == 'wheel'][0]
+    >>> wheel
+    EntryPoint(name='wheel', value='wheel.cli:main', group='console_scripts')
+    >>> main = wheel.load()
+    >>> main
+    <function main at 0x103528488>
+
+The ``group`` and ``name`` are arbitrary values defined by the package author
+and usually a client will wish to resolve all entry points for a particular
+group.  Read `the setuptools docs
+<https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
+for more information on entrypoints, their definition, and usage.
+
+
+.. _metadata::
+
+Distribution metadata
+---------------------
+
+Every distribution includes some metadata, which you can extract using the
+``metadata()`` function::
+
+    >>> wheel_metadata = metadata('wheel')
+
+The keys of the returned data structure [#f1]_ name the metadata keywords, and
+their values are returned unparsed from the distribution metadata::
+
+    >>> wheel_metadata['Requires-Python']
+    '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
+
+
+.. _version::
+
+Distribution versions
+---------------------
+
+The ``version()`` function is the quickest way to get a distribution's version
+number, as a string::
+
+    >>> version('wheel')
+    '0.32.3'
+
+
+.. _files::
+
+Distribution files
+------------------
+
+You can also get the full set of files contained within a distribution.  The
+``files()`` function takes a distribution package name and returns all of the
+files installed by this distribution.  Each file object returned is a
+``PackagePath``, a `pathlib.Path`_ derived object with additional ``dist``,
+``size``, and ``hash`` properties as indicated by the metadata.  For example::
+
+    >>> util = [p for p in files('wheel') if 'util.py' in str(p)][0]
+    >>> util
+    PackagePath('wheel/util.py')
+    >>> util.size
+    859
+    >>> util.dist
+    <importlib_metadata._hooks.PathDistribution object at 0x101e0cef0>
+    >>> util.hash
+    <FileHash mode: sha256 value: bYkw5oMccfazVCoYQwKkkemoVyMAFoR34mmKBx8R1NI>
+
+Once you have the file, you can also read its contents::
+
+    >>> print(util.read_text())
+    import base64
+    import sys
+    ...
+    def as_bytes(s):
+        if isinstance(s, text_type):
+            return s.encode('utf-8')
+        return s
+
+
+.. _requirements::
+
+Distribution requirements
+-------------------------
+
+To get the full set of requirements for a distribution, use the ``requires()``
+function.  Note that this returns an iterator::
+
+    >>> list(requires('wheel'))
+    ["pytest (>=3.0.0) ; extra == 'test'"]
+
 
 
 Extending the search algorithm
@@ -133,7 +238,17 @@ finder's ``find_distributions()`` method should return.
 .. _`Python 3.7 and newer`: https://docs.python.org/3/library/importlib.html#module-importlib.resources
 .. _`importlib_resources`: https://importlib-resources.readthedocs.io/en/latest/index.html
 .. _`PEP 566`: https://www.python.org/dev/peps/pep-0566/
-.. _`ConfigParser instance`: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser
 .. _`finders`: https://docs.python.org/3/reference/import.html#finders-and-loaders
 .. _`meta path finders`: https://docs.python.org/3/glossary.html#term-meta-path-finder
 .. _`sys.meta_path`: https://docs.python.org/3/library/sys.html#sys.meta_path
+.. _`pathlib.Path`: https://docs.python.org/3/library/pathlib.html#pathlib.Path
+
+
+.. rubric:: Footnotes
+
+.. [#f1] Technically, the returned distribution metadata object is an
+         `email.message.Message
+         <https://docs.python.org/3/library/email.message.html#email.message.EmailMessage>`_
+         instance, but this is an implementation detail, and not part of the
+         stable API.  You should only use dictionary-like methods and syntax
+         to access the metadata contents.
