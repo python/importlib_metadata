@@ -9,7 +9,7 @@ package.  It is intended to be ported to Python 3.8.
 Usage
 =====
 
-See the `online documentation <http://importlib_metadata.readthedocs.io/>`_
+See the `online documentation <https://importlib_metadata.readthedocs.io/>`_
 for usage details.
 
 `Finder authors
