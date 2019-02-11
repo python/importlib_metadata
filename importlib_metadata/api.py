@@ -195,7 +195,11 @@ class Distribution:
         The returned object will have keys that name the various bits of
         metadata.  See PEP 566 for details.
         """
-        text = self.read_text('METADATA') or self.read_text('PKG-INFO')
+        text = (
+            self.read_text('METADATA')
+            or self.read_text('PKG-INFO')
+            or self.read_text('')
+            )
         return _email_message_from_string(text)
 
     @property
@@ -246,7 +250,7 @@ class Distribution:
 
     def _read_egg_info_reqs(self):
         source = self.read_text('requires.txt')
-        return self._deps_from_requires_text(source)
+        return source and self._deps_from_requires_text(source)
 
     @classmethod
     def _deps_from_requires_text(cls, source):

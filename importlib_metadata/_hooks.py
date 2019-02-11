@@ -18,6 +18,7 @@ else:  # pragma: nocover
     from pathlib2 import Path
 
     FileNotFoundError = IOError, OSError
+    NotADirectoryError = IOError, OSError
     __metaclass__ = type
 
 
@@ -84,8 +85,7 @@ class MetadataPathFinder(NullFinder):
         return (
             item
             for item in root.iterdir()
-            if item.is_dir()
-            and re.match(
+            if re.match(
                 cls.search_template.format(pattern=normalized),
                 str(item.name),
                 flags=re.IGNORECASE,
@@ -99,7 +99,7 @@ class PathDistribution(Distribution):
         self._path = path
 
     def read_text(self, filename):
-        with suppress(FileNotFoundError):
+        with suppress(FileNotFoundError, NotADirectoryError):
             with self._path.joinpath(filename).open(encoding='utf-8') as fp:
                 return fp.read()
         return None
