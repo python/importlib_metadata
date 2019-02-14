@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.9
+===
+* Removed unused ``name`` parameter from ``entry_points()``.
+
 0.8
 ===
 * This library can now discover/enumerate all installed packages. **This
