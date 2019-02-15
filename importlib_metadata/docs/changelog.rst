@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.9
+===
+* #40: Fixed issue where entry points without an attribute would raise an
+  Exception.
+
 0.8
 ===
 * This library can now discover/enumerate all installed packages. **This
