@@ -50,8 +50,11 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(pip_ep.load(), pip._internal.main)
 
     def test_resolve_without_attr(self):
-        kw = {'name': 'ep', 'value': 'importlib_metadata.api', 'group': 'grp'}
-        ep = importlib_metadata.api.EntryPoint(**kw)
+        ep = importlib_metadata.api.EntryPoint(
+            name='ep',
+            value='importlib_metadata.api',
+            group='grp',
+            )
         assert ep.load() is importlib_metadata.api
 
 
