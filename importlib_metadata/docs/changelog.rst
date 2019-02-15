@@ -4,7 +4,9 @@
 
 0.9
 ===
-* Removed unused ``name`` parameter from ``entry_points()``.
+* #40: Fixed issue where entry points without an attribute would raise an
+  Exception.
+* Removed unused ``name`` parameter from ``entry_points()``. Closes #44.
 
 0.8
 ===

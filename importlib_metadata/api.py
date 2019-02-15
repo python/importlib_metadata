@@ -64,7 +64,7 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         """
         match = self.pattern.match(self.value)
         module = import_module(match.group('module'))
-        attrs = filter(None, match.group('attr').split('.'))
+        attrs = filter(None, (match.group('attr') or '').split('.'))
         return functools.reduce(getattr, attrs, module)
 
     @property

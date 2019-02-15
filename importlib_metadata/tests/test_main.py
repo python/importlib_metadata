@@ -49,6 +49,14 @@ class ImportTests(unittest.TestCase):
         import pip._internal
         self.assertEqual(pip_ep.load(), pip._internal.main)
 
+    def test_resolve_without_attr(self):
+        ep = importlib_metadata.api.EntryPoint(
+            name='ep',
+            value='importlib_metadata.api',
+            group='grp',
+            )
+        assert ep.load() is importlib_metadata.api
+
 
 class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
     @staticmethod

@@ -56,8 +56,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'importlib_metadata'
-copyright = '2017-2018, Jason Coombs, Barry Warsaw'
-author = 'Jason Coombs, Barry Warsaw'
+copyright = '2017-2019, Jason R. Coombs, Barry Warsaw'
+author = 'Jason R. Coombs, Barry Warsaw'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
