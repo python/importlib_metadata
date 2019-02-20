@@ -6,14 +6,16 @@
 
 ``importlib_metadata`` is a library that provides for access to installed
 package metadata.  Built in part on Python's import system, this library
-intends to replace similar functionality in ``pkg_resources`` `entry point
-API`_ and `metadata API`_.  Along with ``importlib.resources`` in `Python 3.7
+intends to replace similar functionality in the `entry point
+API`_ and `metadata API`_ of ``pkg_resources``.  Along with
+``importlib.resources`` in `Python 3.7
 and newer`_ (backported as `importlib_resources`_ for older versions of
 Python), this can eliminate the need to use the older and less efficient
 ``pkg_resources`` package.
 
-By "installed package" we generally mean a third party package installed into
-Python's ``site-packages`` directory via tools such as ``pip``.  Specifically,
+By "installed package" we generally mean a third-party package installed into
+Python's ``site-packages`` directory via tools such as `pip
+<https://pypi.org/project/pip/>`_.  Specifically,
 it means a package with either a discoverable ``dist-info`` or ``egg-info``
 directory, and metadata defined by `PEP 566`_ or its older specifications.
 By default, package metadata can live on the file system or in wheels on
