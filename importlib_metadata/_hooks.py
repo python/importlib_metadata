@@ -1,22 +1,11 @@
-from __future__ import unicode_literals, absolute_import
-
 import re
 import sys
 import zipp
 import itertools
 
 from .api import Distribution
-
-if sys.version_info >= (3,):  # pragma: nocover
-    from contextlib import suppress
-    from pathlib import Path
-else:  # pragma: nocover
-    from contextlib2 import suppress  # noqa
-    from itertools import imap as map  # type: ignore
-    from pathlib2 import Path
-
-    FileNotFoundError = IOError, OSError
-    __metaclass__ = type
+from contextlib import suppress
+from pathlib import Path
 
 
 def install(cls):
@@ -29,15 +18,6 @@ class NullFinder:
     @staticmethod
     def find_spec(*args, **kwargs):
         return None
-
-    # In Python 2, the import system requires finders
-    # to have a find_module() method, but this usage
-    # is deprecated in Python 3 in favor of find_spec().
-    # For the purposes of this finder (i.e. being present
-    # on sys.meta_path but having no other import
-    # system functionality), the two methods are identical.
-    find_module = find_spec
-
 
 @install
 class MetadataPathFinder(NullFinder):

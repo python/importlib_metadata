@@ -12,24 +12,13 @@ import collections
 from importlib import import_module
 from itertools import starmap
 
-if sys.version_info > (3,):  # pragma: nocover
-    import pathlib
-    from configparser import ConfigParser
-else:  # pragma: nocover
-    import pathlib2 as pathlib
-    from backports.configparser import ConfigParser
-    from itertools import imap as map  # type: ignore
-
-try:
-    BaseClass = ModuleNotFoundError
-except NameError:                                 # pragma: nocover
-    BaseClass = ImportError                       # type: ignore
-
+import pathlib
+from configparser import ConfigParser
 
 __metaclass__ = type
 
 
-class PackageNotFoundError(BaseClass):
+class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
 
@@ -83,11 +72,7 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
     @classmethod
     def _from_text(cls, text):
         config = ConfigParser()
-        try:
-            config.read_string(text)
-        except AttributeError:  # pragma: nocover
-            # Python 2 has no read_string
-            config.readfp(io.StringIO(text))
+        config.read_string(text)
         return EntryPoint._from_config(config)
 
     def __iter__(self):
@@ -194,7 +179,7 @@ class Distribution:
         metadata.  See PEP 566 for details.
         """
         text = self.read_text('METADATA') or self.read_text('PKG-INFO')
-        return _email_message_from_string(text)
+        return email.message_from_string(text)
 
     @property
     def version(self):
@@ -290,15 +275,6 @@ class Distribution:
         for section, deps in sections.items():
             for dep in deps:
                 yield dep + parse_condition(section)
-
-
-def _email_message_from_string(text):
-    # Work around https://bugs.python.org/issue25545 where
-    # email.message_from_string cannot handle Unicode on Python 2.
-    if sys.version_info < (3,):                     # nocoverpy3
-        io_buffer = io.StringIO(text)
-        return email.message_from_file(io_buffer)
-    return email.message_from_string(text)          # nocoverpy2
 
 
 def distribution(package):
