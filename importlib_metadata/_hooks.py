@@ -26,6 +26,10 @@ def install(cls):
 
 
 class NullFinder:
+    """
+    A "Finder" (aka "MetaClassFinder") that never finds any modules,
+    but may find distributions.
+    """
     @staticmethod
     def find_spec(*args, **kwargs):
         return None
