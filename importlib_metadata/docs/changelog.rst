@@ -4,8 +4,8 @@
 
 0.9
 ===
-* #40: Fixed issue where entry points without an attribute would raise an
-  Exception.
+* Fixed issue where entry points without an attribute would raise an
+  Exception.  Closes #40.
 
 0.8
 ===
