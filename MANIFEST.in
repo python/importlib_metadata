@@ -1,5 +1,0 @@
-include *.py MANIFEST.in LICENSE README.rst
-global-include *.txt *.rst *.ini *.cfg *.toml *.whl
-exclude .gitignore
-prune build
-prune .tox
