@@ -1,8 +1,8 @@
 import re
 import sys
-import zipp
 import itertools
 
+from . import zipp
 from .api import Distribution
 from contextlib import suppress
 from pathlib import Path
