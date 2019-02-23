@@ -235,6 +235,7 @@ class Distribution:
 
     @property
     def requires(self):
+        """Generated requirements specified for this Distribution"""
         return self._read_dist_info_reqs() or self._read_egg_info_reqs()
 
     def _read_dist_info_reqs(self):
