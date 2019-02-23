@@ -16,7 +16,7 @@ except ImportError:
 
 __metaclass__ = type
 
-
+# Have a distinfo_pkg and egginfo_pkg (which is corresponding to pip and importlib_metadata)
 class SiteDir:
     @staticmethod
     @contextlib.contextmanager
@@ -33,3 +33,4 @@ class SiteDir:
         self.fixtures = ExitStack()
         self.addCleanup(self.fixtures.close)
         self.site_dir = self.fixtures.enter_context(self.site_dir())
+        

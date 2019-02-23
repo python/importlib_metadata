@@ -12,6 +12,3 @@ __all__ = [
     'requires',
     'version',
     ]
-
-
-__version__ = version(__name__)

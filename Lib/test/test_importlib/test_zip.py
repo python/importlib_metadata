@@ -21,7 +21,7 @@ class TestZip(unittest.TestCase):
         self.resources = ExitStack()
         self.addCleanup(self.resources.close)
         wheel = self.resources.enter_context(
-            path('tests.test_importlib.data',
+            path('test.test_importlib.data',
                  'example-21.12-py3-none-any.whl'))
         sys.path.insert(0, str(wheel))
         self.resources.callback(sys.path.pop, 0)
