@@ -64,5 +64,16 @@ to incorporate into egginfo_pkg:
     3. The list of files is called SOURCES.TXT
 """
 class EggInfoPkg (SiteDir):
-    pass
+    metadata = """Name: egginfo-pkg
+Author: Steven Ma
+Version: 1.0.0
+"""
+    def egginfo_pkg(self):
+        metadata_dir = self.site_dir.mkdir("egginfo_pkg.egg-info")
+        metadata_file = metadata_dir / "PKG-INFO"
+        with metadata_file.open(mode='w') as strm:
+            strm.write(self.metadata)
+    def setUp(self):
+        super(DistInfoPkg,self).setUp()
+        self.egginfo_pkg()
 
