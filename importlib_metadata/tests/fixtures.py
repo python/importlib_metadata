@@ -54,8 +54,7 @@ Version: 1.0.0
         with metadata_file.open('w') as strm:
             strm.write(self.metadata)
         metadata_record = metadata_dir / "RECORD"
-        with metadata_record.open('w') as strm:
-            strm.write("name.text\n")
+        metadata_record.touch()
     def setUp(self):
         super(DistInfoPkg,self).setUp()
         self.distinfo_pkg()
