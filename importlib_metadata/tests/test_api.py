@@ -88,8 +88,8 @@ class APITests(fixtures.DistInfoPkg,unittest.TestCase):
             assertRegex = self.assertRegexpMatches
 
         util = [
-            p for p in importlib_metadata.files('wheel')
-            if p.name == 'util.py'
+            p for p in importlib_metadata.files('distinfo-pkg')
+            if p.name == 'mod.py'
             ][0]
         assertRegex(
             repr(util.hash),
@@ -115,8 +115,7 @@ class APITests(fixtures.DistInfoPkg,unittest.TestCase):
             )
 
     def test_requires_dist_info(self):
-        # assume 'packaging' is installed as a wheel with dist-info
-        deps = importlib_metadata.requires('packaging')
+        deps = importlib_metadata.requires('distinfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert parsed
 

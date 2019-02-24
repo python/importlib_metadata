@@ -48,12 +48,14 @@ class DistInfoPkg (SiteDir):
     metadata = """Name: distinfo-pkg
 Author: Steven Ma
 Version: 1.0.0
+Requires-Dist: wheel >= 1.0
+Requires-Dist: pytest; extra == 'test'
 """
     def distinfo_pkg(self):
         build_files({
             "distinfo_pkg-1.0.0.dist-info": {
                 "METADATA": self.metadata,
-                "RECORD": "mod.py\n",
+                "RECORD": "mod.py,sha256=abc,20\n",
                 "entry_points.txt" : """
                     [entries]
                     main = mod:main
