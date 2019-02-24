@@ -20,7 +20,6 @@ class BasicTests(fixtures.DistInfoPkg,unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
-        # Assume pip is installed and retrieve the version of pip.
         dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
@@ -145,7 +144,7 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         assert meta.get_payload() == 'pôrˈtend\n'
 
 
-class DiscoveryTests(unittest.TestCase):
+class DiscoveryTests(fixtures.DistInfoPkg,unittest.TestCase):
 
     def test_package_discovery(self):
         dists = list(importlib_metadata.api.distributions())
@@ -158,6 +157,6 @@ class DiscoveryTests(unittest.TestCase):
             for dist in dists
             )
         assert any(
-            dist.metadata['Name'] == 'pip'
+            dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists
             )

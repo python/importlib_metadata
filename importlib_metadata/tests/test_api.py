@@ -48,13 +48,11 @@ class APITests(fixtures.DistInfoPkg,unittest.TestCase):
         self.assertEqual(top_level.read_text(), 'importlib_metadata\n')
 
     def test_entry_points(self):
-        scripts = importlib_metadata.entry_points()['console_scripts']
-        scripts = dict(scripts)
-        pip_ep = scripts['pip']
-        # We should probably not be dependent on a third party package's
-        # internal API staying stable.
-        self.assertEqual(pip_ep.value, 'pip._internal:main')
-        self.assertEqual(pip_ep.extras, [])
+        entires = importlib_metadata.entry_points()['entries']
+        entries = dict(entires)
+        ep = entries['main']
+        self.assertEqual(ep.value, 'mod:main')
+        self.assertEqual(ep.extras, [])
 
     def test_metadata_for_this_package(self):
         md = importlib_metadata.metadata('importlib_metadata')
