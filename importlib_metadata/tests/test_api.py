@@ -17,7 +17,7 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class APITests(unittest.TestCase,fixtures.DistInfoPkg):
+class APITests(fixtures.DistInfoPkg,unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
@@ -25,8 +25,7 @@ class APITests(unittest.TestCase,fixtures.DistInfoPkg):
         assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
-    def test_retrieves_version_of_pip(self):
-        # Assume pip is installed and retrieve the version of pip.
+    def test_retrieves_version_of_distinfo_pkg(self):
         version = importlib_metadata.version('distinfo-pkg')
         assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
@@ -99,7 +98,7 @@ class APITests(unittest.TestCase,fixtures.DistInfoPkg):
             '<FileHash mode: sha256 value: .*>')
 
     def test_files_dist_info(self):
-        self._test_files(importlib_metadata.files('pip'))
+        self._test_files(importlib_metadata.files('distinfo-pkg'))
 
     def test_files_egg_info(self):
         self._test_files(importlib_metadata.files('importlib_metadata'))

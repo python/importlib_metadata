@@ -16,10 +16,10 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class BasicTests(unittest.TestCase,fixtures.DistInfoPkg):
+class BasicTests(fixtures.DistInfoPkg,unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
-    def test_retrieves_version_of_pip(self):
+    def test_retrieves_version_of_self(self):
         # Assume pip is installed and retrieve the version of pip.
         dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)

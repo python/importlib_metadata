@@ -48,9 +48,10 @@ Author: Steven Ma
 Version: 1.0.0
 """
     def distinfo_pkg(self):
-        metadata_dir = self.site_dir.mkdir("distinfo_pkg-1.0.0.dist-info")
+        metadata_dir = self.site_dir / "distinfo_pkg-1.0.0.dist-info"
+        metadata_dir.mkdir()
         metadata_file = metadata_dir / "METADATA"
-        with metadata_file.open(mode='w') as strm:
+        with metadata_file.open('w') as strm:
             strm.write(self.metadata)
     def setUp(self):
         super(DistInfoPkg,self).setUp()
@@ -62,12 +63,12 @@ to incorporate into egginfo_pkg:
     1. Metadata directory is called "name.egg-info"
     2. Metadata is in a file called PKG-INFO (not sure)
     3. The list of files is called SOURCES.TXT
-"""
+
 class EggInfoPkg (SiteDir):
-    metadata = """Name: egginfo-pkg
+    metadata = Name: egginfo-pkg
 Author: Steven Ma
 Version: 1.0.0
-"""
+
     def egginfo_pkg(self):
         metadata_dir = self.site_dir.mkdir("egginfo_pkg.egg-info")
         metadata_file = metadata_dir / "PKG-INFO"
@@ -76,4 +77,4 @@ Version: 1.0.0
     def setUp(self):
         super(DistInfoPkg,self).setUp()
         self.egginfo_pkg()
-
+"""
