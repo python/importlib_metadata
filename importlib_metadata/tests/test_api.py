@@ -17,11 +17,11 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class APITests(fixtures.DistInfoPkg,unittest.TestCase):
+class APITests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
-        version = importlib_metadata.version('importlib_metadata')
+        version = importlib_metadata.version('egginfo-pkg')
         assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
@@ -115,6 +115,7 @@ class APITests(fixtures.DistInfoPkg,unittest.TestCase):
             )
 
     def test_requires_dist_info(self):
+        breakpoint()
         deps = importlib_metadata.requires('distinfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert parsed

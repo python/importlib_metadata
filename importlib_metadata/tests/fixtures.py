@@ -75,22 +75,37 @@ The following are characteristics of any package that we want
 to incorporate into egginfo_pkg:
     1. Metadata directory is called "name.egg-info"
     2. Metadata is in a file called PKG-INFO (not sure)
-    3. The list of files is called SOURCES.TXT
+    3. The list of files is called SOURCES.txt
+"""
 
 class EggInfoPkg (SiteDir):
-    metadata = Name: egginfo-pkg
+    eggmetadata = """Name: egginfo-pkg
 Author: Steven Ma
-Version: 1.0.0
+Version: 1.0.0"""
 
     def egginfo_pkg(self):
-        metadata_dir = self.site_dir.mkdir("egginfo_pkg.egg-info")
-        metadata_file = metadata_dir / "PKG-INFO"
-        with metadata_file.open(mode='w') as strm:
-            strm.write(self.metadata)
+        build_files({
+            "egginfo_pkg.egg-info": {
+                "PKG-INFO": self.eggmetadata,
+                "SOURCES.txt": "mod.py\n",
+                "entry_points.txt" : """
+                    [entries]
+                    main = mod:main
+                """,
+                "requires.txt": """
+                    wheel >= 1.0
+                    [test]
+                    pytest
+                """,
+            },
+            "mod.py": """
+                def main():
+                    print("hello world")
+                """,
+        },prefix=str(self.site_dir))
     def setUp(self):
-        super(DistInfoPkg,self).setUp()
+        super(EggInfoPkg,self).setUp()
         self.egginfo_pkg()
-"""
 
 def build_files(file_defs, prefix=""):
     """
