@@ -3,6 +3,7 @@ import os
 import shutil
 import tempfile
 import contextlib
+import textwrap
 
 try:
     from contextlib import ExitStack
@@ -53,6 +54,10 @@ Version: 1.0.0
             "distinfo_pkg-1.0.0.dist-info": {
                 "METADATA": self.metadata,
                 "RECORD": "mod.py\n",
+                "entry_points.txt" : """
+                    [entries]
+                    main = mod:main
+                """
             },
             "mod.py": """
                 def main():
@@ -117,5 +122,8 @@ def build_files(file_defs, prefix=""):
                     f.write(contents)
             else:
                 with open(full_name, 'w') as f:
-                    f.write(contents)
+                    f.write(DALS(contents))
 
+# Unindents the above triple quote text for formatting
+def DALS(str):
+    return textwrap.dedent(str).lstrip()

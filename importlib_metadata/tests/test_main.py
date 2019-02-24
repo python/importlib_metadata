@@ -37,7 +37,7 @@ class BasicTests(fixtures.DistInfoPkg,unittest.TestCase):
         self.assertIsInstance(_hooks.WheelDistribution, type)
 
 
-class ImportTests(unittest.TestCase):
+class ImportTests(fixtures.DistInfoPkg,unittest.TestCase):
     def test_import_nonexistent_module(self):
         # Ensure that the MetadataPathFinder does not crash an import of a
         # non-existant module.
@@ -45,10 +45,9 @@ class ImportTests(unittest.TestCase):
             importlib.import_module('does_not_exist')
 
     def test_resolve(self):
-        scripts = dict(importlib_metadata.entry_points()['console_scripts'])
-        pip_ep = scripts['pip']
-        import pip._internal
-        self.assertEqual(pip_ep.load(), pip._internal.main)
+        entries = dict(importlib_metadata.entry_points()['entries'])
+        ep = entries['main']
+        self.assertEqual(ep.load().__name__, "main")
 
     def test_resolve_without_attr(self):
         ep = importlib_metadata.api.EntryPoint(
