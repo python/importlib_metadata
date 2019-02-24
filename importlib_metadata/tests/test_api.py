@@ -69,7 +69,7 @@ class APITests(fixtures.DistInfoPkg,unittest.TestCase):
 
     @staticmethod
     def _test_files(files_iter):
-        assert isinstance(files_iter, Iterator)
+        assert isinstance(files_iter, Iterator), files_iter
         files = list(files_iter)
         root = files[0].root
         for file in files:

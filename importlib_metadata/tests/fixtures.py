@@ -54,7 +54,9 @@ Version: 1.0.0
         with metadata_file.open('w') as strm:
             strm.write(self.metadata)
         metadata_record = metadata_dir / "RECORD"
-        metadata_record.touch()
+        with metadata_record.open('w') as strm:
+            strm.write("mod.py\n")
+        (self.site_dir / "mod.py").touch()
     def setUp(self):
         super(DistInfoPkg,self).setUp()
         self.distinfo_pkg()
