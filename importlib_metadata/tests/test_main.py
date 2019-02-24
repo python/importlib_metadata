@@ -16,14 +16,15 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class BasicTests(unittest.TestCase):
+class BasicTests(unittest.TestCase,fixtures.DistInfoPkg):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
-        dist = importlib_metadata.Distribution.from_name('pip')
+        dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
+        
 
     def test_for_name_does_not_exist(self):
         with self.assertRaises(importlib_metadata.PackageNotFoundError):

@@ -4,6 +4,8 @@ import unittest
 import importlib_metadata
 import packaging.requirements
 
+from . import fixtures
+
 try:
     from collections.abc import Iterator
 except ImportError:
@@ -15,7 +17,7 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class APITests(unittest.TestCase):
+class APITests(unittest.TestCase,fixtures.DistInfoPkg):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
@@ -25,7 +27,7 @@ class APITests(unittest.TestCase):
 
     def test_retrieves_version_of_pip(self):
         # Assume pip is installed and retrieve the version of pip.
-        version = importlib_metadata.version('pip')
+        version = importlib_metadata.version('distinfo-pkg')
         assert isinstance(version, text)
         assert re.match(self.version_pattern, version)
 
