@@ -1,4 +1,5 @@
 import sys
+import os
 import shutil
 import tempfile
 import contextlib
@@ -48,15 +49,16 @@ Author: Steven Ma
 Version: 1.0.0
 """
     def distinfo_pkg(self):
-        metadata_dir = self.site_dir / "distinfo_pkg-1.0.0.dist-info"
-        metadata_dir.mkdir()
-        metadata_file = metadata_dir / "METADATA"
-        with metadata_file.open('w') as strm:
-            strm.write(self.metadata)
-        metadata_record = metadata_dir / "RECORD"
-        with metadata_record.open('w') as strm:
-            strm.write("mod.py\n")
-        (self.site_dir / "mod.py").touch()
+        build_files({
+            "distinfo_pkg-1.0.0.dist-info": {
+                "METADATA": self.metadata,
+                "RECORD": "mod.py\n",
+            },
+            "mod.py": """
+                def main():
+                    print("hello world")
+                """,
+        },prefix=str(self.site_dir))
     def setUp(self):
         super(DistInfoPkg,self).setUp()
         self.distinfo_pkg()
@@ -82,3 +84,38 @@ Version: 1.0.0
         super(DistInfoPkg,self).setUp()
         self.egginfo_pkg()
 """
+
+def build_files(file_defs, prefix=""):
+    """
+    Build a set of files/directories, as described by the
+    file_defs dictionary.
+    Each key/value pair in the dictionary is interpreted as
+    a filename/contents
+    pair. If the contents value is a dictionary, a directory
+    is created, and the
+    dictionary interpreted as the files within it, recursively.
+    For example:
+    {"README.txt": "A README file",
+     "foo": {
+        "__init__.py": "",
+        "bar": {
+            "__init__.py": "",
+        },
+        "baz.py": "# Some code",
+     }
+    }
+    """
+    for name, contents in file_defs.items():
+        full_name = os.path.join(prefix, name)
+        if isinstance(contents, dict):
+            # Keep makedirs for now. Pathlib later.
+            os.makedirs(full_name)
+            build_files(contents, prefix=full_name)
+        else:
+            if isinstance(contents, bytes):
+                with open(full_name, 'wb') as f:
+                    f.write(contents)
+            else:
+                with open(full_name, 'w') as f:
+                    f.write(contents)
+
