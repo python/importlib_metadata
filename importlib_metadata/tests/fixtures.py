@@ -1,9 +1,9 @@
-import sys
 import os
+import sys
 import shutil
 import tempfile
-import contextlib
 import textwrap
+import contextlib
 
 try:
     from contextlib import ExitStack
@@ -36,49 +36,55 @@ class SiteDir:
         self.addCleanup(self.fixtures.close)
         self.site_dir = self.fixtures.enter_context(self.site_dir())
 
-# A pip distinfo_pkg and importlib_metadata egginfo_pkg would go here.
+
 """
-The following are characteristics of any package that we want 
+The following are characteristics of any package that we want
 to incorporate into distinfo_pkg:
     1. Metada directory is called "name-version.dist-info"
     2. Metada is in a file called METADATA
     3. The list of files installed is called RECORD
 """
-class DistInfoPkg (SiteDir):
+
+
+class DistInfoPkg(SiteDir):
     metadata = """Name: distinfo-pkg
 Author: Steven Ma
 Version: 1.0.0
 Requires-Dist: wheel >= 1.0
 Requires-Dist: pytest; extra == 'test'
 """
+
     def distinfo_pkg(self):
         build_files({
             "distinfo_pkg-1.0.0.dist-info": {
                 "METADATA": self.metadata,
                 "RECORD": "mod.py,sha256=abc,20\n",
-                "entry_points.txt" : """
+                "entry_points.txt": """
                     [entries]
                     main = mod:main
                 """
-            },
+                },
             "mod.py": """
                 def main():
                     print("hello world")
                 """,
-        },prefix=str(self.site_dir))
+            }, prefix=str(self.site_dir))
+
     def setUp(self):
-        super(DistInfoPkg,self).setUp()
+        super(DistInfoPkg, self).setUp()
         self.distinfo_pkg()
 
+
 """
-The following are characteristics of any package that we want 
+The following are characteristics of any package that we want
 to incorporate into egginfo_pkg:
     1. Metadata directory is called "name.egg-info"
     2. Metadata is in a file called PKG-INFO (not sure)
     3. The list of files is called SOURCES.txt
 """
 
-class EggInfoPkg (SiteDir):
+
+class EggInfoPkg(SiteDir):
     eggmetadata = """Name: egginfo-pkg
 Author: Steven Ma
 License: Unknown
@@ -94,7 +100,7 @@ Classifier: Topic :: Software Development :: Libraries"""
                     mod.py
                     egginfo_pkg.egg-info/top_level.txt
                 """,
-                "entry_points.txt" : """
+                "entry_points.txt": """
                     [entries]
                     main = mod:main
                 """,
@@ -104,15 +110,17 @@ Classifier: Topic :: Software Development :: Libraries"""
                     pytest
                 """,
                 "top_level.txt": "mod\n"
-            },
+                },
             "mod.py": """
                 def main():
                     print("hello world")
                 """,
-        },prefix=str(self.site_dir))
+            }, prefix=str(self.site_dir))
+
     def setUp(self):
-        super(EggInfoPkg,self).setUp()
+        super(EggInfoPkg, self).setUp()
         self.egginfo_pkg()
+
 
 def build_files(file_defs, prefix=""):
     """
@@ -147,6 +155,7 @@ def build_files(file_defs, prefix=""):
             else:
                 with open(full_name, 'w') as f:
                     f.write(DALS(contents))
+
 
 # Unindents the above triple quote text for formatting
 def DALS(str):

@@ -17,7 +17,7 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class APITests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
+class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):

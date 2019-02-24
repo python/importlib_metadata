@@ -16,14 +16,13 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class BasicTests(fixtures.DistInfoPkg,unittest.TestCase):
+class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
         dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
-        
 
     def test_for_name_does_not_exist(self):
         with self.assertRaises(importlib_metadata.PackageNotFoundError):
@@ -36,7 +35,7 @@ class BasicTests(fixtures.DistInfoPkg,unittest.TestCase):
         self.assertIsInstance(_hooks.WheelDistribution, type)
 
 
-class ImportTests(fixtures.DistInfoPkg,unittest.TestCase):
+class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_import_nonexistent_module(self):
         # Ensure that the MetadataPathFinder does not crash an import of a
         # non-existant module.
@@ -144,7 +143,8 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         assert meta.get_payload() == 'pôrˈtend\n'
 
 
-class DiscoveryTests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
+class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg,
+                     unittest.TestCase):
 
     def test_package_discovery(self):
         dists = list(importlib_metadata.api.distributions())
