@@ -81,22 +81,29 @@ to incorporate into egginfo_pkg:
 class EggInfoPkg (SiteDir):
     eggmetadata = """Name: egginfo-pkg
 Author: Steven Ma
-Version: 1.0.0"""
+License: Unknown
+Version: 1.0.0
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries"""
 
     def egginfo_pkg(self):
         build_files({
             "egginfo_pkg.egg-info": {
                 "PKG-INFO": self.eggmetadata,
-                "SOURCES.txt": "mod.py\n",
+                "SOURCES.txt": """
+                    mod.py
+                    egginfo_pkg.egg-info/top_level.txt
+                """,
                 "entry_points.txt" : """
                     [entries]
                     main = mod:main
                 """,
                 "requires.txt": """
-                    wheel >= 1.0
+                    wheel >= 1.0; python_version >= "2.7"
                     [test]
                     pytest
                 """,
+                "top_level.txt": "mod\n"
             },
             "mod.py": """
                 def main():

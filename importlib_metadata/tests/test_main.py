@@ -144,7 +144,7 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         assert meta.get_payload() == 'pôrˈtend\n'
 
 
-class DiscoveryTests(fixtures.DistInfoPkg,unittest.TestCase):
+class DiscoveryTests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
 
     def test_package_discovery(self):
         dists = list(importlib_metadata.api.distributions())
@@ -153,7 +153,7 @@ class DiscoveryTests(fixtures.DistInfoPkg,unittest.TestCase):
             for dist in dists
             )
         assert any(
-            dist.metadata['Name'] == 'importlib-metadata'
+            dist.metadata['Name'] == 'egginfo-pkg'
             for dist in dists
             )
         assert any(

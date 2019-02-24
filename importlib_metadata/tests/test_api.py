@@ -35,17 +35,17 @@ class APITests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
             importlib_metadata.distribution('does-not-exist')
 
     def test_for_top_level(self):
-        distribution = importlib_metadata.distribution('importlib_metadata')
+        distribution = importlib_metadata.distribution('egginfo-pkg')
         self.assertEqual(
             distribution.read_text('top_level.txt').strip(),
-            'importlib_metadata')
+            'mod')
 
     def test_read_text(self):
         top_level = [
-            path for path in importlib_metadata.files('importlib_metadata')
+            path for path in importlib_metadata.files('egginfo-pkg')
             if path.name == 'top_level.txt'
             ][0]
-        self.assertEqual(top_level.read_text(), 'importlib_metadata\n')
+        self.assertEqual(top_level.read_text(), 'mod\n')
 
     def test_entry_points(self):
         entires = importlib_metadata.entry_points()['entries']
@@ -55,10 +55,10 @@ class APITests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
         self.assertEqual(ep.extras, [])
 
     def test_metadata_for_this_package(self):
-        md = importlib_metadata.metadata('importlib_metadata')
-        assert md['author'] == 'Barry Warsaw'
-        assert md['LICENSE'] == 'Apache Software License'
-        assert md['Name'] == 'importlib-metadata'
+        md = importlib_metadata.metadata('egginfo-pkg')
+        assert md['author'] == 'Steven Ma'
+        assert md['LICENSE'] == 'Unknown'
+        assert md['Name'] == 'egginfo-pkg'
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
@@ -99,23 +99,23 @@ class APITests(fixtures.EggInfoPkg,fixtures.DistInfoPkg,unittest.TestCase):
         self._test_files(importlib_metadata.files('distinfo-pkg'))
 
     def test_files_egg_info(self):
-        self._test_files(importlib_metadata.files('importlib_metadata'))
+        self._test_files(importlib_metadata.files('egginfo-pkg'))
 
+    # This will require its own fixture. Leave it for now.
     def test_find_local(self):
         dist = importlib_metadata.api.local_distribution()
         assert dist.metadata['Name'] == 'importlib-metadata'
 
     def test_requires(self):
-        deps = importlib_metadata.requires('importlib_metadata')
+        deps = importlib_metadata.requires('egginfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert all(parsed)
         assert any(
-            dep.name == 'pathlib2' and dep.marker
+            dep.name == 'wheel' and dep.marker
             for dep in parsed
             )
 
     def test_requires_dist_info(self):
-        breakpoint()
         deps = importlib_metadata.requires('distinfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert parsed
