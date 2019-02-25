@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import os
 import sys
 import shutil
 import tempfile
@@ -63,7 +62,7 @@ class DistInfoPkg(SiteDir):
 
     def setUp(self):
         super(DistInfoPkg, self).setUp()
-        build_files(DistInfoPkg.files, str(self.site_dir))
+        build_files(DistInfoPkg.files, self.site_dir)
 
 
 class EggInfoPkg(SiteDir):
@@ -100,10 +99,10 @@ class EggInfoPkg(SiteDir):
 
     def setUp(self):
         super(EggInfoPkg, self).setUp()
-        build_files(EggInfoPkg.files, prefix=str(self.site_dir))
+        build_files(EggInfoPkg.files, prefix=self.site_dir)
 
 
-def build_files(file_defs, prefix=""):
+def build_files(file_defs, prefix=pathlib.Path()):
     """
     Build a set of files/directories, as described by the
     file_defs dictionary.
@@ -124,17 +123,16 @@ def build_files(file_defs, prefix=""):
     }
     """
     for name, contents in file_defs.items():
-        full_name = os.path.join(prefix, name)
+        full_name = prefix / name
         if isinstance(contents, dict):
-            # Keep makedirs for now. Pathlib later.
-            os.makedirs(full_name)
+            full_name.mkdir()
             build_files(contents, prefix=full_name)
         else:
             if isinstance(contents, bytes):
-                with open(full_name, 'wb') as f:
+                with full_name.open('wb') as f:
                     f.write(contents)
             else:
-                with open(full_name, 'w') as f:
+                with full_name.open('w') as f:
                     f.write(DALS(contents))
 
 
