@@ -43,8 +43,8 @@ def save_cwd():
 
 @contextlib.contextmanager
 def tempdir_as_cwd():
-    with save_cwd():
-        with tempdir() as tmp:
+    with tempdir() as tmp:
+        with save_cwd():
             os.chdir(str(tmp))
             yield tmp
 
