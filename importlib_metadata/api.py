@@ -346,7 +346,7 @@ def version(package):
     return distribution(package).version
 
 
-def entry_points(name=None):
+def entry_points():
     """Return EntryPoint objects for all installed packages.
 
     :return: EntryPoint objects for all installed packages.
