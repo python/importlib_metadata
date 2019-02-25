@@ -49,31 +49,30 @@ to incorporate into distinfo_pkg:
 
 
 class DistInfoPkg(SiteDir):
-    def distinfo_pkg(self):
-        build_files({
-            "distinfo_pkg-1.0.0.dist-info": {
-                "METADATA": """
-                    Name: distinfo-pkg
-                    Author: Steven Ma
-                    Version: 1.0.0
-                    Requires-Dist: wheel >= 1.0
-                    Requires-Dist: pytest; extra == 'test'
-                    """,
-                "RECORD": "mod.py,sha256=abc,20\n",
-                "entry_points.txt": """
-                    [entries]
-                    main = mod:main
-                """
-                },
-            "mod.py": """
-                def main():
-                    print("hello world")
+    files = {
+        "distinfo_pkg-1.0.0.dist-info": {
+            "METADATA": """
+                Name: distinfo-pkg
+                Author: Steven Ma
+                Version: 1.0.0
+                Requires-Dist: wheel >= 1.0
+                Requires-Dist: pytest; extra == 'test'
                 """,
-            }, prefix=str(self.site_dir))
+            "RECORD": "mod.py,sha256=abc,20\n",
+            "entry_points.txt": """
+                [entries]
+                main = mod:main
+            """
+            },
+        "mod.py": """
+            def main():
+                print("hello world")
+            """,
+        }
 
     def setUp(self):
         super(DistInfoPkg, self).setUp()
-        self.distinfo_pkg()
+        build_files(DistInfoPkg.files, str(self.site_dir))
 
 
 """
@@ -86,41 +85,40 @@ to incorporate into egginfo_pkg:
 
 
 class EggInfoPkg(SiteDir):
-    def egginfo_pkg(self):
-        build_files({
-            "egginfo_pkg.egg-info": {
-                "PKG-INFO": """
-                    Name: egginfo-pkg
-                    Author: Steven Ma
-                    License: Unknown
-                    Version: 1.0.0
-                    Classifier: Intended Audience :: Developers
-                    Classifier: Topic :: Software Development :: Libraries
-                    """,
-                "SOURCES.txt": """
-                    mod.py
-                    egginfo_pkg.egg-info/top_level.txt
+    files = {
+        "egginfo_pkg.egg-info": {
+            "PKG-INFO": """
+                Name: egginfo-pkg
+                Author: Steven Ma
+                License: Unknown
+                Version: 1.0.0
+                Classifier: Intended Audience :: Developers
+                Classifier: Topic :: Software Development :: Libraries
                 """,
-                "entry_points.txt": """
-                    [entries]
-                    main = mod:main
-                """,
-                "requires.txt": """
-                    wheel >= 1.0; python_version >= "2.7"
-                    [test]
-                    pytest
-                """,
-                "top_level.txt": "mod\n"
-                },
-            "mod.py": """
-                def main():
-                    print("hello world")
-                """,
-            }, prefix=str(self.site_dir))
+            "SOURCES.txt": """
+                mod.py
+                egginfo_pkg.egg-info/top_level.txt
+            """,
+            "entry_points.txt": """
+                [entries]
+                main = mod:main
+            """,
+            "requires.txt": """
+                wheel >= 1.0; python_version >= "2.7"
+                [test]
+                pytest
+            """,
+            "top_level.txt": "mod\n"
+            },
+        "mod.py": """
+            def main():
+                print("hello world")
+            """,
+        }
 
     def setUp(self):
         super(EggInfoPkg, self).setUp()
-        self.egginfo_pkg()
+        build_files(EggInfoPkg.files, prefix=str(self.site_dir))
 
 
 def build_files(file_defs, prefix=""):
