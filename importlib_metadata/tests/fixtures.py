@@ -138,6 +138,6 @@ def build_files(file_defs, prefix=""):
                     f.write(DALS(contents))
 
 
-# Unindents the above triple quote text for formatting
 def DALS(str):
+    "Dedent and left-strip"
     return textwrap.dedent(str).lstrip()
