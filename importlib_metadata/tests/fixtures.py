@@ -39,15 +39,6 @@ class SiteDir:
         self.site_dir = self.fixtures.enter_context(self.site_dir())
 
 
-"""
-The following are characteristics of any package that we want
-to incorporate into distinfo_pkg:
-    1. Metada directory is called "name-version.dist-info"
-    2. Metada is in a file called METADATA
-    3. The list of files installed is called RECORD
-"""
-
-
 class DistInfoPkg(SiteDir):
     files = {
         "distinfo_pkg-1.0.0.dist-info": {
@@ -73,15 +64,6 @@ class DistInfoPkg(SiteDir):
     def setUp(self):
         super(DistInfoPkg, self).setUp()
         build_files(DistInfoPkg.files, str(self.site_dir))
-
-
-"""
-The following are characteristics of any package that we want
-to incorporate into egginfo_pkg:
-    1. Metadata directory is called "name.egg-info"
-    2. Metadata is in a file called PKG-INFO (not sure)
-    3. The list of files is called SOURCES.txt
-"""
 
 
 class EggInfoPkg(SiteDir):
