@@ -16,12 +16,11 @@ except ImportError:
     from __builtin__ import unicode as text
 
 
-class BasicTests(unittest.TestCase):
+class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
-    def test_retrieves_version_of_pip(self):
-        # Assume pip is installed and retrieve the version of pip.
-        dist = importlib_metadata.Distribution.from_name('pip')
+    def test_retrieves_version_of_self(self):
+        dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
 
@@ -36,7 +35,7 @@ class BasicTests(unittest.TestCase):
         self.assertIsInstance(_hooks.WheelDistribution, type)
 
 
-class ImportTests(unittest.TestCase):
+class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_import_nonexistent_module(self):
         # Ensure that the MetadataPathFinder does not crash an import of a
         # non-existant module.
@@ -44,10 +43,9 @@ class ImportTests(unittest.TestCase):
             importlib.import_module('does_not_exist')
 
     def test_resolve(self):
-        scripts = dict(importlib_metadata.entry_points()['console_scripts'])
-        pip_ep = scripts['pip']
-        import pip._internal
-        self.assertEqual(pip_ep.load(), pip._internal.main)
+        entries = dict(importlib_metadata.entry_points()['entries'])
+        ep = entries['main']
+        self.assertEqual(ep.load().__name__, "main")
 
     def test_resolve_without_attr(self):
         ep = importlib_metadata.api.EntryPoint(
@@ -145,7 +143,8 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
         assert meta.get_payload() == 'pôrˈtend\n'
 
 
-class DiscoveryTests(unittest.TestCase):
+class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg,
+                     unittest.TestCase):
 
     def test_package_discovery(self):
         dists = list(importlib_metadata.api.distributions())
@@ -154,10 +153,10 @@ class DiscoveryTests(unittest.TestCase):
             for dist in dists
             )
         assert any(
-            dist.metadata['Name'] == 'importlib-metadata'
+            dist.metadata['Name'] == 'egginfo-pkg'
             for dist in dists
             )
         assert any(
-            dist.metadata['Name'] == 'pip'
+            dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists
             )
