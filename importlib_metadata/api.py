@@ -99,7 +99,7 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         return iter((self.name, self))
 
 
-class PackagePath(pathlib.PosixPath):
+class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
     def read_text(self, encoding='utf-8'):
