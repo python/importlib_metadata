@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import os
 import sys
 import shutil
 import tempfile
@@ -20,17 +21,41 @@ except ImportError:
 __metaclass__ = type
 
 
+@contextlib.contextmanager
+def tempdir():
+    tmpdir = tempfile.mkdtemp()
+    sys.path[:0] = [tmpdir]
+    try:
+        yield pathlib.Path(tmpdir)
+    finally:
+        sys.path.remove(tmpdir)
+        shutil.rmtree(tmpdir)
+
+
+@contextlib.contextmanager
+def save_cwd():
+    orig = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(orig)
+
+
+@contextlib.contextmanager
+def tempdir_as_cwd():
+    with save_cwd():
+        with tempdir() as tmp:
+            os.chdir(str(tmp))
+            yield tmp
+
+
 class SiteDir:
     @staticmethod
     @contextlib.contextmanager
     def site_dir():
-        tmpdir = tempfile.mkdtemp()
-        sys.path[:0] = [tmpdir]
-        try:
-            yield pathlib.Path(tmpdir)
-        finally:
-            sys.path.remove(tmpdir)
-            shutil.rmtree(tmpdir)
+        with tempdir() as tmp:
+            sys.path[:0] = [str(tmp)]
+            yield tmp
 
     def setUp(self):
         self.fixtures = ExitStack()
@@ -100,6 +125,14 @@ class EggInfoPkg(SiteDir):
     def setUp(self):
         super(EggInfoPkg, self).setUp()
         build_files(EggInfoPkg.files, prefix=self.site_dir)
+
+
+class LocalPackage:
+    def setUp(self):
+        self.fixtures = ExitStack()
+        self.addCleanup(self.fixtures.close)
+        self.fixtures.enter_context(tempdir_as_cwd())
+        build_files(EggInfoPkg.files)
 
 
 def build_files(file_defs, prefix=pathlib.Path()):

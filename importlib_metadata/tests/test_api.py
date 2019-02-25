@@ -101,11 +101,6 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
     def test_files_egg_info(self):
         self._test_files(importlib_metadata.files('egginfo-pkg'))
 
-    # This will require its own fixture. Leave it for now.
-    def test_find_local(self):
-        dist = importlib_metadata.api.local_distribution()
-        assert dist.metadata['Name'] == 'importlib-metadata'
-
     def test_requires(self):
         deps = importlib_metadata.requires('egginfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
@@ -151,3 +146,9 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
 
         assert deps == expected
         assert all(map(packaging.requirements.Requirement, deps))
+
+
+class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
+    def test_find_local(self):
+        dist = importlib_metadata.api.local_distribution()
+        assert dist.metadata['Name'] == 'egginfo-pkg'
