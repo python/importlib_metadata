@@ -49,17 +49,16 @@ to incorporate into distinfo_pkg:
 
 
 class DistInfoPkg(SiteDir):
-    metadata = """Name: distinfo-pkg
-Author: Steven Ma
-Version: 1.0.0
-Requires-Dist: wheel >= 1.0
-Requires-Dist: pytest; extra == 'test'
-"""
-
     def distinfo_pkg(self):
         build_files({
             "distinfo_pkg-1.0.0.dist-info": {
-                "METADATA": self.metadata,
+                "METADATA": """
+                    Name: distinfo-pkg
+                    Author: Steven Ma
+                    Version: 1.0.0
+                    Requires-Dist: wheel >= 1.0
+                    Requires-Dist: pytest; extra == 'test'
+                    """,
                 "RECORD": "mod.py,sha256=abc,20\n",
                 "entry_points.txt": """
                     [entries]
@@ -87,17 +86,17 @@ to incorporate into egginfo_pkg:
 
 
 class EggInfoPkg(SiteDir):
-    eggmetadata = """Name: egginfo-pkg
-Author: Steven Ma
-License: Unknown
-Version: 1.0.0
-Classifier: Intended Audience :: Developers
-Classifier: Topic :: Software Development :: Libraries"""
-
     def egginfo_pkg(self):
         build_files({
             "egginfo_pkg.egg-info": {
-                "PKG-INFO": self.eggmetadata,
+                "PKG-INFO": """
+                    Name: egginfo-pkg
+                    Author: Steven Ma
+                    License: Unknown
+                    Version: 1.0.0
+                    Classifier: Intended Audience :: Developers
+                    Classifier: Topic :: Software Development :: Libraries
+                    """,
                 "SOURCES.txt": """
                     mod.py
                     egginfo_pkg.egg-info/top_level.txt
