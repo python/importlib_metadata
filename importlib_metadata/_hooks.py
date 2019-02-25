@@ -6,6 +6,8 @@ import zipp
 import itertools
 
 from .api import Distribution
+from importlib_metadata.abc import DistributionFinder
+
 
 if sys.version_info >= (3,):  # pragma: nocover
     from contextlib import suppress
@@ -25,7 +27,7 @@ def install(cls):
     return cls
 
 
-class NullFinder:
+class NullFinder(DistributionFinder):
     """
     A "Finder" (aka "MetaClassFinder") that never finds any modules,
     but may find distributions.
