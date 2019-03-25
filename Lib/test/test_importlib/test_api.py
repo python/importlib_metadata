@@ -2,7 +2,14 @@ import re
 import textwrap
 import unittest
 import importlib.metadata
-import packaging.requirements
+
+try:
+    import packaging.requirements
+except ImportError:
+    # stub out requirements parsing when not available
+    class packaging:
+        class requirements:
+            Requirement = str
 
 from collections.abc import Iterator
 
