@@ -61,7 +61,7 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
-    def test_importlib.metadata_version(self):
+    def test_importlib_metadata_version(self):
         assert re.match(self.version_pattern, importlib.metadata.__version__)
 
     @staticmethod
@@ -145,5 +145,5 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
 
 class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
     def test_find_local(self):
-        dist = importlib_metadata.api.local_distribution()
+        dist = importlib.metadata.api.local_distribution()
         assert dist.metadata['Name'] == 'egginfo-pkg'
