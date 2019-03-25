@@ -49,7 +49,6 @@ def tempdir_as_cwd():
             yield tmp
 
 
-# Have a distinfo_pkg and egginfo_pkg (which is corresponding to pip and importlib_metadata)
 class SiteDir:
     @staticmethod
     @contextlib.contextmanager
