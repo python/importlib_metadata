@@ -2,7 +2,6 @@ import re
 import textwrap
 import unittest
 import importlib_metadata
-import packaging.requirements
 
 from . import fixtures
 
@@ -103,17 +102,14 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
 
     def test_requires(self):
         deps = importlib_metadata.requires('egginfo-pkg')
-        parsed = list(map(packaging.requirements.Requirement, deps))
-        assert all(parsed)
         assert any(
-            dep.name == 'wheel' and dep.marker
-            for dep in parsed
+            dep == 'wheel >= 1.0; python_version >= "2.7"'
+            for dep in deps
             )
 
     def test_requires_dist_info(self):
-        deps = importlib_metadata.requires('distinfo-pkg')
-        parsed = list(map(packaging.requirements.Requirement, deps))
-        assert parsed
+        deps = list(importlib_metadata.requires('distinfo-pkg'))
+        assert deps and all(deps)
 
     def test_more_complex_deps_requires_text(self):
         requires = textwrap.dedent("""
@@ -145,7 +141,6 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
         # tightly than some other part of the environment expression.
 
         assert deps == expected
-        assert all(map(packaging.requirements.Requirement, deps))
 
 
 class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
