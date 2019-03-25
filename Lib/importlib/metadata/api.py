@@ -1,4 +1,5 @@
-import io
+from __future__ import absolute_import
+
 import re
 import abc
 import csv
@@ -82,7 +83,7 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         return iter((self.name, self))
 
 
-class PackagePath(pathlib.PosixPath):
+class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
     def read_text(self, encoding='utf-8'):
@@ -220,6 +221,7 @@ class Distribution:
 
     @property
     def requires(self):
+        """Generated requirements specified for this Distribution"""
         return self._read_dist_info_reqs() or self._read_egg_info_reqs()
 
     def _read_dist_info_reqs(self):
@@ -321,7 +323,7 @@ def version(package):
     return distribution(package).version
 
 
-def entry_points(name=None):
+def entry_points():
     """Return EntryPoint objects for all installed packages.
 
     :return: EntryPoint objects for all installed packages.

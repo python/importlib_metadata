@@ -4,6 +4,7 @@ import itertools
 
 from . import zipp
 from .api import Distribution
+from .abc import DistributionFinder
 from contextlib import suppress
 from pathlib import Path
 
@@ -14,10 +15,15 @@ def install(cls):
     return cls
 
 
-class NullFinder:
+class NullFinder(DistributionFinder):
+    """
+    A "Finder" (aka "MetaClassFinder") that never finds any modules,
+    but may find distributions.
+    """
     @staticmethod
     def find_spec(*args, **kwargs):
         return None
+
 
 @install
 class MetadataPathFinder(NullFinder):

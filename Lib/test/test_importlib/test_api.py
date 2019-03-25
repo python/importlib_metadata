@@ -6,17 +6,19 @@ import packaging.requirements
 
 from collections.abc import Iterator
 
-class APITests(unittest.TestCase):
+from . import fixtures
+
+
+class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
-        version = importlib.metadata.version('importlib.metadata')
+        version = importlib.metadata.version('egginfo-pkg')
         assert isinstance(version, str)
         assert re.match(self.version_pattern, version)
 
     def test_retrieves_version_of_pip(self):
-        # Assume pip is installed and retrieve the version of pip.
-        version = importlib.metadata.version('pip')
+        version = importlib.metadata.version('distinfo-pkg')
         assert isinstance(version, str)
         assert re.match(self.version_pattern, version)
 
@@ -25,32 +27,30 @@ class APITests(unittest.TestCase):
             importlib.metadata.distribution('does-not-exist')
 
     def test_for_top_level(self):
-        distribution = importlib.metadata.distribution('importlib.metadata')
+        distribution = importlib.metadata.distribution('egginfo-pkg')
         self.assertEqual(
             distribution.read_text('top_level.txt').strip(),
-            'importlib.metadata')
+            'mod')
 
     def test_read_text(self):
         top_level = [
-            path for path in importlib.metadata.files('importlib.metadata')
+            path for path in importlib.metadata.files('egginfo-pkg')
             if path.name == 'top_level.txt'
             ][0]
-        self.assertEqual(top_level.read_text(), 'importlib.metadata\n')
+        self.assertEqual(top_level.read_text(), 'mod\n')
 
     def test_entry_points(self):
-        scripts = importlib.metadata.entry_points()['console_scripts']
-        scripts = dict(scripts)
-        pip_ep = scripts['pip']
-        # We should probably not be dependent on a third party package's
-        # internal API staying stable.
-        self.assertEqual(pip_ep.value, 'pip._internal:main')
-        self.assertEqual(pip_ep.extras, [])
+        entires = importlib.metadata.entry_points()['entries']
+        entries = dict(entires)
+        ep = entries['main']
+        self.assertEqual(ep.value, 'mod:main')
+        self.assertEqual(ep.extras, [])
 
     def test_metadata_for_this_package(self):
-        md = importlib.metadata.metadata('importlib.metadata')
-        assert md['author'] == 'Barry Warsaw'
-        assert md['LICENSE'] == 'Apache Software License'
-        assert md['Name'] == 'importlib-metadata'
+        md = importlib.metadata.metadata('egginfo-pkg')
+        assert md['author'] == 'Steven Ma'
+        assert md['LICENSE'] == 'Unknown'
+        assert md['Name'] == 'egginfo-pkg'
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
@@ -59,7 +59,7 @@ class APITests(unittest.TestCase):
 
     @staticmethod
     def _test_files(files_iter):
-        assert isinstance(files_iter, Iterator)
+        assert isinstance(files_iter, Iterator), files_iter
         files = list(files_iter)
         root = files[0].root
         for file in files:
@@ -76,35 +76,30 @@ class APITests(unittest.TestCase):
         assertRegex = self.assertRegex
 
         util = [
-            p for p in importlib.metadata.files('wheel')
-            if p.name == 'util.py'
+            p for p in importlib.metadata.files('distinfo-pkg')
+            if p.name == 'mod.py'
             ][0]
         assertRegex(
             repr(util.hash),
             '<FileHash mode: sha256 value: .*>')
 
     def test_files_dist_info(self):
-        self._test_files(importlib.metadata.files('pip'))
+        self._test_files(importlib.metadata.files('distinfo-pkg'))
 
     def test_files_egg_info(self):
-        self._test_files(importlib.metadata.files('importlib.metadata'))
-
-    def test_find_local(self):
-        dist = importlib.metadata.api.local_distribution()
-        assert dist.metadata['Name'] == 'importlib-metadata'
+        self._test_files(importlib.metadata.files('egginfo-pkg'))
 
     def test_requires(self):
-        deps = importlib.metadata.requires('importlib.metadata')
+        deps = importlib.metadata.requires('egginfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert all(parsed)
         assert any(
-            dep.name == 'pathlib2' and dep.marker
+            dep.name == 'wheel' and dep.marker
             for dep in parsed
             )
 
     def test_requires_dist_info(self):
-        # assume 'packaging' is installed as a wheel with dist-info
-        deps = importlib.metadata.requires('packaging')
+        deps = importlib.metadata.requires('distinfo-pkg')
         parsed = list(map(packaging.requirements.Requirement, deps))
         assert parsed
 
@@ -139,3 +134,9 @@ class APITests(unittest.TestCase):
 
         assert deps == expected
         assert all(map(packaging.requirements.Requirement, deps))
+
+
+class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
+    def test_find_local(self):
+        dist = importlib_metadata.api.local_distribution()
+        assert dist.metadata['Name'] == 'egginfo-pkg'
