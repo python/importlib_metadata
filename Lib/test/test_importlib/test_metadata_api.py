@@ -61,9 +61,6 @@ class APITests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
-    def test_importlib_metadata_version(self):
-        assert re.match(self.version_pattern, importlib.metadata.__version__)
-
     @staticmethod
     def _test_files(files_iter):
         assert isinstance(files_iter, Iterator), files_iter
