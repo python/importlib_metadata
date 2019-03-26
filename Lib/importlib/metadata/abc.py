@@ -6,17 +6,13 @@ import abc
 from importlib.abc import MetaPathFinder
 
 
-def abstractclassmethod(func):
-    return classmethod(abc.abstractmethod(func))
-
-
 class DistributionFinder(MetaPathFinder):
     """
     A MetaPathFinder capable of discovering installed distributions.
     """
 
-    @abstractclassmethod
-    def find_distributions(cls, name=None, path=None):
+    @abc.abstractmethod
+    def find_distributions(self, name=None, path=None):
         """
         Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
