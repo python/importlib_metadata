@@ -7,7 +7,8 @@ import sys
 if sys.version_info >= (3,):  # pragma: nocover
     from importlib.abc import MetaPathFinder
 else:  # pragma: nocover
-    from abc import ABCMeta as MetaPathFinder
+    class MetaPathFinder(object):
+        __metaclass__ = abc.ABCMeta
 
 
 class DistributionFinder(MetaPathFinder):
