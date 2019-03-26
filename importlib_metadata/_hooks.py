@@ -23,7 +23,7 @@ else:  # pragma: nocover
 
 def install(cls):
     """Class decorator for installation on sys.meta_path."""
-    sys.meta_path.append(cls)
+    sys.meta_path.append(cls())
     return cls
 
 
@@ -54,8 +54,7 @@ class MetadataPathFinder(NullFinder):
     """
     search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
-    @classmethod
-    def find_distributions(cls, name=None, path=None):
+    def find_distributions(self, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
         (or all names if not supplied) along the paths in the list
@@ -64,7 +63,7 @@ class MetadataPathFinder(NullFinder):
         if path is None:
             path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        found = cls._search_paths(pattern, path)
+        found = self._search_paths(pattern, path)
         return map(PathDistribution, found)
 
     @classmethod
@@ -119,8 +118,7 @@ class WheelMetadataFinder(NullFinder):
     """
     search_template = r'{pattern}(-.*)?\.whl'
 
-    @classmethod
-    def find_distributions(cls, name=None, path=None):
+    def find_distributions(self, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
         (or all names if not supplied) along the paths in the list
@@ -129,7 +127,7 @@ class WheelMetadataFinder(NullFinder):
         if path is None:
             path = sys.path
         pattern = '.*' if name is None else re.escape(name)
-        found = cls._search_paths(pattern, path)
+        found = self._search_paths(pattern, path)
         return map(WheelDistribution, found)
 
     @classmethod
