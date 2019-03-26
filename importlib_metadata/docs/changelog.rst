@@ -7,6 +7,8 @@
 * Fixed issue where entry points without an attribute would raise an
   Exception.  Closes #40.
 * Removed unused ``name`` parameter from ``entry_points()``. Closes #44.
+* ``DistributionFinder`` classes must now be instantiated before
+  being placed on ``sys.meta_path``.
 
 0.8
 ===
