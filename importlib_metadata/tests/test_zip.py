@@ -3,9 +3,9 @@ import unittest
 import importlib_metadata
 
 try:
-    from importlib_resources import path
-except ImportError:
     from importlib.resources import path
+except ImportError:
+    from importlib_resources import path
 
 try:
     from contextlib import ExitStack
