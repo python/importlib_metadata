@@ -33,7 +33,7 @@ codecov:
   dependencies:
     - coverage
   script:
-    - codecov -t $CODECOV_TOKEN
+    - codecov
   when: on_success
 
 release:
