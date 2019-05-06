@@ -10,3 +10,4 @@ artifacts
 .eggs
 .doctrees
 dist
+pip-wheel-metadata
