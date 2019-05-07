@@ -46,14 +46,12 @@ class NullFinder(DistributionFinder):
     find_module = find_spec
 
 
-@install
-class MetadataPathFinder(NullFinder):
+class MetadataPathBaseFinder(NullFinder):
     """A degenerate finder for distribution packages on the file system.
 
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
-    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     def find_distributions(self, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
@@ -78,19 +76,33 @@ class MetadataPathFinder(NullFinder):
             )
 
     @classmethod
+    def _predicate(cls, pattern, root, item):
+        return re.match(pattern, str(item.name), flags=re.IGNORECASE)
+
+    @classmethod
     def _search_path(cls, root, pattern):
         if not root.is_dir():
             return ()
         normalized = pattern.replace('-', '_')
+        matcher = cls.search_template.format(pattern=normalized)
+        return (item for item in root.iterdir()
+                if cls._predicate(matcher, root, item))
+
+
+@install
+class MetadataPathFinder(MetadataPathBaseFinder):
+    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
+
+
+@install
+class MetadataPathEggInfoFileFinder(MetadataPathBaseFinder):
+    search_template = r'{pattern}(-.*)?\.egg-info'
+
+    @classmethod
+    def _predicate(cls, pattern, root, item):
         return (
-            item
-            for item in root.iterdir()
-            if re.match(
-                cls.search_template.format(pattern=normalized),
-                str(item.name),
-                flags=re.IGNORECASE,
-                )
-            )
+            (root / item).is_file() and
+            re.match(pattern, str(item.name), flags=re.IGNORECASE))
 
 
 class PathDistribution(Distribution):
