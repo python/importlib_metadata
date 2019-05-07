@@ -198,6 +198,9 @@ class Distribution:
         text = (
             self.read_text('METADATA')
             or self.read_text('PKG-INFO')
+            # This last clause is here to support old egg-info files.  Its
+            # effect is to just end up using the PathDistribution's self._path
+            # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
             )
         return _email_message_from_string(text)
