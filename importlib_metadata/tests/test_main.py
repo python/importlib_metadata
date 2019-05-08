@@ -5,10 +5,11 @@ import re
 import textwrap
 import unittest
 import importlib
-import importlib_metadata
 
 from . import fixtures
-from importlib_metadata import _hooks
+from .. import (
+    Distribution, PackageNotFoundError, _hooks, api, distributions,
+    entry_points, metadata, version)
 
 try:
     from builtins import str as text
@@ -20,16 +21,16 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
-        dist = importlib_metadata.Distribution.from_name('distinfo-pkg')
+        dist = Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, text)
         assert re.match(self.version_pattern, dist.version)
 
     def test_for_name_does_not_exist(self):
-        with self.assertRaises(importlib_metadata.PackageNotFoundError):
-            importlib_metadata.Distribution.from_name('does-not-exist')
+        with self.assertRaises(PackageNotFoundError):
+            Distribution.from_name('does-not-exist')
 
     def test_new_style_classes(self):
-        self.assertIsInstance(importlib_metadata.Distribution, type)
+        self.assertIsInstance(Distribution, type)
         self.assertIsInstance(_hooks.MetadataPathFinder, type)
         self.assertIsInstance(_hooks.WheelMetadataFinder, type)
         self.assertIsInstance(_hooks.WheelDistribution, type)
@@ -43,17 +44,17 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
             importlib.import_module('does_not_exist')
 
     def test_resolve(self):
-        entries = dict(importlib_metadata.entry_points()['entries'])
+        entries = dict(entry_points()['entries'])
         ep = entries['main']
         self.assertEqual(ep.load().__name__, "main")
 
     def test_resolve_without_attr(self):
-        ep = importlib_metadata.api.EntryPoint(
+        ep = api.EntryPoint(
             name='ep',
             value='importlib_metadata.api',
             group='grp',
             )
-        assert ep.load() is importlib_metadata.api
+        assert ep.load() is api
 
 
 class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
@@ -76,7 +77,7 @@ class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
         uses underscores in the name. Ensure the metadata loads.
         """
         pkg_name = self.pkg_with_dashes(self.site_dir)
-        assert importlib_metadata.version(pkg_name) == '1.0'
+        assert version(pkg_name) == '1.0'
 
     @staticmethod
     def pkg_with_mixed_case(site_dir):
@@ -96,9 +97,9 @@ class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
         Ensure the metadata loads when queried with any case.
         """
         pkg_name = self.pkg_with_mixed_case(self.site_dir)
-        assert importlib_metadata.version(pkg_name) == '1.0'
-        assert importlib_metadata.version(pkg_name.lower()) == '1.0'
-        assert importlib_metadata.version(pkg_name.upper()) == '1.0'
+        assert version(pkg_name) == '1.0'
+        assert version(pkg_name.lower()) == '1.0'
+        assert version(pkg_name.upper()) == '1.0'
 
 
 class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
@@ -134,22 +135,23 @@ class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
 
     def test_metadata_loads(self):
         pkg_name = self.pkg_with_non_ascii_description(self.site_dir)
-        meta = importlib_metadata.metadata(pkg_name)
+        meta = metadata(pkg_name)
         assert meta['Description'] == 'pôrˈtend'
 
     def test_metadata_loads_egg_info(self):
         pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
-        meta = importlib_metadata.metadata(pkg_name)
+        meta = metadata(pkg_name)
         assert meta.get_payload() == 'pôrˈtend\n'
 
 
-class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg,
+class DiscoveryTests(fixtures.EggInfoPkg,
+                     fixtures.DistInfoPkg,
                      unittest.TestCase):
 
     def test_package_discovery(self):
-        dists = list(importlib_metadata.api.distributions())
+        dists = list(distributions())
         assert all(
-            isinstance(dist, importlib_metadata.Distribution)
+            isinstance(dist, Distribution)
             for dist in dists
             )
         assert any(

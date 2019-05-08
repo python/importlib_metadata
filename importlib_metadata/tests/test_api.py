@@ -1,9 +1,12 @@
 import re
 import textwrap
 import unittest
-import importlib_metadata
 
 from . import fixtures
+from .. import (
+    Distribution, PackageNotFoundError, __version__, distribution,
+    entry_points, files, metadata, requires, version)
+from ..api import local_distribution
 
 try:
     from collections.abc import Iterator
@@ -25,41 +28,39 @@ class APITests(
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
-        version = importlib_metadata.version('egginfo-pkg')
-        assert isinstance(version, text)
-        assert re.match(self.version_pattern, version)
+        pkg_version = version('egginfo-pkg')
+        assert isinstance(pkg_version, text)
+        assert re.match(self.version_pattern, pkg_version)
 
     def test_retrieves_version_of_distinfo_pkg(self):
-        version = importlib_metadata.version('distinfo-pkg')
-        assert isinstance(version, text)
-        assert re.match(self.version_pattern, version)
+        pkg_version = version('distinfo-pkg')
+        assert isinstance(pkg_version, text)
+        assert re.match(self.version_pattern, pkg_version)
 
     def test_for_name_does_not_exist(self):
-        with self.assertRaises(importlib_metadata.PackageNotFoundError):
-            importlib_metadata.distribution('does-not-exist')
+        with self.assertRaises(PackageNotFoundError):
+            distribution('does-not-exist')
 
     def test_for_top_level(self):
-        distribution = importlib_metadata.distribution('egginfo-pkg')
         self.assertEqual(
-            distribution.read_text('top_level.txt').strip(),
+            distribution('egginfo-pkg').read_text('top_level.txt').strip(),
             'mod')
 
     def test_read_text(self):
         top_level = [
-            path for path in importlib_metadata.files('egginfo-pkg')
+            path for path in files('egginfo-pkg')
             if path.name == 'top_level.txt'
             ][0]
         self.assertEqual(top_level.read_text(), 'mod\n')
 
     def test_entry_points(self):
-        entires = importlib_metadata.entry_points()['entries']
-        entries = dict(entires)
+        entries = dict(entry_points()['entries'])
         ep = entries['main']
         self.assertEqual(ep.value, 'mod:main')
         self.assertEqual(ep.extras, [])
 
     def test_metadata_for_this_package(self):
-        md = importlib_metadata.metadata('egginfo-pkg')
+        md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
         assert md['LICENSE'] == 'Unknown'
         assert md['Name'] == 'egginfo-pkg'
@@ -67,7 +68,7 @@ class APITests(
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
     def test_importlib_metadata_version(self):
-        assert re.match(self.version_pattern, importlib_metadata.__version__)
+        assert re.match(self.version_pattern, __version__)
 
     @staticmethod
     def _test_files(files_iter):
@@ -92,7 +93,7 @@ class APITests(
             assertRegex = self.assertRegexpMatches
 
         util = [
-            p for p in importlib_metadata.files('distinfo-pkg')
+            p for p in files('distinfo-pkg')
             if p.name == 'mod.py'
             ][0]
         assertRegex(
@@ -100,28 +101,27 @@ class APITests(
             '<FileHash mode: sha256 value: .*>')
 
     def test_files_dist_info(self):
-        self._test_files(importlib_metadata.files('distinfo-pkg'))
+        self._test_files(files('distinfo-pkg'))
 
     def test_files_egg_info(self):
-        self._test_files(importlib_metadata.files('egginfo-pkg'))
+        self._test_files(files('egginfo-pkg'))
 
     def test_version_egg_info_file(self):
-        version = importlib_metadata.version('egginfo-file')
-        self.assertEqual(version, '0.1')
+        self.assertEqual(version('egginfo-file'), '0.1')
 
     def test_requires_egg_info_file(self):
-        requirements = importlib_metadata.requires('egginfo-file')
+        requirements = requires('egginfo-file')
         self.assertIsNone(requirements)
 
     def test_requires(self):
-        deps = importlib_metadata.requires('egginfo-pkg')
+        deps = requires('egginfo-pkg')
         assert any(
             dep == 'wheel >= 1.0; python_version >= "2.7"'
             for dep in deps
             )
 
     def test_requires_dist_info(self):
-        deps = list(importlib_metadata.requires('distinfo-pkg'))
+        deps = list(requires('distinfo-pkg'))
         assert deps and all(deps)
 
     def test_more_complex_deps_requires_text(self):
@@ -138,10 +138,7 @@ class APITests(
             [extra2:python_version < "3"]
             dep5
             """)
-        deps = sorted(
-            importlib_metadata.api.Distribution._deps_from_requires_text(
-                requires)
-            )
+        deps = sorted(Distribution._deps_from_requires_text(requires))
         expected = [
             'dep1',
             'dep2',
@@ -158,5 +155,5 @@ class APITests(
 
 class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
     def test_find_local(self):
-        dist = importlib_metadata.api.local_distribution()
+        dist = local_distribution()
         assert dist.metadata['Name'] == 'egginfo-pkg'
