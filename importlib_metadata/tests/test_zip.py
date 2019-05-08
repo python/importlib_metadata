@@ -1,6 +1,7 @@
 import sys
 import unittest
-import importlib_metadata
+
+from .. import distribution, entry_points, files, version
 
 try:
     from importlib.resources import path
@@ -30,22 +31,20 @@ class TestZip(unittest.TestCase):
         self.resources.callback(sys.path.pop, 0)
 
     def test_zip_version(self):
-        self.assertEqual(importlib_metadata.version('example'), '21.12')
+        self.assertEqual(version('example'), '21.12')
 
     def test_zip_entry_points(self):
-        scripts = dict(importlib_metadata.entry_points()['console_scripts'])
+        scripts = dict(entry_points()['console_scripts'])
         entry_point = scripts['example']
         self.assertEqual(entry_point.value, 'example:main')
 
     def test_missing_metadata(self):
-        distribution = importlib_metadata.distribution('example')
-        self.assertIsNone(distribution.read_text('does not exist'))
+        self.assertIsNone(distribution('example').read_text('does not exist'))
 
     def test_case_insensitive(self):
-        self.assertEqual(importlib_metadata.version('Example'), '21.12')
+        self.assertEqual(version('Example'), '21.12')
 
     def test_files(self):
-        files = importlib_metadata.files('example')
-        for file in files:
+        for file in files('example'):
             path = str(file.dist.locate_file(file))
             assert '.whl/' in path, path

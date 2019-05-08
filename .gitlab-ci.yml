@@ -11,7 +11,7 @@ qa:
 
 tests:
   script:
-    - tox -e py34-nocov,py35-nocov,py36-nocov,py37-nocov,py38-nocov
+    - tox -e py27,py34,py35,py36,py37,py38
 
 coverage:
   script:

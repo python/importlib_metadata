@@ -5,8 +5,8 @@ import sys
 import zipp
 import itertools
 
+from .abc import DistributionFinder
 from .api import Distribution
-from importlib_metadata.abc import DistributionFinder
 
 
 if sys.version_info >= (3,):  # pragma: nocover
