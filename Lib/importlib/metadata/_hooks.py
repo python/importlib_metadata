@@ -1,8 +1,8 @@
 import re
 import sys
+import zipfile
 import itertools
 
-from . import zipp
 from .api import Distribution
 from .abc import DistributionFinder
 from contextlib import suppress
@@ -136,7 +136,7 @@ class WheelMetadataFinder(NullFinder):
 
 class WheelDistribution(Distribution):
     def __init__(self, archive):
-        self._archive = zipp.Path(archive)
+        self._archive = zipfile.Path(archive)
         name, version = archive.name.split('-')[0:2]
         self._dist_info = '{}-{}.dist-info'.format(name, version)
 
