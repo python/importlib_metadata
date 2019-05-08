@@ -2,6 +2,17 @@
  importlib_metadata NEWS
 =========================
 
+1.0
+===
+
+0.10
+====
+* The ``Distribution`` ABC is now officially part of the public API.
+  Closes #37.
+* Fixed support for older single file egg-info formats.  Closes #43.
+* Fixed a testing bug when ``$CWD`` has spaces in the path.  Closes #50.
+* Add Python 3.8 to the ``tox`` testing matrix.
+
 0.9
 ===
 * Fixed issue where entry points without an attribute would raise an
