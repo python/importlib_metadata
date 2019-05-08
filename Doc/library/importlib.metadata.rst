@@ -37,12 +37,16 @@ Let's say you wanted to get the version string for a package you've installed
 using ``pip``.  We start by creating a virtual environment and installing
 something into it::
 
+.. highlight:: none
+
     $ python3 -m venv example
     $ source example/bin/activate
     (example) $ pip install importlib_metadata
     (example) $ pip install wheel
 
 You can get the version string for ``wheel`` by running the following::
+
+.. highlight:: none
 
     (example) $ python
     >>> from importlib_metadata import version
