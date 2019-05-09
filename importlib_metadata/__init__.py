@@ -1,20 +1,19 @@
 from .api import (
-    distribution, Distribution, distributions, entry_points, files,
-    metadata, PackageNotFoundError, requires, version,
-    )
+    Distribution, PackageNotFoundError, distribution, distributions,
+    entry_points, files, metadata, requires, version)
 
 # Import for installation side-effects.
 from . import _hooks  # noqa: F401
 
 
 __all__ = [
-    'distribution',
     'Distribution',
+    'PackageNotFoundError',
+    'distribution',
     'distributions',
     'entry_points',
     'files',
     'metadata',
-    'PackageNotFoundError',
     'requires',
     'version',
     ]

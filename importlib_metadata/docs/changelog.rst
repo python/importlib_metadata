@@ -2,8 +2,11 @@
  importlib_metadata NEWS
 =========================
 
-1.0
-===
+0.11
+====
+* Support generic zip files (not just wheels).  Closes #59
+* Support zip files with multiple distributions in them.  Closes #60
+* Fully expose the public API in ``importlib_metadata.__all__``.
 
 0.10
 ====
