@@ -32,8 +32,6 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_new_style_classes(self):
         self.assertIsInstance(Distribution, type)
         self.assertIsInstance(_hooks.MetadataPathFinder, type)
-        self.assertIsInstance(_hooks.WheelMetadataFinder, type)
-        self.assertIsInstance(_hooks.WheelDistribution, type)
 
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):

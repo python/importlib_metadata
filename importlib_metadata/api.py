@@ -15,12 +15,15 @@ from importlib import import_module
 from itertools import starmap
 
 if sys.version_info > (3,):  # pragma: nocover
-    import pathlib
     from configparser import ConfigParser
 else:  # pragma: nocover
-    import pathlib2 as pathlib
     from backports.configparser import ConfigParser
     from itertools import imap as map  # type: ignore
+
+if sys.version_info > (3, 5):  # pragma: nocover
+    import pathlib
+else:  # pragma: nocover
+    import pathlib2 as pathlib
 
 try:
     BaseClass = ModuleNotFoundError

@@ -11,15 +11,19 @@ from .api import Distribution
 
 if sys.version_info >= (3,):  # pragma: nocover
     from contextlib import suppress
-    from pathlib import Path
 else:  # pragma: nocover
     from contextlib2 import suppress  # noqa
     from itertools import imap as map  # type: ignore
-    from pathlib2 import Path
 
     FileNotFoundError = IOError, OSError
     NotADirectoryError = IOError, OSError
     __metaclass__ = type
+
+
+if sys.version_info > (3, 5):  # pragma: nocover
+    from pathlib import Path
+else:  # pragma: nocover
+    from pathlib2 import Path
 
 
 def install(cls):
@@ -46,12 +50,14 @@ class NullFinder(DistributionFinder):
     find_module = find_spec
 
 
-class MetadataPathBaseFinder(NullFinder):
+@install
+class MetadataPathFinder(NullFinder):
     """A degenerate finder for distribution packages on the file system.
 
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
+    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     def find_distributions(self, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
@@ -72,8 +78,14 @@ class MetadataPathBaseFinder(NullFinder):
         """
         return itertools.chain.from_iterable(
             cls._search_path(path, pattern)
-            for path in map(Path, paths)
+            for path in map(cls._switch_path, paths)
             )
+
+    @staticmethod
+    def _switch_path(path):
+        with suppress(Exception):
+            return zipp.Path(path)
+        return Path(path)
 
     @classmethod
     def _predicate(cls, pattern, root, item):
@@ -89,82 +101,15 @@ class MetadataPathBaseFinder(NullFinder):
                 if cls._predicate(matcher, root, item))
 
 
-@install
-class MetadataPathFinder(MetadataPathBaseFinder):
-    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
-
-
-@install
-class MetadataPathEggInfoFileFinder(MetadataPathBaseFinder):
-    search_template = r'{pattern}(-.*)?\.egg-info'
-
-    @classmethod
-    def _predicate(cls, pattern, root, item):
-        return (
-            (root / item).is_file() and
-            re.match(pattern, str(item.name), flags=re.IGNORECASE))
-
-
 class PathDistribution(Distribution):
     def __init__(self, path):
         """Construct a distribution from a path to the metadata directory."""
         self._path = path
 
     def read_text(self, filename):
-        with suppress(FileNotFoundError, NotADirectoryError):
-            with self._path.joinpath(filename).open(encoding='utf-8') as fp:
-                return fp.read()
-        return None
+        with suppress(FileNotFoundError, NotADirectoryError, KeyError):
+            return self._path.joinpath(filename).read_text(encoding='utf-8')
     read_text.__doc__ = Distribution.read_text.__doc__
 
     def locate_file(self, path):
         return self._path.parent / path
-
-
-@install
-class WheelMetadataFinder(NullFinder):
-    """A degenerate finder for distribution packages in wheels.
-
-    This finder supplies only a find_distributions() method for versions
-    of Python that do not have a PathFinder find_distributions().
-    """
-    search_template = r'{pattern}(-.*)?\.whl'
-
-    def find_distributions(self, name=None, path=None):
-        """Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
-        """
-        if path is None:
-            path = sys.path
-        pattern = '.*' if name is None else re.escape(name)
-        found = self._search_paths(pattern, path)
-        return map(WheelDistribution, found)
-
-    @classmethod
-    def _search_paths(cls, pattern, paths):
-        return (
-            path
-            for path in map(Path, paths)
-            if re.match(
-                cls.search_template.format(pattern=pattern),
-                str(path.name),
-                flags=re.IGNORECASE,
-                )
-            )
-
-
-class WheelDistribution(Distribution):
-    def __init__(self, archive):
-        self._archive = zipp.Path(archive)
-        name, version = archive.name.split('-')[0:2]
-        self._dist_info = '{}-{}.dist-info'.format(name, version)
-
-    def read_text(self, filename):
-        target = self._archive / self._dist_info / filename
-        return target.read_text() if target.exists() else None
-    read_text.__doc__ = Distribution.read_text.__doc__
-
-    def locate_file(self, path):
-        return self._archive / path
