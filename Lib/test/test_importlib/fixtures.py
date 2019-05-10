@@ -193,4 +193,3 @@ def build_files(file_defs, prefix=pathlib.Path()):
 def DALS(str):
     "Dedent and left-strip"
     return textwrap.dedent(str).lstrip()
-
