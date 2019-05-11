@@ -57,7 +57,7 @@ class MetadataPathFinder(NullFinder):
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
-    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
+    search_template = r'(?:{pattern}(-.*)?\.(dist|egg)-info|EGG-INFO)'
 
     def find_distributions(self, name=None, path=None):
         """Return an iterable of all Distribution instances capable of
