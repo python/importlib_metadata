@@ -5,8 +5,8 @@ import unittest
 from . import fixtures
 from .. import (
     Distribution, PackageNotFoundError, __version__, distribution,
-    entry_points, files, metadata, requires, version)
-from ..api import local_distribution
+    entry_points, files, local_distribution, metadata, requires, version,
+    )
 
 try:
     from collections.abc import Iterator

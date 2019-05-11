@@ -5,11 +5,14 @@ import re
 import textwrap
 import unittest
 import importlib
+import importlib_metadata
 
 from . import fixtures
 from .. import (
-    Distribution, PackageNotFoundError, api, distributions,
-    entry_points, metadata, version)
+    Distribution, EntryPoint, MetadataPathFinder,
+    PackageNotFoundError, distributions,
+    entry_points, metadata, version,
+    )
 
 try:
     from builtins import str as text
@@ -31,7 +34,7 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 
     def test_new_style_classes(self):
         self.assertIsInstance(Distribution, type)
-        self.assertIsInstance(api.MetadataPathFinder, type)
+        self.assertIsInstance(MetadataPathFinder, type)
 
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
@@ -47,12 +50,12 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
         self.assertEqual(ep.load().__name__, "main")
 
     def test_resolve_without_attr(self):
-        ep = api.EntryPoint(
+        ep = EntryPoint(
             name='ep',
-            value='importlib_metadata.api',
+            value='importlib_metadata',
             group='grp',
             )
-        assert ep.load() is api
+        assert ep.load() is importlib_metadata
 
 
 class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
