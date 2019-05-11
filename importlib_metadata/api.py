@@ -12,9 +12,9 @@ import functools
 import itertools
 import collections
 
+from ._compat import install, NullFinder
 from importlib import import_module
 from itertools import starmap
-from ._compat import install, NullFinder
 
 if sys.version_info > (3,):  # pragma: nocover
     from configparser import ConfigParser
