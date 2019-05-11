@@ -14,7 +14,7 @@ import collections
 
 from importlib import import_module
 from itertools import starmap
-from ._hooks import install, NullFinder
+from ._compat import install, NullFinder
 
 if sys.version_info > (3,):  # pragma: nocover
     from configparser import ConfigParser
