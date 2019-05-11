@@ -1,10 +1,11 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals, absolute_import
 
 import io
 import re
 import abc
 import csv
 import sys
+import zipp
 import email
 import operator
 import functools
@@ -13,12 +14,17 @@ import collections
 
 from importlib import import_module
 from itertools import starmap
+from ._hooks import install, NullFinder
 
 if sys.version_info > (3,):  # pragma: nocover
     from configparser import ConfigParser
+    from contextlib import suppress
 else:  # pragma: nocover
     from backports.configparser import ConfigParser
     from itertools import imap as map  # type: ignore
+    from contextlib2 import suppress  # noqa
+    FileNotFoundError = IOError, OSError
+    NotADirectoryError = IOError, OSError
 
 if sys.version_info > (3, 5):  # pragma: nocover
     import pathlib
@@ -29,6 +35,13 @@ try:
     BaseClass = ModuleNotFoundError
 except NameError:                                 # pragma: nocover
     BaseClass = ImportError                       # type: ignore
+
+
+if sys.version_info >= (3,):  # pragma: nocover
+    from importlib.abc import MetaPathFinder
+else:  # pragma: nocover
+    class MetaPathFinder(object):
+        __metaclass__ = abc.ABCMeta
 
 
 __metaclass__ = type
@@ -303,6 +316,86 @@ class Distribution:
         for section, deps in sections.items():
             for dep in deps:
                 yield dep + parse_condition(section)
+
+
+class DistributionFinder(MetaPathFinder):
+    """
+    A MetaPathFinder capable of discovering installed distributions.
+    """
+
+    @abc.abstractmethod
+    def find_distributions(self, name=None, path=None):
+        """
+        Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+
+
+@install
+class MetadataPathFinder(NullFinder, DistributionFinder):
+    """A degenerate finder for distribution packages on the file system.
+
+    This finder supplies only a find_distributions() method for versions
+    of Python that do not have a PathFinder find_distributions().
+    """
+    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
+
+    def find_distributions(self, name=None, path=None):
+        """Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the name
+        (or all names if not supplied) along the paths in the list
+        of directories ``path`` (defaults to sys.path).
+        """
+        if path is None:
+            path = sys.path
+        pattern = '.*' if name is None else re.escape(name)
+        found = self._search_paths(pattern, path)
+        return map(PathDistribution, found)
+
+    @classmethod
+    def _search_paths(cls, pattern, paths):
+        """
+        Find metadata directories in paths heuristically.
+        """
+        return itertools.chain.from_iterable(
+            cls._search_path(path, pattern)
+            for path in map(cls._switch_path, paths)
+            )
+
+    @staticmethod
+    def _switch_path(path):
+        with suppress(Exception):
+            return zipp.Path(path)
+        return pathlib.Path(path)
+
+    @classmethod
+    def _predicate(cls, pattern, root, item):
+        return re.match(pattern, str(item.name), flags=re.IGNORECASE)
+
+    @classmethod
+    def _search_path(cls, root, pattern):
+        if not root.is_dir():
+            return ()
+        normalized = pattern.replace('-', '_')
+        matcher = cls.search_template.format(pattern=normalized)
+        return (item for item in root.iterdir()
+                if cls._predicate(matcher, root, item))
+
+
+class PathDistribution(Distribution):
+    def __init__(self, path):
+        """Construct a distribution from a path to the metadata directory."""
+        self._path = path
+
+    def read_text(self, filename):
+        with suppress(FileNotFoundError, NotADirectoryError, KeyError):
+            return self._path.joinpath(filename).read_text(encoding='utf-8')
+    read_text.__doc__ = Distribution.read_text.__doc__
+
+    def locate_file(self, path):
+        return self._path.parent / path
 
 
 def _email_message_from_string(text):

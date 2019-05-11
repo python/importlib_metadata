@@ -8,7 +8,7 @@ import importlib
 
 from . import fixtures
 from .. import (
-    Distribution, PackageNotFoundError, _hooks, api, distributions,
+    Distribution, PackageNotFoundError, api, distributions,
     entry_points, metadata, version)
 
 try:
@@ -31,7 +31,7 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 
     def test_new_style_classes(self):
         self.assertIsInstance(Distribution, type)
-        self.assertIsInstance(_hooks.MetadataPathFinder, type)
+        self.assertIsInstance(api.MetadataPathFinder, type)
 
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
