@@ -3,7 +3,7 @@ import sys
 
 # Merge the body of this class into _bootstrap_external:
 class PathFinder:
-    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
+    search_template = r'(?:{pattern}(-.*)?\.(dist|egg)-info|EGG-INFO)'
 
     @classmethod
     def find_distributions(cls, name=None, path=None):

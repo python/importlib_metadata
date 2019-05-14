@@ -73,7 +73,7 @@ Entry points
 The ``entry_points()`` function returns a dictionary of all entry points,
 keyed by group.  Entry points are represented by ``EntryPoint`` instances;
 each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes and
-a ``.load()`` method to resolve the value.
+a ``.load()`` method to resolve the value::
 
     >>> eps = entry_points()
     >>> list(eps)
