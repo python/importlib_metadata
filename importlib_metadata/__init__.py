@@ -3,7 +3,7 @@ from .api import (
     entry_points, files, metadata, requires, version)
 
 # Import for installation side-effects.
-from . import _hooks  # noqa: F401
+__import__('importlib_metadata._hooks')
 
 
 __all__ = [
