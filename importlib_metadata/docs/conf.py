@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# flake8: noqa
-#
 # importlib_metadata documentation build configuration file, created by
 # sphinx-quickstart on Thu Nov 30 10:21:00 2017.
 #
