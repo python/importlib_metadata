@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.12
+====
+* Add support for eggs.  !65; Closes #19.
+
 0.11
 ====
 * Support generic zip files (not just wheels).  Closes #59
