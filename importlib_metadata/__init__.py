@@ -328,8 +328,10 @@ class DistributionFinder(MetaPathFinder):
     @abc.abstractmethod
     def find_distributions(self, name=None, path=None):
         """
+        Find distributions.
+
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
+        loading the metadata for packages matching the ``name``
         (or all names if not supplied) along the paths in the list
         of directories ``path`` (defaults to sys.path).
         """
@@ -345,8 +347,11 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     search_template = r'(?:{pattern}(-.*)?\.(dist|egg)-info|EGG-INFO)'
 
     def find_distributions(self, name=None, path=None):
-        """Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
+        """
+        Find distributions.
+
+        Return an iterable of all Distribution instances capable of
+        loading the metadata for packages matching the ``name``
         (or all names if not supplied) along the paths in the list
         of directories ``path`` (defaults to sys.path).
         """
@@ -358,9 +363,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     @classmethod
     def _search_paths(cls, pattern, paths):
-        """
-        Find metadata directories in paths heuristically.
-        """
+        """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
             cls._search_path(path, pattern)
             for path in map(cls._switch_path, paths)
