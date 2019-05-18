@@ -35,7 +35,12 @@ class PackageNotFoundError(ModuleNotFoundError):
 
 
 class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
-    """An entry point as defined by Python packaging conventions."""
+    """An entry point as defined by Python packaging conventions.
+
+    See `the packaging docs on entry points
+    <https://packaging.python.org/specifications/entry-points/>`_
+    for more information.
+    """
 
     pattern = re.compile(
         r'(?P<module>[\w.]+)\s*'
@@ -309,8 +314,10 @@ class DistributionFinder(MetaPathFinder):
     @abc.abstractmethod
     def find_distributions(self, name=None, path=None):
         """
+        Find distributions.
+
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
+        loading the metadata for packages matching the ``name``
         (or all names if not supplied) along the paths in the list
         of directories ``path`` (defaults to sys.path).
         """
