@@ -6,42 +6,26 @@ import abc
 import csv
 import sys
 import zipp
-import email
 import operator
 import functools
 import itertools
 import collections
 
-from ._compat import install, NullFinder
+from ._compat import (
+    install,
+    NullFinder,
+    ConfigParser,
+    suppress,
+    map,
+    FileNotFoundError,
+    NotADirectoryError,
+    pathlib,
+    ModuleNotFoundError,
+    MetaPathFinder,
+    email_message_from_string,
+    )
 from importlib import import_module
 from itertools import starmap
-
-if sys.version_info > (3,):  # pragma: nocover
-    from configparser import ConfigParser
-    from contextlib import suppress
-else:  # pragma: nocover
-    from backports.configparser import ConfigParser
-    from itertools import imap as map  # type: ignore
-    from contextlib2 import suppress  # noqa
-    FileNotFoundError = IOError, OSError
-    NotADirectoryError = IOError, OSError
-
-if sys.version_info > (3, 5):  # pragma: nocover
-    import pathlib
-else:  # pragma: nocover
-    import pathlib2 as pathlib
-
-try:
-    BaseClass = ModuleNotFoundError
-except NameError:                                 # pragma: nocover
-    BaseClass = ImportError                       # type: ignore
-
-
-if sys.version_info >= (3,):  # pragma: nocover
-    from importlib.abc import MetaPathFinder
-else:  # pragma: nocover
-    class MetaPathFinder(object):
-        __metaclass__ = abc.ABCMeta
 
 
 __metaclass__ = type
@@ -60,7 +44,7 @@ __all__ = [
     ]
 
 
-class PackageNotFoundError(BaseClass):
+class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
 
@@ -232,7 +216,7 @@ class Distribution:
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
             )
-        return _email_message_from_string(text)
+        return email_message_from_string(text)
 
     @property
     def version(self):
@@ -409,15 +393,6 @@ class PathDistribution(Distribution):
 
     def locate_file(self, path):
         return self._path.parent / path
-
-
-def _email_message_from_string(text):
-    # Work around https://bugs.python.org/issue25545 where
-    # email.message_from_string cannot handle Unicode on Python 2.
-    if sys.version_info < (3,):                     # nocoverpy3
-        io_buffer = io.StringIO(text)
-        return email.message_from_file(io_buffer)
-    return email.message_from_string(text)          # nocoverpy2
 
 
 def distribution(package):
