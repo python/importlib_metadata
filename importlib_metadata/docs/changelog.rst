@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.13
+====
+* Update docstrings to match PEP 8. Closes #63.
+* Merged modules into one module. Closes #62.
+
 0.12
 ====
 * Add support for eggs.  !65; Closes #19.
