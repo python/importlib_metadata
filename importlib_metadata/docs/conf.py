@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# flake8: noqa
-#
 # importlib_metadata documentation build configuration file, created by
 # sphinx-quickstart on Thu Nov 30 10:21:00 2017.
 #
@@ -114,8 +112,8 @@ html_sidebars = {
     '**': [
         'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
-    ]
-}
+        ]
+    }
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -142,15 +140,16 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}
+    }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'importlib_metadata.tex', 'importlib\\_metadata Documentation',
+    (master_doc, 'importlib_metadata.tex',
+     'importlib\\_metadata Documentation',
      'Brett Cannon, Barry Warsaw', 'manual'),
-]
+    ]
 
 
 # -- Options for manual page output ---------------------------------------
@@ -160,7 +159,7 @@ latex_documents = [
 man_pages = [
     (master_doc, 'importlib_metadata', 'importlib_metadata Documentation',
      [author], 1)
-]
+    ]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -172,9 +171,7 @@ texinfo_documents = [
     (master_doc, 'importlib_metadata', 'importlib_metadata Documentation',
      author, 'importlib_metadata', 'One line description of project.',
      'Miscellaneous'),
-]
-
-
+    ]
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
@@ -190,7 +187,7 @@ link_files = {
             dict(
                 pattern=r'^(?m)((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n',
                 with_scm='{text}\n{rev[timestamp]:%Y-%m-%d}\n\n',
-            ),
-        ],
-    ),
-}
+                ),
+            ],
+        ),
+    }
