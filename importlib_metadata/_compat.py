@@ -70,7 +70,7 @@ class NullFinder:
     find_module = find_spec
 
 
-def py2_message_from_string(text):
+def py2_message_from_string(text):  # nocoverpy3
     # Work around https://bugs.python.org/issue25545 where
     # email.message_from_string cannot handle Unicode on Python 2.
     io_buffer = io.StringIO(text)
