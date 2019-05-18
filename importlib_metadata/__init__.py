@@ -49,7 +49,12 @@ class PackageNotFoundError(ModuleNotFoundError):
 
 
 class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
-    """An entry point as defined by Python packaging conventions."""
+    """An entry point as defined by Python packaging conventions.
+
+    See `the packaging docs on entry points
+    <https://packaging.python.org/specifications/entry-points/>`_
+    for more information.
+    """
 
     pattern = re.compile(
         r'(?P<module>[\w.]+)\s*'
