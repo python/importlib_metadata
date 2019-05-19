@@ -199,8 +199,18 @@ class Distribution:
 
     @classmethod
     def find_local(cls):
+        return cls._from_pyproject() or cls._heuristic_local()
+
+    @staticmethod
+    def _from_pyproject():
+        with suppress(Exception):
+            from pep517.build_meta import build_meta_as_zip
+            return PathDistribution(build_meta_as_zip())
+
+    @classmethod
+    def _heuristic_local(cls):
         dists = itertools.chain.from_iterable(
-            resolver(path=['.'])
+            resolver(path=['.', 'src'])
             for resolver in cls._discover_resolvers()
             )
         dist, = dists
