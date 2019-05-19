@@ -150,11 +150,18 @@ class EggInfoFile(SiteDir):
 
 
 class LocalPackage:
+    files = {
+        "setup.py": """
+            import setuptools
+            setuptools.setup(name="local-pkg", version="2.0.1")
+            """,
+        }
+
     def setUp(self):
         self.fixtures = ExitStack()
         self.addCleanup(self.fixtures.close)
         self.fixtures.enter_context(tempdir_as_cwd())
-        build_files(EggInfoPkg.files)
+        build_files(self.files)
 
 
 def build_files(file_defs, prefix=pathlib.Path()):

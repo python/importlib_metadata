@@ -198,23 +198,11 @@ class Distribution:
         return filter(None, declared)
 
     @classmethod
-    def find_local(cls):
-        return cls._from_pyproject() or cls._heuristic_local()
-
-    @staticmethod
-    def _from_pyproject():
-        with suppress(Exception):
-            from pep517.build_meta import build_meta_as_zip
-            return PathDistribution(build_meta_as_zip())
-
-    @classmethod
-    def _heuristic_local(cls):
-        dists = itertools.chain.from_iterable(
-            resolver(path=['.', 'src'])
-            for resolver in cls._discover_resolvers()
-            )
-        dist, = dists
-        return dist
+    def find_local(cls, root='.'):
+        import pep517.build_meta as bm
+        system = bm.compat_build_system(root)
+        builder = functools.partial(bm.build_meta, build_system=system)
+        return PathDistribution(zipp.Path(bm.build_meta_as_zip(builder)))
 
     @property
     def metadata(self):

@@ -156,4 +156,5 @@ class APITests(
 class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
     def test_find_local(self):
         dist = local_distribution()
-        assert dist.metadata['Name'] == 'egginfo-pkg'
+        assert dist.metadata['Name'] == 'local-pkg'
+        assert dist.version == '2.0.1'
