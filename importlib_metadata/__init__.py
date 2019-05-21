@@ -202,7 +202,11 @@ class Distribution:
         import pep517.build as build
         import pep517.build_meta as bm
         system = build.compat_system(root)
-        builder = functools.partial(bm.build_meta, system=system)
+        builder = functools.partial(
+            bm.build_meta,
+            source_dir=root,
+            system=system,
+            )
         return PathDistribution(zipp.Path(bm.build_meta_as_zip(builder)))
 
     @property
