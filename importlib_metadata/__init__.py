@@ -199,9 +199,10 @@ class Distribution:
 
     @classmethod
     def find_local(cls, root='.'):
+        import pep517.build as build
         import pep517.build_meta as bm
-        system = bm.compat_build_system(root)
-        builder = functools.partial(bm.build_meta, build_system=system)
+        system = build.compat_system(root)
+        builder = functools.partial(bm.build_meta, system=system)
         return PathDistribution(zipp.Path(bm.build_meta_as_zip(builder)))
 
     @property
