@@ -96,6 +96,12 @@ class DistInfoPkg(OnSysPath, SiteDir):
         build_files(DistInfoPkg.files, self.site_dir)
 
 
+class DistInfoPkgOffPath(SiteDir):
+    def setUp(self):
+        super(DistInfoPkgOffPath, self).setUp()
+        build_files(DistInfoPkg.files, self.site_dir)
+
+
 class EggInfoPkg(OnSysPath, SiteDir):
     files = {
         "egginfo_pkg.egg-info": {
