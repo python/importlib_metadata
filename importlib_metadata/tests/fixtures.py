@@ -149,14 +149,6 @@ class EggInfoFile(SiteDir):
         build_files(EggInfoFile.files, prefix=self.site_dir)
 
 
-class LocalPackage:
-    def setUp(self):
-        self.fixtures = ExitStack()
-        self.addCleanup(self.fixtures.close)
-        self.fixtures.enter_context(tempdir_as_cwd())
-        build_files(EggInfoPkg.files)
-
-
 def build_files(file_defs, prefix=pathlib.Path()):
     """Build a set of files/directories, as described by the
 
