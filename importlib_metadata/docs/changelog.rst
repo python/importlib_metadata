@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.15
+====
+* Fix documentation.
+
 0.14
 ====
 * Removed ``local_distribution`` function from the API.
