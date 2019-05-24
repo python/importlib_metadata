@@ -2,6 +2,8 @@ image: quay.io/python-devs/ci-image
 
 stages:
   - test
+  - qa
+  - docs
   - codecov
   - deploy
 
