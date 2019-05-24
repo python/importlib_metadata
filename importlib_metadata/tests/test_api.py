@@ -6,7 +6,7 @@ import itertools
 from . import fixtures
 from .. import (
     Distribution, PackageNotFoundError, __version__, distribution,
-    entry_points, files, local_distribution, metadata, requires, version,
+    entry_points, files, metadata, requires, version,
     )
 
 try:
@@ -152,12 +152,6 @@ class APITests(
         # tightly than some other part of the environment expression.
 
         assert deps == expected
-
-
-class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
-    def test_find_local(self):
-        dist = local_distribution()
-        assert dist.metadata['Name'] == 'egginfo-pkg'
 
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):

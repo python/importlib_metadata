@@ -2,6 +2,15 @@
  importlib_metadata NEWS
 =========================
 
+0.14
+====
+* Removed ``local_distribution`` function from the API.
+  **This backward-incompatible change removes this
+  behavior summarily**. Projects should remove their
+  reliance on this behavior. A replacement behavior is
+  under review in the `pep517 project
+  <https://github.com/pypa/pep517>`_. Closes #42.
+
 0.13
 ====
 * Update docstrings to match PEP 8. Closes #63.
