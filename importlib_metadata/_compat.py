@@ -11,6 +11,7 @@ if sys.version_info > (3,):  # pragma: nocover
     from configparser import ConfigParser
     from contextlib import suppress
     FileNotFoundError = builtins.FileNotFoundError
+    IsADirectoryError = builtins.IsADirectoryError
     NotADirectoryError = builtins.NotADirectoryError
     map = builtins.map
 else:  # pragma: nocover
@@ -18,6 +19,7 @@ else:  # pragma: nocover
     from itertools import imap as map  # type: ignore
     from contextlib2 import suppress  # noqa
     FileNotFoundError = IOError, OSError
+    IsADirectoryError = IOError, OSError
     NotADirectoryError = IOError, OSError
 
 if sys.version_info > (3, 5):  # pragma: nocover
