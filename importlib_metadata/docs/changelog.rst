@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.16
+====
+* Don't crash if there exists an EGG-INFO directory on sys.path.
+
 0.15
 ====
 * Fix documentation.
