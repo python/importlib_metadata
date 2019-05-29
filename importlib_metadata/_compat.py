@@ -13,6 +13,7 @@ if sys.version_info > (3,):  # pragma: nocover
     FileNotFoundError = builtins.FileNotFoundError
     IsADirectoryError = builtins.IsADirectoryError
     NotADirectoryError = builtins.NotADirectoryError
+    PermissionError = builtins.PermissionError
     map = builtins.map
 else:  # pragma: nocover
     from backports.configparser import ConfigParser
@@ -21,6 +22,7 @@ else:  # pragma: nocover
     FileNotFoundError = IOError, OSError
     IsADirectoryError = IOError, OSError
     NotADirectoryError = IOError, OSError
+    PermissionError = IOError, OSError
 
 if sys.version_info > (3, 5):  # pragma: nocover
     import pathlib
