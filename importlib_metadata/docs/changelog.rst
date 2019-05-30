@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.17
+====
+* Fix a permission problem in the tests on Windows.
+
 0.16
 ====
 * Don't crash if there exists an EGG-INFO directory on sys.path.
