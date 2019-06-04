@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, absolute_import
 
 import io
+import os
 import re
 import abc
 import csv
@@ -22,6 +23,7 @@ from ._compat import (
     NotADirectoryError,
     PermissionError,
     pathlib,
+    PYPY_OPEN_BUG,
     ModuleNotFoundError,
     MetaPathFinder,
     email_message_from_string,
@@ -364,8 +366,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     @staticmethod
     def _switch_path(path):
-        with suppress(Exception):
-            return zipp.Path(path)
+        if not PYPY_OPEN_BUG or os.path.isfile(path):  # pragma: no branch
+            with suppress(Exception):
+                return zipp.Path(path)
         return pathlib.Path(path)
 
     @classmethod
