@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.18
+====
+* Parse entry points case sensitively.  Closes #68
+* Add a version constraint on the backport configparser package.  Closes #66
+
 0.17
 ====
 * Fix a permission problem in the tests on Windows.
