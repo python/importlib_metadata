@@ -86,3 +86,6 @@ email_message_from_string = (
     if sys.version_info < (3,) else
     email.message_from_string
     )
+
+# https://bitbucket.org/pypy/pypy/issues/3021/ioopen-directory-leaks-a-file-descriptor
+PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
