@@ -1,4 +1,5 @@
 import sys
+import os
 
 
 # Merge the body of this class into _bootstrap_external:
@@ -37,8 +38,10 @@ class PathFinder:
         from contextlib import suppress
         import zipfile
         from pathlib import Path
-        with suppress(Exception):
-            return zipfile.Path(path)
+        PYPY_OPEN_BUG = False
+        if not PYPY_OPEN_BUG or os.path.isfile(path):  # pragma: no branch
+            with suppress(Exception):
+                return zipfile.Path(path)
         return Path(path)
 
     @classmethod
