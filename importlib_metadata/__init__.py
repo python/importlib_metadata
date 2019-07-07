@@ -341,7 +341,6 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
-    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     def find_distributions(self, name=None, path=None):
         """
@@ -374,26 +373,25 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         return pathlib.Path(path)
 
     @classmethod
-    def _predicate(cls, pattern, root, item):
-        return re.match(pattern, str(item.name), flags=re.IGNORECASE)
+    def _matches_info(cls, normalized, item):
+        template = r'{pattern}(-.*)?\.(dist|egg)-info'
+        manifest = template.format(pattern=normalized)
+        return re.match(manifest, item.name, flags=re.IGNORECASE)
+
+    @classmethod
+    def _matches_legacy(cls, normalized, item):
+        template = r'{pattern}-.*\.egg[\\/]EGG-INFO'
+        manifest = template.format(pattern=normalized)
+        return re.search(manifest, str(item), flags=re.IGNORECASE)
 
     @classmethod
     def _search_path(cls, root, pattern):
         if not root.is_dir():
             return ()
         normalized = pattern.replace('-', '_')
-        matcher = cls.search_template.format(pattern=normalized)
         return (item for item in root.iterdir()
-                if cls._predicate(matcher, root, item))
-
-
-@install
-class EggInfoFilePathFinder(MetadataPathFinder):
-    search_template = r'{pattern}-.*\.egg[\\/]EGG-INFO'
-
-    @classmethod
-    def _predicate(cls, pattern, root, item):
-        return re.search(pattern, str(item), flags=re.IGNORECASE)
+                if cls._matches_info(normalized, item)
+                or cls._matches_legacy(normalized, item))
 
 
 class PathDistribution(Distribution):
