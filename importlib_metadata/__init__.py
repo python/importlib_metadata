@@ -341,7 +341,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
-    search_template = r'(?:{pattern}(-.*)?\.(dist|egg)-info|EGG-INFO)'
+    search_template = r'{pattern}(-.*)?\.(dist|egg)-info'
 
     def find_distributions(self, name=None, path=None):
         """
@@ -385,6 +385,15 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         matcher = cls.search_template.format(pattern=normalized)
         return (item for item in root.iterdir()
                 if cls._predicate(matcher, root, item))
+
+
+@install
+class EggInfoFilePathFinder(MetadataPathFinder):
+    search_template = r'{pattern}-.*\.egg[\\/]EGG-INFO'
+
+    @classmethod
+    def _predicate(cls, pattern, root, item):
+        return re.search(pattern, str(item), flags=re.IGNORECASE)
 
 
 class PathDistribution(Distribution):
