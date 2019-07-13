@@ -167,8 +167,16 @@ class DiscoveryTests(fixtures.EggInfoPkg,
 
 
 class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
-    def test(self):
+    def test_egg_info(self):
         # make an `EGG-INFO` directory that's unrelated
         self.site_dir.joinpath('EGG-INFO').mkdir()
         # used to crash with `IsADirectoryError`
-        self.assertIsNone(version('unknown-package'))
+        with self.assertRaises(PackageNotFoundError):
+            version('unknown-package')
+
+    def test_egg(self):
+        egg = self.site_dir.joinpath('foo-3.6.egg')
+        egg.mkdir()
+        with self.add_sys_path(egg):
+            with self.assertRaises(PackageNotFoundError):
+                version('foo')
