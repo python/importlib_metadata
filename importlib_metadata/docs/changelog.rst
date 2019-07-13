@@ -2,6 +2,10 @@
  importlib_metadata NEWS
 =========================
 
+0.19
+====
+* Restrain over-eager egg metadata resolution.
+
 0.18
 ====
 * Parse entry points case sensitively.  Closes #68
