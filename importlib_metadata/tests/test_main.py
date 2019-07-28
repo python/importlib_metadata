@@ -49,6 +49,11 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
         ep = entries['main']
         self.assertEqual(ep.load().__name__, "main")
 
+    def test_entrypoint_with_colon_in_name(self):
+        entries = dict(entry_points()['entries'])
+        ep = entries['ns:sub']
+        self.assertEqual(ep.value, 'mod:main')
+
     def test_resolve_without_attr(self):
         ep = EntryPoint(
             name='ep',
