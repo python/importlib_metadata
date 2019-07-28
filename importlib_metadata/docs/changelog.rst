@@ -5,6 +5,7 @@
 0.19
 ====
 * Restrain over-eager egg metadata resolution.
+* Add support for entry points with colons in the name. Closes #75.
 
 0.18
 ====
