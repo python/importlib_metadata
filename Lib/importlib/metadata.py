@@ -318,7 +318,11 @@ class DistributionFinder(MetaPathFinder):
 
 class PathDistribution(Distribution):
     def __init__(self, path):
-        """Construct a distribution from a path to the metadata directory."""
+        """Construct a distribution from a path to the metadata directory.
+
+        :param path: A pathlib.Path or similar object supporting
+                     .joinpath(), __div__, .parent, and .read_text().
+        """
         self._path = path
 
     def read_text(self, filename):
