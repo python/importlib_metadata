@@ -231,6 +231,15 @@ class Distribution:
 
     @property
     def files(self):
+        """Files in this distribution.
+
+        :return: Iterable of PackagePath for this distribution or None
+
+        Result is `None` if the metadata file that enumerates files
+        (i.e. RECORD for dist-info or SOURCES.txt for egg-info) is
+        missing.
+        Result may be empty if the metadata exists but is empty.
+        """
         file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
         def make_file(name, hash=None, size_str=None):
