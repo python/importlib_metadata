@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.20
+====
+* Clarify in the docs that calls to ``.files`` could return
+  ``None`` when the metadata is not present. Closes #69.
+
 0.19
 ====
 * Restrain over-eager egg metadata resolution.
