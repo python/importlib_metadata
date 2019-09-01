@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.20
+====
+* Return all requirements and not just the first for dist-info
+  packages. Closes #67.
+
 0.19
 ====
 * Restrain over-eager egg metadata resolution.
