@@ -6,6 +6,8 @@
 ====
 * Clarify in the docs that calls to ``.files`` could return
   ``None`` when the metadata is not present. Closes #69.
+* Return all requirements and not just the first for dist-info
+  packages. Closes #67.
 
 0.19
 ====
