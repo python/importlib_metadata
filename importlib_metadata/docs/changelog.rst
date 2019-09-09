@@ -2,6 +2,12 @@
  importlib_metadata NEWS
 =========================
 
+0.21
+====
+* ``importlib.metadata`` now exposes the ``DistributionFinder``
+  metaclass and references it in the docs for extending the
+  search algorithm.
+
 0.20
 ====
 * Clarify in the docs that calls to ``.files`` could return
