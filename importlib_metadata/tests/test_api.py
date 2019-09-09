@@ -4,9 +4,7 @@ import unittest
 
 from . import fixtures
 from .. import (
-    Distribution,
-    DistributionFinder,
-    PackageNotFoundError, __version__, distribution,
+    Distribution, PackageNotFoundError, __version__, distribution,
     entry_points, files, metadata, requires, version,
     )
 
@@ -159,9 +157,7 @@ class APITests(
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
     def test_find_distributions_specified_path(self):
-        dists = Distribution.discover(
-            context=DistributionFinder.Context(path=[str(self.site_dir)]),
-            )
+        dists = Distribution.discover(path=[str(self.site_dir)])
         assert any(
             dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists

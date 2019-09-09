@@ -187,10 +187,15 @@ class Distribution:
     def discover(cls, **kwargs):
         """Return an iterable of Distribution objects for all packages.
 
+        Pass a ``context`` or pass keyword arguments for constructing
+        a context.
+
+        :context: A ``DistributionFinder.Context`` object.
         :return: Iterable of Distribution objects for all packages.
         """
+        context = kwargs.get('context') or DistributionFinder.Context(**kwargs)
         return itertools.chain.from_iterable(
-            resolver(**kwargs)
+            resolver(context)
             for resolver in cls._discover_resolvers()
             )
 
