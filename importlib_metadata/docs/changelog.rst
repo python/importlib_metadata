@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.21
+====
+* Add ``Distribution.at`` for constructing a Distribution object
+  from a known metadata directory on the file system. Closes #80.
+
 0.20
 ====
 * Clarify in the docs that calls to ``.files`` could return
