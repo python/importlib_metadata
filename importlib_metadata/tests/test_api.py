@@ -72,9 +72,7 @@ class APITests(
         assert re.match(self.version_pattern, __version__)
 
     @staticmethod
-    def _test_files(files_iter):
-        assert isinstance(files_iter, Iterator), files_iter
-        files = list(files_iter)
+    def _test_files(files):
         root = files[0].root
         for file in files:
             assert file.root == root
@@ -114,16 +112,18 @@ class APITests(
         requirements = requires('egginfo-file')
         self.assertIsNone(requirements)
 
-    def test_requires(self):
+    def test_requires_egg_info(self):
         deps = requires('egginfo-pkg')
+        assert len(deps) == 2
         assert any(
             dep == 'wheel >= 1.0; python_version >= "2.7"'
             for dep in deps
             )
 
     def test_requires_dist_info(self):
-        deps = list(requires('distinfo-pkg'))
-        assert deps and all(deps)
+        deps = requires('distinfo-pkg')
+        assert len(deps) == 2
+        assert all(deps)
         assert 'wheel >= 1.0' in deps
         assert "pytest; extra == 'test'" in deps
 
