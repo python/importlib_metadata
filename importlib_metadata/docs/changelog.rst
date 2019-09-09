@@ -2,6 +2,18 @@
  importlib_metadata NEWS
 =========================
 
+0.21
+====
+* Distribution finders now receive a context object that
+  supplies ``.path`` and ``.name`` properties. This change
+  introduces a fundamental backward incompatibility for
+  any projects implementing a ``find_distributions`` method
+  on a ``MetaPathFinder``. This new layer of abstraction
+  allows this context to be supplied directly or constructed
+  on demand and opens the opportunity for a
+  ``find_distributions`` method to solicit additional
+  context from the caller. Closes #85.
+
 0.20
 ====
 * Clarify in the docs that calls to ``.files`` could return
