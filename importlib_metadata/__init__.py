@@ -176,7 +176,7 @@ class Distribution:
             metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
-            dists = resolver(name)
+            dists = resolver(DistributionFinder.Context(name=name))
             dist = next(dists, None)
             if dist is not None:
                 return dist
@@ -184,13 +184,13 @@ class Distribution:
             raise PackageNotFoundError(name)
 
     @classmethod
-    def discover(cls):
+    def discover(cls, **kwargs):
         """Return an iterable of Distribution objects for all packages.
 
         :return: Iterable of Distribution objects for all packages.
         """
         return itertools.chain.from_iterable(
-            resolver()
+            resolver(**kwargs)
             for resolver in cls._discover_resolvers()
             )
 
@@ -330,15 +330,35 @@ class DistributionFinder(MetaPathFinder):
     A MetaPathFinder capable of discovering installed distributions.
     """
 
+    class Context(abc.ABC):
+
+        name = None
+        """
+        Specific name for which a distribution finder should match.
+        """
+
+        def __init__(self, **kwargs):
+            vars(self).update(kwargs)
+
+        @property
+        def path(self):
+            """
+            The path that a distribution finder should search.
+            """
+            return vars(self).get('path', sys.path)
+
+        @property
+        def pattern(self):
+            return '.*' if self.name is None else re.escape(self.name)
+
     @abc.abstractmethod
-    def find_distributions(self, name=None, path=None):
+    def find_distributions(self, context=Context()):
         """
         Find distributions.
 
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the ``name``
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
+        loading the metadata for packages matching the ``context``,
+        a DistributionFinder.Context instance.
         """
 
 
@@ -350,19 +370,16 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     of Python that do not have a PathFinder find_distributions().
     """
 
-    def find_distributions(self, name=None, path=None):
+    def find_distributions(self, context=DistributionFinder.Context()):
         """
         Find distributions.
 
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the ``name``
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
+        loading the metadata for packages matching ``context.name``
+        (or all names if ``None`` indicated) along the paths in the list
+        of directories ``context.path``.
         """
-        if path is None:
-            path = sys.path
-        pattern = '.*' if name is None else re.escape(name)
-        found = self._search_paths(pattern, path)
+        found = self._search_paths(context.pattern, context.path)
         return map(PathDistribution, found)
 
     @classmethod
@@ -430,12 +447,12 @@ def distribution(package):
     return Distribution.from_name(package)
 
 
-def distributions():
+def distributions(**kwargs):
     """Get all ``Distribution`` instances in the current environment.
 
     :return: An iterable of ``Distribution`` instances.
     """
-    return Distribution.discover()
+    return Distribution.discover(**kwargs)
 
 
 def metadata(package):

@@ -1,11 +1,12 @@
 import re
 import textwrap
 import unittest
-import itertools
 
 from . import fixtures
 from .. import (
-    Distribution, PackageNotFoundError, __version__, distribution,
+    Distribution,
+    DistributionFinder,
+    PackageNotFoundError, __version__, distribution,
     entry_points, files, metadata, requires, version,
     )
 
@@ -158,9 +159,8 @@ class APITests(
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
     def test_find_distributions_specified_path(self):
-        dists = itertools.chain.from_iterable(
-            resolver(path=[str(self.site_dir)])
-            for resolver in Distribution._discover_resolvers()
+        dists = Distribution.discover(
+            context=DistributionFinder.Context(path=[str(self.site_dir)]),
             )
         assert any(
             dist.metadata['Name'] == 'distinfo-pkg'
