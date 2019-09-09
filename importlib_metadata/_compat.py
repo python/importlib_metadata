@@ -96,5 +96,5 @@ def ensure_Path(ob):
     Specialized for Python 3.4.
     """
     if (3,) < sys.version_info < (3, 5):
-        ob = str(ob)
+        ob = str(ob)  # pragma: nocover
     return pathlib.Path(ob)
