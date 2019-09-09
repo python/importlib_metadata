@@ -165,9 +165,9 @@ Distribution requirements
 -------------------------
 
 To get the full set of requirements for a distribution, use the ``requires()``
-function.  Note that this returns an iterator::
+function::
 
-    >>> list(requires('wheel'))
+    >>> requires('wheel')
     ["pytest (>=3.0.0) ; extra == 'test'"]
 
 
