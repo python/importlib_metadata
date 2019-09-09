@@ -168,7 +168,7 @@ To get the full set of requirements for a distribution, use the ``requires()``
 function::
 
     >>> requires('wheel')
-    ["pytest (>=3.0.0) ; extra == 'test'"]
+    ["pytest (>=3.0.0) ; extra == 'test'", "pytest-cov ; extra == 'test'"]
 
 
 Distributions
