@@ -37,6 +37,7 @@ __metaclass__ = type
 
 __all__ = [
     'Distribution',
+    'DistributionFinder',
     'PackageNotFoundError',
     'distribution',
     'distributions',
