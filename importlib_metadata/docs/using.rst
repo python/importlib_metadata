@@ -221,19 +221,20 @@ interface expected of finders by Python's import system.
 an iterator over instances of the ``Distribution`` abstract class. This
 method must have the signature::
 
-    def find_distributions(name=None, path=None):
+    def find_distributions(context=DistributionFinder.Context()):
         """Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the name
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
+        loading the metadata for packages for the indicated ``context``.
         """
+
+The ``DistributionFinder.Context`` object provides ``.path`` and ``.name``
+properties indicating the path to search and names to match and may
+supply other relevant context.
 
 What this means in practice is that to support finding distribution package
 metadata in locations other than the file system, you should derive from
-``Distribution`` and implement the ``load_metadata()`` method.  This takes a
-single argument which is the name of the package whose metadata is being
-found.  This instance of the ``Distribution`` base abstract class is what your
-finder's ``find_distributions()`` method should return.
+``Distribution`` and implement the ``load_metadata()`` method. Then from
+your finder, return instances of this derived ``Distribution`` in the
+``find_distributions()`` method.
 
 
 .. _`entry point API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points
