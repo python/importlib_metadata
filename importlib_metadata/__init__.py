@@ -195,6 +195,15 @@ class Distribution:
             )
 
     @staticmethod
+    def at(path):
+        """Return a Distribution for the indicated metadata path
+
+        :param path: a string or path-like object
+        :return: a concrete Distribution instance for the path
+        """
+        return PathDistribution(pathlib.Path(path))
+
+    @staticmethod
     def _discover_resolvers():
         """Search the meta_path for resolvers."""
         declared = (
