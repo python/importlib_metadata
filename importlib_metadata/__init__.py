@@ -335,7 +335,7 @@ class DistributionFinder(MetaPathFinder):
     A MetaPathFinder capable of discovering installed distributions.
     """
 
-    class Context(abc.ABC):
+    class Context:
 
         name = None
         """
