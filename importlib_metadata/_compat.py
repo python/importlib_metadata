@@ -91,7 +91,7 @@ email_message_from_string = (
 PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
 
 
-def ensure_Path(ob):
+def ensure_is_path(ob):
     """Construct a Path from ob even if it's already one.
     Specialized for Python 3.4.
     """
