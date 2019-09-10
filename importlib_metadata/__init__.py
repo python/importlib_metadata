@@ -38,6 +38,7 @@ __metaclass__ = type
 
 __all__ = [
     'Distribution',
+    'DistributionFinder',
     'PackageNotFoundError',
     'distribution',
     'distributions',
@@ -243,7 +244,7 @@ class Distribution:
     def files(self):
         """Files in this distribution.
 
-        :return: Iterable of PackagePath for this distribution or None
+        :return: List of PackagePath for this distribution or None
 
         Result is `None` if the metadata file that enumerates files
         (i.e. RECORD for dist-info or SOURCES.txt for egg-info) is
@@ -259,7 +260,7 @@ class Distribution:
             result.dist = self
             return result
 
-        return file_lines and starmap(make_file, csv.reader(file_lines))
+        return file_lines and list(starmap(make_file, csv.reader(file_lines)))
 
     def _read_files_distinfo(self):
         """
@@ -279,7 +280,8 @@ class Distribution:
     @property
     def requires(self):
         """Generated requirements specified for this Distribution"""
-        return self._read_dist_info_reqs() or self._read_egg_info_reqs()
+        reqs = self._read_dist_info_reqs() or self._read_egg_info_reqs()
+        return reqs and list(reqs)
 
     def _read_dist_info_reqs(self):
         return self.metadata.get_all('Requires-Dist')
