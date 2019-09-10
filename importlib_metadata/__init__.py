@@ -193,7 +193,10 @@ class Distribution:
         :context: A ``DistributionFinder.Context`` object.
         :return: Iterable of Distribution objects for all packages.
         """
-        context = kwargs.get('context') or DistributionFinder.Context(**kwargs)
+        context = kwargs.pop('context', None)
+        if context and kwargs:
+            raise ValueError("cannot accept context and kwargs")
+        context = context or DistributionFinder.Context(**kwargs)
         return itertools.chain.from_iterable(
             resolver(context)
             for resolver in cls._discover_resolvers()
