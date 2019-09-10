@@ -174,7 +174,7 @@ class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
         dist = Distribution.at(dist_info_path)
         assert dist.version == '1.0.0'
 
-    def test_distirbution_at_str(self):
+    def test_distribution_at_str(self):
         dist_info_path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info'
         dist = Distribution.at(str(dist_info_path))
         assert dist.version == '1.0.0'
