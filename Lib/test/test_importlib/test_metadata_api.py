@@ -1,7 +1,6 @@
 import re
 import textwrap
 import unittest
-import itertools
 
 from collections.abc import Iterator
 
@@ -143,10 +142,7 @@ class APITests(
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
     def test_find_distributions_specified_path(self):
-        dists = itertools.chain.from_iterable(
-            resolver(path=[str(self.site_dir)])
-            for resolver in Distribution._discover_resolvers()
-            )
+        dists = Distribution.discover(path=[str(self.site_dir)])
         assert any(
             dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists
