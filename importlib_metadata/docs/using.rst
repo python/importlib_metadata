@@ -217,10 +217,11 @@ The abstract class :py:class:`importlib.abc.MetaPathFinder` defines the
 interface expected of finders by Python's import system.
 ``importlib_metadata`` extends this protocol by looking for an optional
 ``find_distributions`` callable on the finders from
-``sys.meta_path``.  If the finder has this method, it must return
-an iterator over instances of the ``Distribution`` abstract class. This
-method must have the signature::
+``sys.meta_path`` and presents this extended interface as the
+``DistributionFinder`` abstract base class, which defines this abstract
+method::
 
+    @abc.abstractmethod
     def find_distributions(name=None, path=None):
         """Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the name
