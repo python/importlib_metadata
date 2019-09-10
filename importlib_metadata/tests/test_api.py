@@ -166,3 +166,15 @@ class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
             dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists
             )
+
+    def test_distribution_at_pathlib(self):
+        """Demonstrate how to load metadata direct from a directory.
+        """
+        dist_info_path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info'
+        dist = Distribution.at(dist_info_path)
+        assert dist.version == '1.0.0'
+
+    def test_distribution_at_str(self):
+        dist_info_path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info'
+        dist = Distribution.at(str(dist_info_path))
+        assert dist.version == '1.0.0'

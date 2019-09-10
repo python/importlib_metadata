@@ -7,6 +7,8 @@
 * ``importlib.metadata`` now exposes the ``DistributionFinder``
   metaclass and references it in the docs for extending the
   search algorithm.
+* Add ``Distribution.at`` for constructing a Distribution object
+  from a known metadata directory on the file system. Closes #80.
 
 0.20
 ====
