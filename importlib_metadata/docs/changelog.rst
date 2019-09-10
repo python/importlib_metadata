@@ -4,6 +4,11 @@
 
 0.21
 ====
+* ``importlib.metadata`` now exposes the ``DistributionFinder``
+  metaclass and references it in the docs for extending the
+  search algorithm.
+* Add ``Distribution.at`` for constructing a Distribution object
+  from a known metadata directory on the file system. Closes #80.
 * Distribution finders now receive a context object that
   supplies ``.path`` and ``.name`` properties. This change
   introduces a fundamental backward incompatibility for
