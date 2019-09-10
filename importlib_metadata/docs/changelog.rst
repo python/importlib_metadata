@@ -9,6 +9,15 @@
   search algorithm.
 * Add ``Distribution.at`` for constructing a Distribution object
   from a known metadata directory on the file system. Closes #80.
+* Distribution finders now receive a context object that
+  supplies ``.path`` and ``.name`` properties. This change
+  introduces a fundamental backward incompatibility for
+  any projects implementing a ``find_distributions`` method
+  on a ``MetaPathFinder``. This new layer of abstraction
+  allows this context to be supplied directly or constructed
+  on demand and opens the opportunity for a
+  ``find_distributions`` method to solicit additional
+  context from the caller. Closes #85.
 
 0.20
 ====
