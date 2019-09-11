@@ -458,13 +458,13 @@ class PathDistribution(Distribution):
         return self._path.parent / path
 
 
-def distribution(package):
-    """Get the ``Distribution`` instance for the given package.
+def distribution(distribution_name):
+    """Get the ``Distribution`` instance for the named package.
 
-    :param package: The name of the package as a string.
+    :param distribution_name: The name of the distribution package as a string.
     :return: A ``Distribution`` instance (or subclass thereof).
     """
-    return Distribution.from_name(package)
+    return Distribution.from_name(distribution_name)
 
 
 def distributions(**kwargs):
@@ -475,23 +475,23 @@ def distributions(**kwargs):
     return Distribution.discover(**kwargs)
 
 
-def metadata(package):
-    """Get the metadata for the package.
+def metadata(distribution_name):
+    """Get the metadata for the named package.
 
-    :param package: The name of the distribution package to query.
+    :param distribution_name: The name of the distribution package to query.
     :return: An email.Message containing the parsed metadata.
     """
-    return Distribution.from_name(package).metadata
+    return Distribution.from_name(distribution_name).metadata
 
 
-def version(package):
+def version(distribution_name):
     """Get the version string for the named package.
 
-    :param package: The name of the distribution package to query.
+    :param distribution_name: The name of the distribution package to query.
     :return: The version string for the package as defined in the package's
         "Version" metadata key.
     """
-    return distribution(package).version
+    return distribution(distribution_name).version
 
 
 def entry_points():
@@ -510,18 +510,23 @@ def entry_points():
         }
 
 
-def files(package):
-    return distribution(package).files
+def files(distribution_name):
+    """Return a list of files for the named package.
 
-
-def requires(package):
+    :param distribution_name: The name of the distribution package to query.
+    :return: List of files composing the distribution.
     """
-    Return a list of requirements for the indicated distribution.
+    return distribution(distribution_name).files
+
+
+def requires(distribution_name):
+    """
+    Return a list of requirements for the named package.
 
     :return: An iterator of requirements, suitable for
     packaging.requirement.Requirement.
     """
-    return distribution(package).requires
+    return distribution(distribution_name).requires
 
 
 __version__ = version(__name__)

@@ -2,6 +2,16 @@
  importlib_metadata NEWS
 =========================
 
+0.22
+====
+* Renamed ``package`` parameter to ``distribution_name``
+  as `recommended <https://bugs.python.org/issue34632#msg349423>`_
+  in the following functions: ``distribution``, ``metadata``,
+  ``version``, ``files``, and ``requires``. This
+  backward-incompatible change is expected to have little impact
+  as these functions are assumed to be primarily used with
+  positional parameters.
+
 0.21
 ====
 * ``importlib.metadata`` now exposes the ``DistributionFinder``
