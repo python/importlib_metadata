@@ -2,6 +2,14 @@
  importlib_metadata NEWS
 =========================
 
+0.23
+====
+* Added a compatibility shim to prevent failures on beta releases
+  of Python before the signature changed to accept the
+  "context" parameter on find_distributions. This workaround
+  will have a limited lifespan, not to extend beyond release of
+  Python 3.8 final.
+
 0.22
 ====
 * Renamed ``package`` parameter to ``distribution_name``
