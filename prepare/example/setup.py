@@ -5,6 +5,6 @@ setup(
     license='Apache Software License',
     packages=['example'],
     entry_points={
-        'console_scripts': ['example = example:main'],
+        'console_scripts': ['example = example:main', 'Example=example:main'],
         },
     )

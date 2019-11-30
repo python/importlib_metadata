@@ -2,6 +2,97 @@
  importlib_metadata NEWS
 =========================
 
+v1.1.0
+======
+
+* Dropped support for Python 3.4.
+
+v1.0.0
+======
+
+* Project adopts semver for versioning.
+
+* Removed compatibility shim introduced in 0.23.
+
+* For better compatibility with the stdlib implementation and to
+  avoid the same distributions being discovered by the stdlib and
+  backport implementations, the backport now disables the
+  stdlib DistributionFinder during initialization (import time).
+  Closes #91 and closes #100.
+
+0.23
+====
+* Added a compatibility shim to prevent failures on beta releases
+  of Python before the signature changed to accept the
+  "context" parameter on find_distributions. This workaround
+  will have a limited lifespan, not to extend beyond release of
+  Python 3.8 final.
+
+0.22
+====
+* Renamed ``package`` parameter to ``distribution_name``
+  as `recommended <https://bugs.python.org/issue34632#msg349423>`_
+  in the following functions: ``distribution``, ``metadata``,
+  ``version``, ``files``, and ``requires``. This
+  backward-incompatible change is expected to have little impact
+  as these functions are assumed to be primarily used with
+  positional parameters.
+
+0.21
+====
+* ``importlib.metadata`` now exposes the ``DistributionFinder``
+  metaclass and references it in the docs for extending the
+  search algorithm.
+* Add ``Distribution.at`` for constructing a Distribution object
+  from a known metadata directory on the file system. Closes #80.
+* Distribution finders now receive a context object that
+  supplies ``.path`` and ``.name`` properties. This change
+  introduces a fundamental backward incompatibility for
+  any projects implementing a ``find_distributions`` method
+  on a ``MetaPathFinder``. This new layer of abstraction
+  allows this context to be supplied directly or constructed
+  on demand and opens the opportunity for a
+  ``find_distributions`` method to solicit additional
+  context from the caller. Closes #85.
+
+0.20
+====
+* Clarify in the docs that calls to ``.files`` could return
+  ``None`` when the metadata is not present. Closes #69.
+* Return all requirements and not just the first for dist-info
+  packages. Closes #67.
+
+0.19
+====
+* Restrain over-eager egg metadata resolution.
+* Add support for entry points with colons in the name. Closes #75.
+
+0.18
+====
+* Parse entry points case sensitively.  Closes #68
+* Add a version constraint on the backport configparser package.  Closes #66
+
+0.17
+====
+* Fix a permission problem in the tests on Windows.
+
+0.16
+====
+* Don't crash if there exists an EGG-INFO directory on sys.path.
+
+0.15
+====
+* Fix documentation.
+
+0.14
+====
+* Removed ``local_distribution`` function from the API.
+  **This backward-incompatible change removes this
+  behavior summarily**. Projects should remove their
+  reliance on this behavior. A replacement behavior is
+  under review in the `pep517 project
+  <https://github.com/pypa/pep517>`_. Closes #42.
+
 0.13
 ====
 * Update docstrings to match PEP 8. Closes #63.

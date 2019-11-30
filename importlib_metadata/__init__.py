@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, absolute_import
 
 import io
+import os
 import re
 import abc
 import csv
@@ -18,11 +19,15 @@ from ._compat import (
     suppress,
     map,
     FileNotFoundError,
+    IsADirectoryError,
     NotADirectoryError,
+    PermissionError,
     pathlib,
+    PYPY_OPEN_BUG,
     ModuleNotFoundError,
     MetaPathFinder,
     email_message_from_string,
+    ensure_is_path,
     )
 from importlib import import_module
 from itertools import starmap
@@ -33,6 +38,7 @@ __metaclass__ = type
 
 __all__ = [
     'Distribution',
+    'DistributionFinder',
     'PackageNotFoundError',
     'distribution',
     'distributions',
@@ -102,7 +108,9 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
 
     @classmethod
     def _from_text(cls, text):
-        config = ConfigParser()
+        config = ConfigParser(delimiters='=')
+        # case sensitive: https://stackoverflow.com/q/1611799/812183
+        config.optionxform = str
         try:
             config.read_string(text)
         except AttributeError:  # pragma: nocover
@@ -170,7 +178,7 @@ class Distribution:
             metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
-            dists = resolver(name)
+            dists = resolver(DistributionFinder.Context(name=name))
             dist = next(dists, None)
             if dist is not None:
                 return dist
@@ -178,15 +186,32 @@ class Distribution:
             raise PackageNotFoundError(name)
 
     @classmethod
-    def discover(cls):
+    def discover(cls, **kwargs):
         """Return an iterable of Distribution objects for all packages.
 
+        Pass a ``context`` or pass keyword arguments for constructing
+        a context.
+
+        :context: A ``DistributionFinder.Context`` object.
         :return: Iterable of Distribution objects for all packages.
         """
+        context = kwargs.pop('context', None)
+        if context and kwargs:
+            raise ValueError("cannot accept context and kwargs")
+        context = context or DistributionFinder.Context(**kwargs)
         return itertools.chain.from_iterable(
-            resolver()
+            resolver(context)
             for resolver in cls._discover_resolvers()
             )
+
+    @staticmethod
+    def at(path):
+        """Return a Distribution for the indicated metadata path
+
+        :param path: a string or path-like object
+        :return: a concrete Distribution instance for the path
+        """
+        return PathDistribution(ensure_is_path(path))
 
     @staticmethod
     def _discover_resolvers():
@@ -199,15 +224,14 @@ class Distribution:
 
     @classmethod
     def find_local(cls, root='.'):
-        import pep517.build as build
-        import pep517.build_meta as bm
+        from pep517 import build, meta
         system = build.compat_system(root)
         builder = functools.partial(
-            bm.build_meta,
+            meta.build,
             source_dir=root,
             system=system,
             )
-        return PathDistribution(zipp.Path(bm.build_meta_as_zip(builder)))
+        return PathDistribution(zipp.Path(meta.build_as_zip(builder)))
 
     @property
     def metadata(self):
@@ -237,6 +261,15 @@ class Distribution:
 
     @property
     def files(self):
+        """Files in this distribution.
+
+        :return: List of PackagePath for this distribution or None
+
+        Result is `None` if the metadata file that enumerates files
+        (i.e. RECORD for dist-info or SOURCES.txt for egg-info) is
+        missing.
+        Result may be empty if the metadata exists but is empty.
+        """
         file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
         def make_file(name, hash=None, size_str=None):
@@ -246,7 +279,7 @@ class Distribution:
             result.dist = self
             return result
 
-        return file_lines and starmap(make_file, csv.reader(file_lines))
+        return file_lines and list(starmap(make_file, csv.reader(file_lines)))
 
     def _read_files_distinfo(self):
         """
@@ -266,11 +299,11 @@ class Distribution:
     @property
     def requires(self):
         """Generated requirements specified for this Distribution"""
-        return self._read_dist_info_reqs() or self._read_egg_info_reqs()
+        reqs = self._read_dist_info_reqs() or self._read_egg_info_reqs()
+        return reqs and list(reqs)
 
     def _read_dist_info_reqs(self):
-        spec = self.metadata['Requires-Dist']
-        return spec and filter(None, spec.splitlines())
+        return self.metadata.get_all('Requires-Dist')
 
     def _read_egg_info_reqs(self):
         source = self.read_text('requires.txt')
@@ -328,15 +361,35 @@ class DistributionFinder(MetaPathFinder):
     A MetaPathFinder capable of discovering installed distributions.
     """
 
+    class Context:
+
+        name = None
+        """
+        Specific name for which a distribution finder should match.
+        """
+
+        def __init__(self, **kwargs):
+            vars(self).update(kwargs)
+
+        @property
+        def path(self):
+            """
+            The path that a distribution finder should search.
+            """
+            return vars(self).get('path', sys.path)
+
+        @property
+        def pattern(self):
+            return '.*' if self.name is None else re.escape(self.name)
+
     @abc.abstractmethod
-    def find_distributions(self, name=None, path=None):
+    def find_distributions(self, context=Context()):
         """
         Find distributions.
 
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the ``name``
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
+        loading the metadata for packages matching the ``context``,
+        a DistributionFinder.Context instance.
         """
 
 
@@ -347,21 +400,17 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     This finder supplies only a find_distributions() method for versions
     of Python that do not have a PathFinder find_distributions().
     """
-    search_template = r'(?:{pattern}(-.*)?\.(dist|egg)-info|EGG-INFO)'
 
-    def find_distributions(self, name=None, path=None):
+    def find_distributions(self, context=DistributionFinder.Context()):
         """
         Find distributions.
 
         Return an iterable of all Distribution instances capable of
-        loading the metadata for packages matching the ``name``
-        (or all names if not supplied) along the paths in the list
-        of directories ``path`` (defaults to sys.path).
+        loading the metadata for packages matching ``context.name``
+        (or all names if ``None`` indicated) along the paths in the list
+        of directories ``context.path``.
         """
-        if path is None:
-            path = sys.path
-        pattern = '.*' if name is None else re.escape(name)
-        found = self._search_paths(pattern, path)
+        found = self._search_paths(context.pattern, context.path)
         return map(PathDistribution, found)
 
     @classmethod
@@ -374,31 +423,45 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     @staticmethod
     def _switch_path(path):
-        with suppress(Exception):
-            return zipp.Path(path)
+        if not PYPY_OPEN_BUG or os.path.isfile(path):  # pragma: no branch
+            with suppress(Exception):
+                return zipp.Path(path)
         return pathlib.Path(path)
 
     @classmethod
-    def _predicate(cls, pattern, root, item):
-        return re.match(pattern, str(item.name), flags=re.IGNORECASE)
+    def _matches_info(cls, normalized, item):
+        template = r'{pattern}(-.*)?\.(dist|egg)-info'
+        manifest = template.format(pattern=normalized)
+        return re.match(manifest, item.name, flags=re.IGNORECASE)
+
+    @classmethod
+    def _matches_legacy(cls, normalized, item):
+        template = r'{pattern}-.*\.egg[\\/]EGG-INFO'
+        manifest = template.format(pattern=normalized)
+        return re.search(manifest, str(item), flags=re.IGNORECASE)
 
     @classmethod
     def _search_path(cls, root, pattern):
         if not root.is_dir():
             return ()
         normalized = pattern.replace('-', '_')
-        matcher = cls.search_template.format(pattern=normalized)
         return (item for item in root.iterdir()
-                if cls._predicate(matcher, root, item))
+                if cls._matches_info(normalized, item)
+                or cls._matches_legacy(normalized, item))
 
 
 class PathDistribution(Distribution):
     def __init__(self, path):
-        """Construct a distribution from a path to the metadata directory."""
+        """Construct a distribution from a path to the metadata directory.
+
+        :param path: A pathlib.Path or similar object supporting
+                     .joinpath(), __div__, .parent, and .read_text().
+        """
         self._path = path
 
     def read_text(self, filename):
-        with suppress(FileNotFoundError, NotADirectoryError, KeyError):
+        with suppress(FileNotFoundError, IsADirectoryError, KeyError,
+                      NotADirectoryError, PermissionError):
             return self._path.joinpath(filename).read_text(encoding='utf-8')
     read_text.__doc__ = Distribution.read_text.__doc__
 
@@ -406,48 +469,40 @@ class PathDistribution(Distribution):
         return self._path.parent / path
 
 
-def distribution(package):
-    """Get the ``Distribution`` instance for the given package.
+def distribution(distribution_name):
+    """Get the ``Distribution`` instance for the named package.
 
-    :param package: The name of the package as a string.
+    :param distribution_name: The name of the distribution package as a string.
     :return: A ``Distribution`` instance (or subclass thereof).
     """
-    return Distribution.from_name(package)
+    return Distribution.from_name(distribution_name)
 
 
-def distributions():
+def distributions(**kwargs):
     """Get all ``Distribution`` instances in the current environment.
 
     :return: An iterable of ``Distribution`` instances.
     """
-    return Distribution.discover()
+    return Distribution.discover(**kwargs)
 
 
-def local_distribution():
-    """Get the ``Distribution`` instance for the package in CWD.
+def metadata(distribution_name):
+    """Get the metadata for the named package.
 
-    :return: A ``Distribution`` instance (or subclass thereof).
-    """
-    return Distribution.find_local()
-
-
-def metadata(package):
-    """Get the metadata for the package.
-
-    :param package: The name of the distribution package to query.
+    :param distribution_name: The name of the distribution package to query.
     :return: An email.Message containing the parsed metadata.
     """
-    return Distribution.from_name(package).metadata
+    return Distribution.from_name(distribution_name).metadata
 
 
-def version(package):
+def version(distribution_name):
     """Get the version string for the named package.
 
-    :param package: The name of the distribution package to query.
+    :param distribution_name: The name of the distribution package to query.
     :return: The version string for the package as defined in the package's
         "Version" metadata key.
     """
-    return distribution(package).version
+    return distribution(distribution_name).version
 
 
 def entry_points():
@@ -466,18 +521,23 @@ def entry_points():
         }
 
 
-def files(package):
-    return distribution(package).files
+def files(distribution_name):
+    """Return a list of files for the named package.
 
-
-def requires(package):
+    :param distribution_name: The name of the distribution package to query.
+    :return: List of files composing the distribution.
     """
-    Return a list of requirements for the indicated distribution.
+    return distribution(distribution_name).files
+
+
+def requires(distribution_name):
+    """
+    Return a list of requirements for the named package.
 
     :return: An iterator of requirements, suitable for
     packaging.requirement.Requirement.
     """
-    return distribution(package).requires
+    return distribution(distribution_name).requires
 
 
 __version__ = version(__name__)

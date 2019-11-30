@@ -40,7 +40,7 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_import_nonexistent_module(self):
         # Ensure that the MetadataPathFinder does not crash an import of a
-        # non-existant module.
+        # non-existent module.
         with self.assertRaises(ImportError):
             importlib.import_module('does_not_exist')
 
@@ -48,6 +48,11 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
         entries = dict(entry_points()['entries'])
         ep = entries['main']
         self.assertEqual(ep.load().__name__, "main")
+
+    def test_entrypoint_with_colon_in_name(self):
+        entries = dict(entry_points()['entries'])
+        ep = entries['ns:sub']
+        self.assertEqual(ep.value, 'mod:main')
 
     def test_resolve_without_attr(self):
         ep = EntryPoint(
@@ -58,7 +63,8 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
         assert ep.load() is importlib_metadata
 
 
-class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
+class NameNormalizationTests(
+        fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
     def pkg_with_dashes(site_dir):
         """
@@ -103,7 +109,7 @@ class NameNormalizationTests(fixtures.SiteDir, unittest.TestCase):
         assert version(pkg_name.upper()) == '1.0'
 
 
-class NonASCIITests(fixtures.SiteDir, unittest.TestCase):
+class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
     def pkg_with_non_ascii_description(site_dir):
         """
@@ -163,3 +169,23 @@ class DiscoveryTests(fixtures.EggInfoPkg,
             dist.metadata['Name'] == 'distinfo-pkg'
             for dist in dists
             )
+
+    def test_invalid_usage(self):
+        with self.assertRaises(ValueError):
+            list(distributions(context='something', name='else'))
+
+
+class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
+    def test_egg_info(self):
+        # make an `EGG-INFO` directory that's unrelated
+        self.site_dir.joinpath('EGG-INFO').mkdir()
+        # used to crash with `IsADirectoryError`
+        with self.assertRaises(PackageNotFoundError):
+            version('unknown-package')
+
+    def test_egg(self):
+        egg = self.site_dir.joinpath('foo-3.6.egg')
+        egg.mkdir()
+        with self.add_sys_path(egg):
+            with self.assertRaises(PackageNotFoundError):
+                version('foo')
