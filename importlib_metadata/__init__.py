@@ -28,6 +28,7 @@ from ._compat import (
     MetaPathFinder,
     email_message_from_string,
     ensure_is_path,
+    PyPy_repr,
     )
 from importlib import import_module
 from itertools import starmap
@@ -54,7 +55,9 @@ class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
 
-class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
+class EntryPoint(
+        PyPy_repr,
+        collections.namedtuple('EntryPointBase', 'name value group')):
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points

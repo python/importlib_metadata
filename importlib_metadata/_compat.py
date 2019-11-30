@@ -98,3 +98,25 @@ def ensure_is_path(ob):
     if (3,) < sys.version_info < (3, 5):
         ob = str(ob)  # pragma: nocover
     return pathlib.Path(ob)
+
+
+class PyPy_repr:
+    """
+    Override repr for EntryPoint objects on PyPy2 to avoid __iter__ access.
+    Ref #97.
+    """
+    affected = (
+        hasattr(sys, 'pypy_version_info') and
+        sys.version_info < (3,)
+        )
+
+    def __compat_repr__(self):
+        def make_param(name):
+            value = getattr(self, name)
+            return '{name} = {value!r}'.format(**locals())
+        params = ', '.join(map(make_param, self._fields))
+        return 'EntryPoint({params})'.format(**locals())
+
+    if affected:
+        __repr__ = __compat_repr__
+    del affected
