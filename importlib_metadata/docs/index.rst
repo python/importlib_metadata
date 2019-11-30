@@ -51,4 +51,4 @@ Indices and tables
 .. _`metadata API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#metadata-api
 .. _`Python 3.7 and newer`: https://docs.python.org/3/library/importlib.html#module-importlib.resources
 .. _`importlib_resources`: https://importlib-resources.readthedocs.io/en/latest/index.html
-.. _`importlib.metadata`: TBD
+.. _`importlib.metadata`: https://docs.python.org/3/library/importlib.metadata.html
