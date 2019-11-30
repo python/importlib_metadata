@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+0.24
+====
+
+* EntryPoints are now pickleable. Closes #96.
+
 0.23
 ====
 * Added a compatibility shim to prevent failures on beta releases
