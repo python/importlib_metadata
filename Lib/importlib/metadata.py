@@ -161,8 +161,7 @@ class Distribution:
             metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
-            context = DistributionFinder.Context(name=name)
-            dists = resolver(context)
+            dists = resolver(DistributionFinder.Context(name=name))
             dist = next(dists, None)
             if dist is not None:
                 return dist
