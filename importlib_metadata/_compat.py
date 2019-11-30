@@ -113,12 +113,3 @@ email_message_from_string = (
 
 # https://bitbucket.org/pypy/pypy/issues/3021/ioopen-directory-leaks-a-file-descriptor
 PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
-
-
-def ensure_is_path(ob):
-    """Construct a Path from ob even if it's already one.
-    Specialized for Python 3.4.
-    """
-    if (3,) < sys.version_info < (3, 5):
-        ob = str(ob)  # pragma: nocover
-    return pathlib.Path(ob)

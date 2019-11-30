@@ -27,7 +27,6 @@ from ._compat import (
     ModuleNotFoundError,
     MetaPathFinder,
     email_message_from_string,
-    ensure_is_path,
     )
 from importlib import import_module
 from itertools import starmap
@@ -211,7 +210,7 @@ class Distribution:
         :param path: a string or path-like object
         :return: a concrete Distribution instance for the path
         """
-        return PathDistribution(ensure_is_path(path))
+        return PathDistribution(pathlib.Path(path))
 
     @staticmethod
     def _discover_resolvers():
