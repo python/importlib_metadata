@@ -51,9 +51,33 @@ __all__ = [
 
 
 def install(cls):
-    """Class decorator for installation on sys.meta_path."""
+    """
+    Class decorator for installation on sys.meta_path.
+
+    Adds the backport DistributionFinder to sys.meta_path and
+    attempts to disable the finder functionality of the stdlib
+    DistributionFinder.
+    """
     sys.meta_path.append(cls())
+    disable_stdlib_finder()
     return cls
+
+
+def disable_stdlib_finder():
+    """
+    Give the backport primacy for discovering path-based distributions
+    by monkey-patching the stdlib O_O.
+
+    See #91 for more background for rationale on this sketchy
+    behavior.
+    """
+    def matches(finder):
+        return (
+            finder.__module__ == '_frozen_importlib_external'
+            and hasattr(finder, 'find_distributions')
+            )
+    for finder in filter(matches, sys.meta_path):
+        del finder.find_distributions
 
 
 class NullFinder:
