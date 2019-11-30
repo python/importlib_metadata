@@ -76,7 +76,7 @@ def disable_stdlib_finder():
             finder.__module__ == '_frozen_importlib_external'
             and hasattr(finder, 'find_distributions')
             )
-    for finder in filter(matches, sys.meta_path):
+    for finder in filter(matches, sys.meta_path):  # pragma: nocover
         del finder.find_distributions
 
 
