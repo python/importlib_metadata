@@ -10,6 +10,8 @@ v1.1.0
 v1.0.0
 ======
 
+* Project adopts semver for versioning.
+
 * Removed compatibility shim introduced in 0.23.
 
 * For better compatibility with the stdlib implementation and to
