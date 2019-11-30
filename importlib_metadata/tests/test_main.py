@@ -189,3 +189,8 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         with self.add_sys_path(egg):
             with self.assertRaises(PackageNotFoundError):
                 version('foo')
+
+
+class TestEntryPoints(unittest.TestCase):
+    def test_repr(self):
+        assert 'EntryPoint' in repr(EntryPoint('name', 'value', 'group'))
