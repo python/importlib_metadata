@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import re
+import pickle
 import textwrap
 import unittest
 import importlib
@@ -189,3 +190,10 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         with self.add_sys_path(egg):
             with self.assertRaises(PackageNotFoundError):
                 version('foo')
+
+
+class TestEntryPoints(unittest.TestCase):
+    def test_entry_point_pickleable(self):
+        ep = importlib_metadata.EntryPoint('name', 'value', 'group')
+        revived = pickle.loads(pickle.dumps(ep))
+        assert revived == ep
