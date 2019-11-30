@@ -10,7 +10,6 @@ import zipp
 import operator
 import functools
 import itertools
-import collections
 
 from ._compat import (
     install,
@@ -27,7 +26,6 @@ from ._compat import (
     ModuleNotFoundError,
     MetaPathFinder,
     email_message_from_string,
-    PyPy_repr,
     )
 from importlib import import_module
 from itertools import starmap
@@ -54,9 +52,7 @@ class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
 
-class EntryPoint(
-        PyPy_repr,
-        collections.namedtuple('EntryPointBase', 'name value group')):
+class EntryPoint:
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points
@@ -84,6 +80,34 @@ class EntryPoint(
     The expression is lenient about whitespace around the ':',
     following the attr, and following any extras.
     """
+
+    __slots__ = 'name', 'value', 'group',
+    _fields = __slots__
+
+    def __init__(self, name, value, group):
+        super(EntryPoint, self).__setattr__('name', name)
+        super(EntryPoint, self).__setattr__('value', value)
+        super(EntryPoint, self).__setattr__('group', group)
+
+    def __setattr__(self, name, value):
+        raise AttributeError("can't set attribute")
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name and
+            self.value == other.value and
+            self.group == other.group
+            )
+
+    def __hash__(self):
+        return hash((self.name, self.value, self.group))
+
+    def __repr__(self):
+        def make_param(name):
+            value = getattr(self, name)
+            return '{name}={value!r}'.format(**locals())
+        params = ', '.join(map(make_param, self._fields))
+        return 'EntryPoint({params})'.format(**locals())
 
     def load(self):
         """Load the entry point from its definition. If only a module
