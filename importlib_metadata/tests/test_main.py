@@ -198,6 +198,13 @@ class TestEntryPoints(unittest.TestCase):
         revived = pickle.loads(pickle.dumps(ep))
         assert revived == ep
 
+    def test_immutable(self):
+        """EntryPoints should be immutable"""
+        ep = EntryPoint('name', 'value', 'group')
+        with self.assertRaises(AttributeError):
+            ep.name = 'badactor'
+
     def test_repr(self):
         assert 'EntryPoint' in repr(EntryPoint('name', 'value', 'group'))
-    
+        assert 'name=' in repr(EntryPoint('name', 'value', 'group'))
+        assert "'name'" in repr(EntryPoint('name', 'value', 'group'))
