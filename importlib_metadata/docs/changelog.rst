@@ -4,6 +4,9 @@
 
 v1.0.0
 ======
+
+* Removed compatibility shim introduced in 0.23.
+
 * For better compatibility with the stdlib implementation and to
   avoid the same distributions being discovered by the stdlib and
   backport implementations, the backport now disables the

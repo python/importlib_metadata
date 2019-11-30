@@ -178,8 +178,7 @@ class Distribution:
             metadata cannot be found.
         """
         for resolver in cls._discover_resolvers():
-            context = DistributionFinder.Context(name=name)
-            dists = cls._maybe_bind(resolver, context)
+            dists = resolver(DistributionFinder.Context(name=name))
             dist = next(dists, None)
             if dist is not None:
                 return dist
@@ -201,23 +200,9 @@ class Distribution:
             raise ValueError("cannot accept context and kwargs")
         context = context or DistributionFinder.Context(**kwargs)
         return itertools.chain.from_iterable(
-            cls._maybe_bind(resolver, context)
+            resolver(context)
             for resolver in cls._discover_resolvers()
             )
-
-    @staticmethod
-    def _maybe_bind(resolver, context):
-        """
-        Only bind the context to the resolver if as a callable,
-        the resolver accepts the context parameter.
-
-        Workaround for
-        https://gitlab.com/python-devs/importlib_metadata/issues/86
-        """
-        try:  # pragma: nocover
-            return resolver(context)
-        except TypeError:  # pragma: nocover
-            return resolver(name=context.name, path=context.path)
 
     @staticmethod
     def at(path):
