@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v1.0.0
+======
+
+* Removed compatibility shim introduced in 0.23.
+
 0.23
 ====
 * Added a compatibility shim to prevent failures on beta releases
