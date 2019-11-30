@@ -193,18 +193,20 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
 
 
 class TestEntryPoints(unittest.TestCase):
+    def __init__(self, *args):
+        super(TestEntryPoints, self).__init__(*args)
+        self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
+
     def test_entry_point_pickleable(self):
-        ep = importlib_metadata.EntryPoint('name', 'value', 'group')
-        revived = pickle.loads(pickle.dumps(ep))
-        assert revived == ep
+        revived = pickle.loads(pickle.dumps(self.ep))
+        assert revived == self.ep
 
     def test_immutable(self):
         """EntryPoints should be immutable"""
-        ep = EntryPoint('name', 'value', 'group')
         with self.assertRaises(AttributeError):
-            ep.name = 'badactor'
+            self.ep.name = 'badactor'
 
     def test_repr(self):
-        assert 'EntryPoint' in repr(EntryPoint('name', 'value', 'group'))
-        assert 'name=' in repr(EntryPoint('name', 'value', 'group'))
-        assert "'name'" in repr(EntryPoint('name', 'value', 'group'))
+        assert 'EntryPoint' in repr(self.ep)
+        assert 'name=' in repr(self.ep)
+        assert "'name'" in repr(self.ep)
