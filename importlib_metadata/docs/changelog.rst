@@ -2,10 +2,24 @@
  importlib_metadata NEWS
 =========================
 
-0.24
-====
+v1.1.0
+======
 
+* Dropped support for Python 3.4.
 * EntryPoints are now pickleable. Closes #96.
+
+v1.0.0
+======
+
+* Project adopts semver for versioning.
+
+* Removed compatibility shim introduced in 0.23.
+
+* For better compatibility with the stdlib implementation and to
+  avoid the same distributions being discovered by the stdlib and
+  backport implementations, the backport now disables the
+  stdlib DistributionFinder during initialization (import time).
+  Closes #91 and closes #100.
 
 0.23
 ====
