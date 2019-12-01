@@ -123,6 +123,12 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         """
         return iter((self.name, self))
 
+    def __reduce__(self):
+        return (
+            self.__class__,
+            (self.name, self.value, self.group),
+            )
+
 
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""

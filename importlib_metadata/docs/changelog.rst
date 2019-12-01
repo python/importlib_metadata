@@ -6,6 +6,7 @@ v1.1.0
 ======
 
 * Dropped support for Python 3.4.
+* EntryPoints are now pickleable. Closes #96.
 
 v1.0.0
 ======
