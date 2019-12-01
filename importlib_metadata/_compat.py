@@ -125,13 +125,13 @@ class PyPy_repr:
         sys.version_info < (3,)
         )
 
-    def __compat_repr__(self):
+    def __compat_repr__(self):  # pragma: nocover
         def make_param(name):
             value = getattr(self, name)
             return '{name}={value!r}'.format(**locals())
         params = ', '.join(map(make_param, self._fields))
         return 'EntryPoint({params})'.format(**locals())
 
-    if affected:
+    if affected:  # pragma: nocover
         __repr__ = __compat_repr__
     del affected
