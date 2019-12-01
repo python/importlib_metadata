@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import re
+import json
 import pickle
 import textwrap
 import unittest
@@ -193,7 +194,31 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
 
 
 class TestEntryPoints(unittest.TestCase):
+    def __init__(self, *args):
+        super(TestEntryPoints, self).__init__(*args)
+        self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
+
     def test_entry_point_pickleable(self):
-        ep = importlib_metadata.EntryPoint('name', 'value', 'group')
-        revived = pickle.loads(pickle.dumps(ep))
-        assert revived == ep
+        revived = pickle.loads(pickle.dumps(self.ep))
+        assert revived == self.ep
+
+    def test_immutable(self):
+        """EntryPoints should be immutable"""
+        with self.assertRaises(AttributeError):
+            self.ep.name = 'badactor'
+
+    def test_repr(self):
+        assert 'EntryPoint' in repr(self.ep)
+        assert 'name=' in repr(self.ep)
+        assert "'name'" in repr(self.ep)
+
+    def test_hashable(self):
+        """EntryPoints should be hashable"""
+        hash(self.ep)
+
+    def test_json_dump(self):
+        """
+        json should not expect to be able to dump an EntryPoint
+        """
+        with self.assertRaises(Exception):
+            json.dumps(self.ep)
