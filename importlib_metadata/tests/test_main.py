@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import re
+import json
 import pickle
 import textwrap
 import unittest
@@ -210,3 +211,14 @@ class TestEntryPoints(unittest.TestCase):
         assert 'EntryPoint' in repr(self.ep)
         assert 'name=' in repr(self.ep)
         assert "'name'" in repr(self.ep)
+
+    def test_hashable(self):
+        """EntryPoints should be hashable"""
+        hash(self.ep)
+
+    def test_json_dump(self):
+        """
+        json should not expect to be able to dump an EntryPoint
+        """
+        with self.assertRaises(Exception):
+            json.dumps(self.ep)
