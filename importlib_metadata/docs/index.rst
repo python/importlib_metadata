@@ -12,8 +12,9 @@ efficient ``pkg_resources`` package.
 
 ``importlib_metadata`` is a backport of Python 3.8's standard library
 `importlib.metadata`_ module for Python 2.7, and 3.4 through 3.7.  Users of
-Python 3.8 and beyond are encouraged to use the standard library module, and
-in fact for these versions, ``importlib_metadata`` just shadows that module.
+Python 3.8 and beyond are encouraged to use the standard library module.
+When imported on Python 3.8 and later, ``importlib_metadata`` replaces the
+DistributionFinder behavior from the stdlib, but leaves the API in tact.
 Developers looking for detailed API descriptions should refer to the Python
 3.8 standard library documentation.
 
@@ -50,4 +51,4 @@ Indices and tables
 .. _`metadata API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#metadata-api
 .. _`Python 3.7 and newer`: https://docs.python.org/3/library/importlib.html#module-importlib.resources
 .. _`importlib_resources`: https://importlib-resources.readthedocs.io/en/latest/index.html
-.. _`importlib.metadata`: TBD
+.. _`importlib.metadata`: https://docs.python.org/3/library/importlib.metadata.html

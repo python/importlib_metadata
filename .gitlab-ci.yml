@@ -41,6 +41,6 @@ codecov:
 release:
   stage: deploy
   only:
-    - /^\d+\.\d+(\.\d+)?([abc]\d*)?$/
+    - /^v\d+\.\d+(\.\d+)?([abc]\d*)?$/
   script:
     - tox -e release
