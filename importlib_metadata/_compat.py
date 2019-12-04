@@ -117,13 +117,10 @@ PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
 
 class PyPy_repr:
     """
-    Override repr for EntryPoint objects on PyPy2 to avoid __iter__ access.
-    Ref #97.
+    Override repr for EntryPoint objects on PyPy to avoid __iter__ access.
+    Ref #97, #102.
     """
-    affected = (
-        hasattr(sys, 'pypy_version_info') and
-        sys.version_info < (3,)
-        )
+    affected = hasattr(sys, 'pypy_version_info')
 
     def __compat_repr__(self):  # pragma: nocover
         def make_param(name):
