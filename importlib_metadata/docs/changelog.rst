@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v1.1.1
+======
+
+* Fixed ``repr(EntryPoint)`` on PyPy 3 also. Closes #102.
+
 v1.1.0
 ======
 
