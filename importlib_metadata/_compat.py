@@ -115,15 +115,6 @@ email_message_from_string = (
 PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
 
 
-def ensure_is_path(ob):
-    """Construct a Path from ob even if it's already one.
-    Specialized for Python 3.4.
-    """
-    if (3,) < sys.version_info < (3, 5):
-        ob = str(ob)  # pragma: nocover
-    return pathlib.Path(ob)
-
-
 class PyPy_repr:
     """
     Override repr for EntryPoint objects on PyPy to avoid __iter__ access.
