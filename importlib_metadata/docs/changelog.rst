@@ -2,6 +2,13 @@
  importlib_metadata NEWS
 =========================
 
+v1.1.3
+======
+
+* Restored support for Python 3.4 due to improper version
+  compatibility declarations in the v1.1.0 and v1.1.1
+  releases. Closes #104.
+
 v1.1.2
 ======
 
