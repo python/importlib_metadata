@@ -2,6 +2,12 @@
  importlib_metadata NEWS
 =========================
 
+v1.1.2
+======
+
+* Repaired project metadata to correctly declare the
+  ``python_requires`` directive. Closes #103.
+
 v1.1.1
 ======
 
