@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v1.2.0
+======
+
+* Once again, drop support for Python 3.4. Ref #104.
+
 v1.1.3
 ======
 
