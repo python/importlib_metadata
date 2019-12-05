@@ -37,7 +37,8 @@ class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
 
-class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
+class EntryPoint(
+        collections.namedtuple('EntryPointBase', 'name value group')):
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points
@@ -106,6 +107,12 @@ class EntryPoint(collections.namedtuple('EntryPointBase', 'name value group')):
         Supply iter so one may construct dicts of EntryPoints easily.
         """
         return iter((self.name, self))
+
+    def __reduce__(self):
+        return (
+            self.__class__,
+            (self.name, self.value, self.group),
+            )
 
 
 class PackagePath(pathlib.PurePosixPath):
