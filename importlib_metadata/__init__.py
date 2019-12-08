@@ -376,7 +376,7 @@ class DistributionFinder(MetaPathFinder):
             return vars(self).get('path', sys.path)
 
         @property
-        def pattern(self):
+        def pattern(self):  # Now unused, could be deprecated?
             return '.*' if self.name is None else re.escape(self.name)
 
     @abc.abstractmethod
@@ -407,14 +407,14 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         (or all names if ``None`` indicated) along the paths in the list
         of directories ``context.path``.
         """
-        found = self._search_paths(context.pattern, context.path)
+        found = self._search_paths(context.name, context.path)
         return map(PathDistribution, found)
 
     @classmethod
-    def _search_paths(cls, pattern, paths):
+    def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
-            cls._search_path(path, pattern)
+            cls._search_path(path, name)
             for path in map(cls._switch_path, paths)
             )
 
@@ -426,25 +426,34 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         return pathlib.Path(path)
 
     @classmethod
-    def _matches_info(cls, normalized, item):
-        template = r'{pattern}(-.*)?\.(dist|egg)-info'
-        manifest = template.format(pattern=normalized)
-        return re.match(manifest, item.name, flags=re.IGNORECASE)
-
-    @classmethod
-    def _matches_legacy(cls, normalized, item):
-        template = r'{pattern}-.*\.egg[\\/]EGG-INFO'
-        manifest = template.format(pattern=normalized)
-        return re.search(manifest, str(item), flags=re.IGNORECASE)
-
-    @classmethod
-    def _search_path(cls, root, pattern):
+    def _search_path(cls, root, name):
         if not root.is_dir():
-            return ()
-        normalized = pattern.replace('-', '_')
-        return (item for item in root.iterdir()
-                if cls._matches_info(normalized, item)
-                or cls._matches_legacy(normalized, item))
+            return
+        # This function is microoptimized by avoiding the use of regexes and
+        # using strs rather than Path objects.
+        if name is not None:
+            normalized = name.lower().replace('-', '_')
+            prefix = normalized + '-'
+        else:
+            normalized = prefix = ''
+        suffixes = ('.dist-info', '.egg-info')
+        exact_matches = [normalized + suffix for suffix in suffixes]
+        if isinstance(root, zipp.Path):
+            root_n_low = os.path.split(root.root.filename.lower())[1].lower()
+            children = [path.name for path in root.iterdir()]
+        else:  # Normal Path.
+            root_n_low = root.name.lower()
+            children = os.listdir(str(root))
+        root_is_egg = (
+            root_n_low == normalized + '.egg'
+            or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
+        for child in children:
+            n_low = child.lower()
+            if (n_low in exact_matches
+                    or n_low.startswith(prefix) and n_low.endswith(suffixes)
+                    # legacy case:
+                    or root_is_egg and n_low == 'egg-info'):
+                yield root / child
 
 
 class PathDistribution(Distribution):
