@@ -7,6 +7,7 @@ import abc
 import csv
 import sys
 import zipp
+import zipfile
 import operator
 import functools
 import itertools
@@ -376,8 +377,9 @@ class DistributionFinder(MetaPathFinder):
             return vars(self).get('path', sys.path)
 
         @property
-        def pattern(self):  # Now unused, could be deprecated?
-            return '.*' if self.name is None else re.escape(self.name)
+        def pattern(self):
+            return ('.*' if self.name is None
+                    else re.escape(self.name))  # pragma: nocover
 
     @abc.abstractmethod
     def find_distributions(self, context=Context()):
@@ -414,9 +416,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
-            cls._search_path(path, name)
-            for path in map(cls._switch_path, paths)
-            )
+            cls._search_path(path, name) for path in paths)
 
     @staticmethod
     def _switch_path(path):
@@ -427,10 +427,18 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     @classmethod
     def _search_path(cls, root, name):
-        if not root.is_dir():
-            return
         # This function is microoptimized by avoiding the use of regexes and
         # using strs rather than Path objects.
+        root = root or '.'
+        try:
+            children = os.listdir(root)
+        except Exception:
+            try:
+                with zipfile.ZipFile(root) as zf:
+                    children = [os.path.split(child)[0]
+                                for child in zf.namelist()]
+            except Exception:
+                return
         if name is not None:
             normalized = name.lower().replace('-', '_')
             prefix = normalized + '-'
@@ -438,12 +446,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
             normalized = prefix = ''
         suffixes = ('.dist-info', '.egg-info')
         exact_matches = [normalized + suffix for suffix in suffixes]
-        if isinstance(root, zipp.Path):
-            root_n_low = os.path.split(root.root.filename.lower())[1].lower()
-            children = [path.name for path in root.iterdir()]
-        else:  # Normal Path.
-            root_n_low = root.name.lower()
-            children = os.listdir(str(root))
+        root_n_low = os.path.split(root)[1].lower()
         root_is_egg = (
             root_n_low == normalized + '.egg'
             or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
@@ -453,7 +456,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
                     or n_low.startswith(prefix) and n_low.endswith(suffixes)
                     # legacy case:
                     or root_is_egg and n_low == 'egg-info'):
-                yield root / child
+                yield cls._switch_path(root) / child
 
 
 class PathDistribution(Distribution):
