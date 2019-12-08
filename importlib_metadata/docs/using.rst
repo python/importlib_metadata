@@ -232,9 +232,9 @@ properties indicating the path to search and names to match and may
 supply other relevant context.
 
 What this means in practice is that to support finding distribution package
-metadata in locations other than the file system, you should derive from
-``Distribution`` and implement the ``load_metadata()`` method. Then from
-your finder, return instances of this derived ``Distribution`` in the
+metadata in locations other than the file system, subclass
+``Distribution`` and implement the abstract methods. Then from
+a custom finder, return instances of this derived ``Distribution`` in the
 ``find_distributions()`` method.
 
 
