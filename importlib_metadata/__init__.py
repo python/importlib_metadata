@@ -363,6 +363,7 @@ class DistributionFinder(MetaPathFinder):
         name = None
         """
         Specific name for which a distribution finder should match.
+        A name of ``None`` matches all distributions.
         """
 
         def __init__(self, **kwargs):
