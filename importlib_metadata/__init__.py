@@ -359,6 +359,16 @@ class DistributionFinder(MetaPathFinder):
     """
 
     class Context:
+        """
+        Keyword arguments presented by the caller to
+        ``distributions()`` or ``Distribution.discover()``
+        to narrow the scope of a search for distributions
+        in all DistributionFinders.
+
+        Each DistributionFinder may expect any parameters
+        and should attempt to honor the canonical
+        parameters defined below when appropriate.
+        """
 
         name = None
         """
