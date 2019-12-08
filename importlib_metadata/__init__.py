@@ -373,6 +373,9 @@ class DistributionFinder(MetaPathFinder):
         def path(self):
             """
             The path that a distribution finder should search.
+
+            Typically refers to Python package paths and defaults
+            to ``sys.path``.
             """
             return vars(self).get('path', sys.path)
 
