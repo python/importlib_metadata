@@ -24,7 +24,6 @@ from ._compat import (
     NotADirectoryError,
     PermissionError,
     pathlib,
-    PYPY_OPEN_BUG,
     ModuleNotFoundError,
     MetaPathFinder,
     email_message_from_string,
@@ -418,13 +417,6 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         return itertools.chain.from_iterable(
             cls._search_path(path, name) for path in paths)
 
-    @staticmethod
-    def _switch_path(path):
-        if not PYPY_OPEN_BUG or os.path.isfile(path):  # pragma: no branch
-            with suppress(Exception):
-                return zipp.Path(path)
-        return pathlib.Path(path)
-
     @classmethod
     def _search_path(cls, root, name):
         # This function is microoptimized by avoiding the use of regexes and
@@ -432,11 +424,13 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         root = root or '.'
         try:
             children = os.listdir(root)
+            path_type = pathlib.Path
         except Exception:
             try:
                 with zipfile.ZipFile(root) as zf:
                     children = [os.path.split(child)[0]
                                 for child in zf.namelist()]
+                path_type = zipp.Path
             except Exception:
                 return
         if name is not None:
@@ -456,7 +450,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
                     or n_low.startswith(prefix) and n_low.endswith(suffixes)
                     # legacy case:
                     or root_is_egg and n_low == 'egg-info'):
-                yield cls._switch_path(root) / child
+                yield path_type(root, child)
 
 
 class PathDistribution(Distribution):
