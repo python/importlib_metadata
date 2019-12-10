@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v1.3.0
+======
+
+* Improve custom finders documentation. Closes #105.
+
 v1.2.0
 ======
 
