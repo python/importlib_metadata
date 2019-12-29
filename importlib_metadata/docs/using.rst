@@ -1,7 +1,7 @@
 .. _using:
 
 =================================
- Using :mod:`!importlib.metadata`
+ Using :mod:`!importlib_metadata`
 =================================
 
 ``importlib_metadata`` is a library that provides for access to installed
