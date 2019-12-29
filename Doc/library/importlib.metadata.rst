@@ -13,7 +13,7 @@ package metadata.  Built in part on Python's import system, this library
 intends to replace similar functionality in the `entry point
 API`_ and `metadata API`_ of ``pkg_resources``.  Along with
 :mod:`importlib.resources` in Python 3.7
-and newer (backported as :doc:`importlib_resources <importlib_resources:index>` for older versions of
+and newer (backported as `importlib_resources`_ for older versions of
 Python), this can eliminate the need to use the older and less efficient
 ``pkg_resources`` package.
 
@@ -212,7 +212,7 @@ Extending the search algorithm
 
 Because package metadata is not available through :data:`sys.path` searches, or
 package loaders directly, the metadata for a package is found through import
-system `finders`_.  To find a distribution package's metadata,
+system :ref:`finders <finders-and-loaders>`.  To find a distribution package's metadata,
 ``importlib.metadata`` queries the list of :term:`meta path finders <meta path finder>` on
 :data:`sys.meta_path`.
 
@@ -247,7 +247,7 @@ a custom finder, return instances of this derived ``Distribution`` in the
 
 .. _`entry point API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points
 .. _`metadata API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#metadata-api
-.. _`finders`: https://docs.python.org/3/reference/import.html#finders-and-loaders
+.. _`importlib_resources`: https://importlib-resources.readthedocs.io/en/latest/index.html
 
 
 .. rubric:: Footnotes
