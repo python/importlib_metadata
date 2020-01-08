@@ -115,10 +115,20 @@ email_message_from_string = (
 PYPY_OPEN_BUG = getattr(sys, 'pypy_version_info', (9, 9, 9))[:3] <= (7, 1, 1)
 
 
-def ensure_is_path(ob):
-    """Construct a Path from ob even if it's already one.
-    Specialized for Python 3.4.
+class PyPy_repr:
     """
-    if (3,) < sys.version_info < (3, 5):
-        ob = str(ob)  # pragma: nocover
-    return pathlib.Path(ob)
+    Override repr for EntryPoint objects on PyPy to avoid __iter__ access.
+    Ref #97, #102.
+    """
+    affected = hasattr(sys, 'pypy_version_info')
+
+    def __compat_repr__(self):  # pragma: nocover
+        def make_param(name):
+            value = getattr(self, name)
+            return '{name}={value!r}'.format(**locals())
+        params = ', '.join(map(make_param, self._fields))
+        return 'EntryPoint({params})'.format(**locals())
+
+    if affected:  # pragma: nocover
+        __repr__ = __compat_repr__
+    del affected

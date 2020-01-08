@@ -2,10 +2,40 @@
  importlib_metadata NEWS
 =========================
 
+v1.3.0
+======
+
+* Improve custom finders documentation. Closes #105.
+
+v1.2.0
+======
+
+* Once again, drop support for Python 3.4. Ref #104.
+
+v1.1.3
+======
+
+* Restored support for Python 3.4 due to improper version
+  compatibility declarations in the v1.1.0 and v1.1.1
+  releases. Closes #104.
+
+v1.1.2
+======
+
+* Repaired project metadata to correctly declare the
+  ``python_requires`` directive. Closes #103.
+
+v1.1.1
+======
+
+* Fixed ``repr(EntryPoint)`` on PyPy 3 also. Closes #102.
+
 v1.1.0
 ======
 
 * Dropped support for Python 3.4.
+* EntryPoints are now pickleable. Closes #96.
+* Fixed ``repr(EntryPoint)`` on PyPy 2. Closes #97.
 
 v1.0.0
 ======
