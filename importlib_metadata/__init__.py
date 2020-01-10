@@ -7,7 +7,6 @@ import abc
 import csv
 import sys
 import zipp
-import zipfile
 import operator
 import functools
 import itertools
