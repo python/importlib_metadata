@@ -392,10 +392,11 @@ class FastPath:
     children.
     """
 
-    path_type = pathlib.Path
-
     def __init__(self, root):
         self.root = root
+
+    def joinpath(self, child):
+        return pathlib.Path(self.root, child)
 
     def children(self):
         with suppress(Exception):
@@ -404,9 +405,9 @@ class FastPath:
             yield from self.zip_children()
 
     def zip_children(self):
-        with zipfile.ZipFile(self.root) as zf:
-            names = zf.namelist()
-        self.path_type = zipp.Path
+        zip_path = zipp.Path(self.root)
+        names = zip_path.root.namelist()
+        self.joinpath = zip_path.joinpath
 
         return (
             os.path.split(child)[0]
@@ -429,7 +430,7 @@ class FastPath:
                     and n_low.endswith(name.suffixes)
                     # legacy case:
                     or self.is_egg(name) and n_low == 'egg-info'):
-                yield self.path_type(self.root, child)
+                yield self.joinpath(child)
 
 
 class Prepared:
