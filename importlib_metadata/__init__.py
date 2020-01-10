@@ -375,11 +375,6 @@ class DistributionFinder(MetaPathFinder):
             """
             return vars(self).get('path', sys.path)
 
-        @property
-        def pattern(self):
-            return ('.*' if self.name is None
-                    else re.escape(self.name))  # pragma: nocover
-
     @abc.abstractmethod
     def find_distributions(self, context=Context()):
         """
