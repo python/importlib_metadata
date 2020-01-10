@@ -10,6 +10,7 @@ import zipp
 import operator
 import functools
 import itertools
+import posixpath
 import collections
 
 from ._compat import (
@@ -410,7 +411,7 @@ class FastPath:
         self.joinpath = zip_path.joinpath
 
         return (
-            os.path.split(child)[0]
+            posixpath.split(child)[0]
             for child in names
             )
 
