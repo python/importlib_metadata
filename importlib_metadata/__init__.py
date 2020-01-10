@@ -399,9 +399,10 @@ class FastPath:
 
     def children(self):
         with suppress(Exception):
-            yield from os.listdir(self.root or '')
+            return os.listdir(self.root or '')
         with suppress(Exception):
-            yield from self.zip_children()
+            return self.zip_children()
+        return []
 
     def zip_children(self):
         zip_path = zipp.Path(self.root)
