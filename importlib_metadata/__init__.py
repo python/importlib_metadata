@@ -435,8 +435,7 @@ class FastPath:
 
 class Prepared:
     """
-    Micro-optimized class for searching for an
-    optional package name in list of children.
+    A prepared search for metadata on a possibly-named package.
     """
     normalized = ''
     prefix = ''
