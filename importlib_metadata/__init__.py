@@ -413,12 +413,33 @@ class FastPath:
             for child in names
             )
 
-    def is_egg(self, normalized, prefix):
+    def is_egg(self, search):
         root_n_low = os.path.split(self.root)[1].lower()
 
         return (
-            root_n_low == normalized + '.egg'
-            or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
+            root_n_low == search.normalized + '.egg'
+            or root_n_low.startswith(search.prefix)
+            and root_n_low.endswith('.egg'))
+
+
+class FastSearch:
+    """
+    Micro-optimized class for searching for an
+    optional package name in list of children.
+    """
+    normalized = ''
+    prefix = ''
+    suffixes = '.dist-info', '.egg-info'
+    exact_matches = []
+
+    def __init__(self, name):
+        self.name = name
+        if name is None:
+            return
+        self.normalized = name.lower().replace('-', '_')
+        self.prefix = self.normalized + '-'
+        self.exact_matches = [
+            self.normalized + suffix for suffix in self.suffixes]
 
 
 @install
@@ -445,26 +466,19 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
-            cls._search_path(path, name)
+            cls._search_path(path, FastSearch(name))
             for path in map(FastPath, paths)
             )
 
     @classmethod
     def _search_path(cls, root, name):
-        if name is not None:
-            normalized = name.lower().replace('-', '_')
-            prefix = normalized + '-'
-        else:
-            normalized = prefix = ''
-        suffixes = ('.dist-info', '.egg-info')
-        exact_matches = [normalized + suffix for suffix in suffixes]
         for child in root.children():
             n_low = child.lower()
-            if (n_low in exact_matches
-                    or n_low.startswith(prefix) and n_low.endswith(suffixes)
+            if (n_low in name.exact_matches
+                    or n_low.startswith(name.prefix)
+                    and n_low.endswith(name.suffixes)
                     # legacy case:
-                    or root.is_egg(normalized, prefix)
-                    and n_low == 'egg-info'):
+                    or root.is_egg(name) and n_low == 'egg-info'):
                 yield root.path_type(root.root, child)
 
 
