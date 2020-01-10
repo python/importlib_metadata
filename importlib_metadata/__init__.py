@@ -386,6 +386,32 @@ class DistributionFinder(MetaPathFinder):
         """
 
 
+class FastPath:
+    """
+    Micro-optimized class for searching a path for
+    children.
+    """
+
+    def __init__(self, root):
+        self.root = root
+
+    def children(self):
+        try:
+            children = os.listdir(self.root or '.')
+            path_type = pathlib.Path
+        except Exception:
+            try:
+                with zipfile.ZipFile(self.root) as zf:
+                    children = [os.path.split(child)[0]
+                                for child in zf.namelist()]
+                path_type = zipp.Path
+            except Exception:
+                children = []
+                path_type = None
+
+        return children, path_type
+
+
 @install
 class MetadataPathFinder(NullFinder, DistributionFinder):
     """A degenerate finder for distribution packages on the file system.
@@ -410,24 +436,12 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
-            cls._search_path(path, name) for path in paths)
+            cls._search_path(path, name)
+            for path in map(FastPath, paths)
+            )
 
     @classmethod
     def _search_path(cls, root, name):
-        # This function is microoptimized by avoiding the use of regexes and
-        # using strs rather than Path objects.
-        root = root or '.'
-        try:
-            children = os.listdir(root)
-            path_type = pathlib.Path
-        except Exception:
-            try:
-                with zipfile.ZipFile(root) as zf:
-                    children = [os.path.split(child)[0]
-                                for child in zf.namelist()]
-                path_type = zipp.Path
-            except Exception:
-                return
         if name is not None:
             normalized = name.lower().replace('-', '_')
             prefix = normalized + '-'
@@ -435,17 +449,18 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
             normalized = prefix = ''
         suffixes = ('.dist-info', '.egg-info')
         exact_matches = [normalized + suffix for suffix in suffixes]
-        root_n_low = os.path.split(root)[1].lower()
+        root_n_low = os.path.split(root.root)[1].lower()
         root_is_egg = (
             root_n_low == normalized + '.egg'
             or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
+        children, path_type = root.children()
         for child in children:
             n_low = child.lower()
             if (n_low in exact_matches
                     or n_low.startswith(prefix) and n_low.endswith(suffixes)
                     # legacy case:
                     or root_is_egg and n_low == 'egg-info'):
-                yield path_type(root, child)
+                yield path_type(root.root, child)
 
 
 class PathDistribution(Distribution):
