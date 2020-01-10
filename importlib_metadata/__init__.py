@@ -392,24 +392,26 @@ class FastPath:
     children.
     """
 
+    path_type = pathlib.Path
+
     def __init__(self, root):
         self.root = root
 
     def children(self):
-        try:
-            children = os.listdir(self.root or '.')
-            path_type = pathlib.Path
-        except Exception:
-            try:
-                with zipfile.ZipFile(self.root) as zf:
-                    children = [os.path.split(child)[0]
-                                for child in zf.namelist()]
-                path_type = zipp.Path
-            except Exception:
-                children = []
-                path_type = None
+        with suppress(Exception):
+            yield from os.listdir(self.root or '')
+        with suppress(Exception):
+            yield from self.zip_children()
 
-        return children, path_type
+    def zip_children(self):
+        with zipfile.ZipFile(self.root) as zf:
+            names = zf.namelist()
+        self.path_type = zipp.Path
+
+        return (
+            os.path.split(child)[0]
+            for child in names
+            )
 
 
 @install
@@ -453,14 +455,13 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         root_is_egg = (
             root_n_low == normalized + '.egg'
             or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
-        children, path_type = root.children()
-        for child in children:
+        for child in root.children():
             n_low = child.lower()
             if (n_low in exact_matches
                     or n_low.startswith(prefix) and n_low.endswith(suffixes)
                     # legacy case:
                     or root_is_egg and n_low == 'egg-info'):
-                yield path_type(root.root, child)
+                yield root.path_type(root.root, child)
 
 
 class PathDistribution(Distribution):
