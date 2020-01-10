@@ -421,8 +421,18 @@ class FastPath:
             or root_n_low.startswith(search.prefix)
             and root_n_low.endswith('.egg'))
 
+    def search(self, name):
+        for child in self.children():
+            n_low = child.lower()
+            if (n_low in name.exact_matches
+                    or n_low.startswith(name.prefix)
+                    and n_low.endswith(name.suffixes)
+                    # legacy case:
+                    or self.is_egg(name) and n_low == 'egg-info'):
+                yield self.path_type(self.root, child)
 
-class FastSearch:
+
+class Prepared:
     """
     Micro-optimized class for searching for an
     optional package name in list of children.
@@ -466,20 +476,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
         return itertools.chain.from_iterable(
-            cls._search_path(path, FastSearch(name))
+            path.search(Prepared(name))
             for path in map(FastPath, paths)
             )
-
-    @classmethod
-    def _search_path(cls, root, name):
-        for child in root.children():
-            n_low = child.lower()
-            if (n_low in name.exact_matches
-                    or n_low.startswith(name.prefix)
-                    and n_low.endswith(name.suffixes)
-                    # legacy case:
-                    or root.is_egg(name) and n_low == 'egg-info'):
-                yield root.path_type(root.root, child)
 
 
 class PathDistribution(Distribution):
