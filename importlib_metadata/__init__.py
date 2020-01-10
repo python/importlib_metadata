@@ -413,6 +413,13 @@ class FastPath:
             for child in names
             )
 
+    def is_egg(self, normalized, prefix):
+        root_n_low = os.path.split(self.root)[1].lower()
+
+        return (
+            root_n_low == normalized + '.egg'
+            or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
+
 
 @install
 class MetadataPathFinder(NullFinder, DistributionFinder):
@@ -451,16 +458,13 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
             normalized = prefix = ''
         suffixes = ('.dist-info', '.egg-info')
         exact_matches = [normalized + suffix for suffix in suffixes]
-        root_n_low = os.path.split(root.root)[1].lower()
-        root_is_egg = (
-            root_n_low == normalized + '.egg'
-            or root_n_low.startswith(prefix) and root_n_low.endswith('.egg'))
         for child in root.children():
             n_low = child.lower()
             if (n_low in exact_matches
                     or n_low.startswith(prefix) and n_low.endswith(suffixes)
                     # legacy case:
-                    or root_is_egg and n_low == 'egg-info'):
+                    or root.is_egg(normalized, prefix)
+                    and n_low == 'egg-info'):
                 yield root.path_type(root.root, child)
 
 
