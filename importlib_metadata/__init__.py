@@ -441,7 +441,7 @@ class Prepared:
     normalized = ''
     prefix = ''
     suffixes = '.dist-info', '.egg-info'
-    exact_matches = []
+    exact_matches = [''][:0]
 
     def __init__(self, name):
         self.name = name
