@@ -1,14 +1,15 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import os
 import re
 import json
 import pickle
 import textwrap
+import unittest
 import importlib
-import unittest.mock
 import importlib_metadata
+
+import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
 from .. import (
@@ -205,28 +206,20 @@ class MissingSysPath(fixtures.OnSysPath, unittest.TestCase):
         importlib_metadata.distributions()
 
 
-class InaccessibleSysPath(fixtures.OnSysPath, unittest.TestCase):
+class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
     site_dir = '/access-denied'
-
-    def listdir(self, target, orig=os.listdir):
-        """
-        Fake listdir raising an exception when access is denied.
-        """
-        if target == self.site_dir:
-            raise OSError(13, 'Permission denied')
-        return orig(target)
 
     def setUp(self):
         super(InaccessibleSysPath, self).setUp()
-        self.fixtures.enter_context(
-            unittest.mock.patch('os.listdir', self.listdir))
+        self.setUpPyfakefs()
+        self.fs.create_dir(self.site_dir, perm_bits=000)
 
     def test_discovery(self):
         """
         Discovering distributions should succeed even if
         there is an invalid path on sys.path.
         """
-        importlib_metadata.distributions()
+        list(importlib_metadata.distributions())
 
 
 class TestEntryPoints(unittest.TestCase):
