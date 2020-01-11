@@ -47,14 +47,19 @@ def tempdir_as_cwd():
             yield tmp
 
 
-class SiteDir:
+class Fixtures:
     def setUp(self):
         self.fixtures = ExitStack()
         self.addCleanup(self.fixtures.close)
+
+
+class SiteDir(Fixtures):
+    def setUp(self):
+        super(SiteDir, self).setUp()
         self.site_dir = self.fixtures.enter_context(tempdir())
 
 
-class OnSysPath:
+class OnSysPath(Fixtures):
     @staticmethod
     @contextlib.contextmanager
     def add_sys_path(dir):
