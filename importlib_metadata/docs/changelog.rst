@@ -2,6 +2,13 @@
  importlib_metadata NEWS
 =========================
 
+v1.4.0
+======
+
+* Through careful optimization, ``distribution()`` is
+  3-4x faster. Thanks to Antony Lee for the
+  contribution. Closes #95.
+
 v1.3.0
 ======
 
