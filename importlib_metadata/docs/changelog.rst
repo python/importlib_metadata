@@ -9,6 +9,11 @@ v1.4.0
   3-4x faster. Thanks to Antony Lee for the
   contribution. Closes #95.
 
+* When searching through ``sys.path``, if any error
+  occurs attempting to list a path entry, that entry
+  is skipped, making the system much more lenient
+  to errors. Closes #94.
+
 v1.3.0
 ======
 
