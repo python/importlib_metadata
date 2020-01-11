@@ -1,12 +1,13 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import os
 import re
 import json
 import pickle
 import textwrap
-import unittest
 import importlib
+import unittest.mock
 import importlib_metadata
 
 from . import fixtures
@@ -191,6 +192,41 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         with self.add_sys_path(egg):
             with self.assertRaises(PackageNotFoundError):
                 version('foo')
+
+
+class MissingSysPath(fixtures.OnSysPath, unittest.TestCase):
+    site_dir = '/does-not-exist'
+
+    def test_discovery(self):
+        """
+        Discovering distributions should succeed even if
+        there is an invalid path on sys.path.
+        """
+        importlib_metadata.distributions()
+
+
+class InaccessibleSysPath(fixtures.OnSysPath, unittest.TestCase):
+    site_dir = '/access-denied'
+
+    def listdir(self, target, orig=os.listdir):
+        """
+        Fake listdir raising an exception when access is denied.
+        """
+        if target == self.site_dir:
+            raise OSError(13, 'Permission denied')
+        return orig(target)
+
+    def setUp(self):
+        super(InaccessibleSysPath, self).setUp()
+        self.fixtures.enter_context(
+            unittest.mock.patch('os.listdir', self.listdir))
+
+    def test_discovery(self):
+        """
+        Discovering distributions should succeed even if
+        there is an invalid path on sys.path.
+        """
+        importlib_metadata.distributions()
 
 
 class TestEntryPoints(unittest.TestCase):
