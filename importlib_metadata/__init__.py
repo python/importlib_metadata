@@ -408,6 +408,7 @@ class FastPath:
 
     def __init__(self, root):
         self.root = root
+        self._root_n_low = os.path.split(root)[1].lower()
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
@@ -430,10 +431,9 @@ class FastPath:
             )
 
     def is_egg(self, search):
-        root_n_low = os.path.split(self.root)[1].lower()
-
+        root_n_low = self._root_n_low
         return (
-            root_n_low == search.normalized + '.egg'
+            root_n_low == search.versionless_egg_name
             or root_n_low.startswith(search.prefix)
             and root_n_low.endswith('.egg'))
 
@@ -452,19 +452,23 @@ class Prepared:
     """
     A prepared search for metadata on a possibly-named package.
     """
-    normalized = ''
-    prefix = ''
+
+    __slots__ = ('name', 'versionless_egg_name', 'prefix', 'exact_matches')
+
     suffixes = '.dist-info', '.egg-info'
-    exact_matches = [''][:0]
 
     def __init__(self, name):
         self.name = name
         if name is None:
+            self.versionless_egg_name = ''
+            self.prefix = ''
+            self.exact_matches = []
             return
-        self.normalized = name.lower().replace('-', '_')
-        self.prefix = self.normalized + '-'
+        normalized = name.lower().replace('-', '_')
+        self.versionless_egg_name = normalized + '.egg'
+        self.prefix = normalized + '-'
         self.exact_matches = [
-            self.normalized + suffix for suffix in self.suffixes]
+            normalized + suffix for suffix in self.suffixes]
 
 
 @install
