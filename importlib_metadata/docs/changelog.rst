@@ -2,6 +2,12 @@
  importlib_metadata NEWS
 =========================
 
+v1.5.0
+======
+
+* Additional performance optimizations in FastPath now
+  saves an additional 20% on a typical call.
+
 v1.4.0
 ======
 
