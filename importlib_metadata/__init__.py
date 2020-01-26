@@ -408,7 +408,7 @@ class FastPath:
 
     def __init__(self, root):
         self.root = root
-        self._root_n_low = os.path.split(root)[1].lower()
+        self.base = os.path.basename(root).lower()
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
@@ -431,11 +431,11 @@ class FastPath:
             )
 
     def is_egg(self, search):
-        root_n_low = self._root_n_low
+        base = self.base
         return (
-            root_n_low == search.versionless_egg_name
-            or root_n_low.startswith(search.prefix)
-            and root_n_low.endswith('.egg'))
+            base == search.versionless_egg_name
+            or base.startswith(search.prefix)
+            and base.endswith('.egg'))
 
     def search(self, name):
         for child in self.children():
