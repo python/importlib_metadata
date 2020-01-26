@@ -8,7 +8,6 @@ import textwrap
 import unittest
 import importlib
 import importlib_metadata
-
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
