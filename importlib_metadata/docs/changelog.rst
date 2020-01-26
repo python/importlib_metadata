@@ -2,12 +2,23 @@
  importlib_metadata NEWS
 =========================
 
+v1.5.0
+======
+
+* Additional performance optimizations in FastPath now
+  saves an additional 20% on a typical call.
+
 v1.4.0
 ======
 
 * Through careful optimization, ``distribution()`` is
   3-4x faster. Thanks to Antony Lee for the
   contribution. Closes #95.
+
+* When searching through ``sys.path``, if any error
+  occurs attempting to list a path entry, that entry
+  is skipped, making the system much more lenient
+  to errors. Closes #94.
 
 v1.3.0
 ======
