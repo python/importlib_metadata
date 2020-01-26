@@ -452,23 +452,21 @@ class Prepared:
     """
     A prepared search for metadata on a possibly-named package.
     """
-
-    __slots__ = ('name', 'versionless_egg_name', 'prefix', 'exact_matches')
-
+    normalized = ''
+    prefix = ''
     suffixes = '.dist-info', '.egg-info'
+    exact_matches = [''][:0]
+    versionless_egg_name = ''
 
     def __init__(self, name):
         self.name = name
         if name is None:
-            self.versionless_egg_name = ''
-            self.prefix = ''
-            self.exact_matches = []
             return
-        normalized = name.lower().replace('-', '_')
-        self.versionless_egg_name = normalized + '.egg'
-        self.prefix = normalized + '-'
+        self.normalized = name.lower().replace('-', '_')
+        self.prefix = self.normalized + '-'
         self.exact_matches = [
-            normalized + suffix for suffix in self.suffixes]
+            self.normalized + suffix for suffix in self.suffixes]
+        self.versionless_egg_name = self.normalized + '.egg'
 
 
 @install
