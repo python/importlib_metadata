@@ -7,6 +7,8 @@ v1.5.0
 
 * Additional performance optimizations in FastPath now
   saves an additional 20% on a typical call.
+* Correct for issue where PyOxidizer finder has no
+  ``__module__`` attribute. Closes #110.
 
 v1.4.0
 ======
