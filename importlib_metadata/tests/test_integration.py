@@ -3,8 +3,10 @@ import packaging.requirements
 import packaging.version
 
 from . import fixtures
-from .. import version
-from .. import _compat
+from .. import (
+    _compat,
+    version,
+    )
 
 
 class IntegrationTests(fixtures.DistInfoPkg, unittest.TestCase):
