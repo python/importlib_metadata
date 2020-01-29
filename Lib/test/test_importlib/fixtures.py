@@ -47,6 +47,15 @@ def tempdir_as_cwd():
             yield tmp
 
 
+@contextlib.contextmanager
+def install_finder(finder):
+    sys.meta_path.append(finder)
+    try:
+        yield
+    finally:
+        sys.meta_path.remove(finder)
+
+
 class Fixtures:
     def setUp(self):
         self.fixtures = ExitStack()
@@ -203,3 +212,8 @@ def build_files(file_defs, prefix=pathlib.Path()):
 def DALS(str):
     "Dedent and left-strip"
     return textwrap.dedent(str).lstrip()
+
+
+class NullFinder:
+    def find_module(self, name):
+        pass
