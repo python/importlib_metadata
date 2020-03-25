@@ -2,6 +2,13 @@
  importlib_metadata NEWS
 =========================
 
+v1.5.1
+======
+
+* Improve reliability and consistency of compatibility
+  imports for contextlib and pathlib when running tests.
+  Closes #116.
+
 v1.5.0
 ======
 

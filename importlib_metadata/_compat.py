@@ -9,7 +9,7 @@ import email
 if sys.version_info > (3,):  # pragma: nocover
     import builtins
     from configparser import ConfigParser
-    from contextlib import suppress
+    import contextlib
     FileNotFoundError = builtins.FileNotFoundError
     IsADirectoryError = builtins.IsADirectoryError
     NotADirectoryError = builtins.NotADirectoryError
@@ -18,11 +18,13 @@ if sys.version_info > (3,):  # pragma: nocover
 else:  # pragma: nocover
     from backports.configparser import ConfigParser
     from itertools import imap as map  # type: ignore
-    from contextlib2 import suppress  # noqa
+    import contextlib2 as contextlib
     FileNotFoundError = IOError, OSError
     IsADirectoryError = IOError, OSError
     NotADirectoryError = IOError, OSError
     PermissionError = IOError, OSError
+
+suppress = contextlib.suppress
 
 if sys.version_info > (3, 5):  # pragma: nocover
     import pathlib
