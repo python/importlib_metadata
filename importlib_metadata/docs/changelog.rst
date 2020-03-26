@@ -2,6 +2,12 @@
  importlib_metadata NEWS
 =========================
 
+v1.5.2
+======
+
+* Fix redundant entries from ``FastPath.zip_children``.
+  Closes #117.
+
 v1.5.1
 ======
 
