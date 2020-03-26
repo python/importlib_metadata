@@ -97,6 +97,16 @@ class EntryPoint(
         return functools.reduce(getattr, attrs, module)
 
     @property
+    def module(self):
+        match = self.pattern.match(self.value)
+        return match.group('module')
+
+    @property
+    def attr(self):
+        match = self.pattern.match(self.value)
+        return match.group('attr')
+
+    @property
     def extras(self):
         match = self.pattern.match(self.value)
         return list(re.finditer(r'\w+', match.group('extras') or ''))
