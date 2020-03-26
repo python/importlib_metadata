@@ -136,7 +136,7 @@ class PyPy_repr:
 
 
 # from itertools recipes
-def unique_everseen(iterable):
+def unique_everseen(iterable):  # pragma: nocover
     "List unique elements, preserving order. Remember all elements ever seen."
     seen = set()
     seen_add = seen.add
