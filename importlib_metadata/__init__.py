@@ -28,6 +28,7 @@ from ._compat import (
     MetaPathFinder,
     email_message_from_string,
     PyPy_repr,
+    unique_ordered,
     )
 from importlib import import_module
 from itertools import starmap
@@ -425,7 +426,7 @@ class FastPath:
         names = zip_path.root.namelist()
         self.joinpath = zip_path.joinpath
 
-        return (
+        return unique_ordered(
             posixpath.split(child)[0]
             for child in names
             )
