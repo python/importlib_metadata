@@ -427,7 +427,7 @@ class FastPath:
         self.joinpath = zip_path.joinpath
 
         return unique_ordered(
-            posixpath.split(child)[0]
+            child.split(posixpath.sep, 1)[0]
             for child in names
             )
 
