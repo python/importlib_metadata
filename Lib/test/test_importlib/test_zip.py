@@ -3,7 +3,8 @@ import unittest
 
 from contextlib import ExitStack
 from importlib.metadata import (
-    distribution, entry_points, files, PackageNotFoundError, version,
+    distribution, entry_points, files, PackageNotFoundError,
+    version, distributions,
 )
 from importlib.resources import path
 
@@ -48,6 +49,10 @@ class TestZip(unittest.TestCase):
         for file in files('example'):
             path = str(file.dist.locate_file(file))
             assert '.whl/' in path, path
+
+    def test_one_distribution(self):
+        dists = list(distributions(path=sys.path[:1]))
+        assert len(dists) == 1
 
 
 @requires_zlib
