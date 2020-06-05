@@ -9,8 +9,8 @@ import packaging.version
 from . import fixtures
 from .. import (
     _compat,
-    version,
     Distribution,
+    version,
     )
 
 
