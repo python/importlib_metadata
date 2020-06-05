@@ -2,6 +2,12 @@
  importlib_metadata NEWS
 =========================
 
+v1.6.1
+======
+
+* Tests now rely on ``importlib.resources.files`` (and
+  backport) instead of the older ``path`` function.
+
 v1.6.0
 ======
 
