@@ -10,7 +10,7 @@ try:
     from importlib import resources
     getattr(resources, 'files')
     getattr(resources, 'as_file')
-except AttributeError:
+except (ImportError, AttributeError):
     import importlib_resources as resources
 
 try:
