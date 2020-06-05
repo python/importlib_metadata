@@ -11,7 +11,7 @@ from importlib import resources
 from test.support import requires_zlib
 
 
-@requires_zlib
+@requires_zlib()
 class TestZip(unittest.TestCase):
     root = 'test.test_importlib.data'
 
@@ -59,7 +59,7 @@ class TestZip(unittest.TestCase):
         assert len(dists) == 1
 
 
-@requires_zlib
+@requires_zlib()
 class TestEgg(TestZip):
     def setUp(self):
         # Find the path to the example-*.egg so we can add it to the front of
