@@ -29,6 +29,7 @@ from ._compat import (
     email_message_from_string,
     PyPy_repr,
     unique_ordered,
+    str,
     )
 from importlib import import_module
 from itertools import starmap
@@ -418,8 +419,8 @@ class FastPath:
     """
 
     def __init__(self, root):
-        self.root = root
-        self.base = os.path.basename(root).lower()
+        self.root = str(root)
+        self.base = os.path.basename(self.root).lower()
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
