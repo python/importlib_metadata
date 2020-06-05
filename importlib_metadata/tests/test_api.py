@@ -178,6 +178,6 @@ class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
 
 class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
     def test_find_local(self):
-        dist = Distribution.find_local()
+        dist = Distribution._local()
         assert dist.metadata['Name'] == 'local-pkg'
         assert dist.version == '2.0.1'

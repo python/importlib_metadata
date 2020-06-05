@@ -243,7 +243,7 @@ class Distribution:
         return filter(None, declared)
 
     @classmethod
-    def find_local(cls, root='.'):
+    def _local(cls, root='.'):
         from pep517 import build, meta
         system = build.compat_system(root)
         builder = functools.partial(

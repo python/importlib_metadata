@@ -5,6 +5,11 @@
 v1.6.1
 ======
 
+* Added ``Distribution._local()`` as a provisional
+  demonstration of how to load metadata for a local
+  package. Implicitly requires that
+  `pep517 <https://pypi.org/project/pep517>`_ is
+  installed. Ref #42.
 * Ensure inputs to FastPath are Unicode. Closes #121.
 * Tests now rely on ``importlib.resources.files`` (and
   backport) instead of the older ``path`` function.
