@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v1.6.1
+======
+
+* Ensure inputs to FastPath are Unicode. Closes #121.
+
 v1.6.0
 ======
 
