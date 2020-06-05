@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import unittest
 import packaging.requirements
 import packaging.version
@@ -5,6 +9,7 @@ import packaging.version
 from . import fixtures
 from .. import (
     _compat,
+    distributions,
     version,
     )
 
@@ -40,3 +45,13 @@ class FinderTests(fixtures.Fixtures, unittest.TestCase):
         self.fixtures.enter_context(
             fixtures.install_finder(ModuleFreeFinder()))
         _compat.disable_stdlib_finder()
+
+
+class FileSystem(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
+    def test_unicode_dir_on_sys_path(self):
+        """
+        Ensure a Unicode subdirectory of a directory on sys.path
+        does not crash.
+        """
+        fixtures.build_files({'☃': {}}, prefix=self.site_dir)
+        list(distributions())
