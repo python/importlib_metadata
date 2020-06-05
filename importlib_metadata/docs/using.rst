@@ -236,7 +236,7 @@ method::
         """
 
 The ``DistributionFinder.Context`` object provides ``.path`` and ``.name``
-properties indicating the path to search and names to match and may
+properties indicating the path to search and name to match and may
 supply other relevant context.
 
 What this means in practice is that to support finding distribution package
