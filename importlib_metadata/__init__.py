@@ -199,7 +199,7 @@ class Distribution:
         """
         for resolver in cls._discover_resolvers():
             dists = resolver(DistributionFinder.Context(name=name))
-            dist = next(dists, None)
+            dist = next(iter(dists), None)
             if dist is not None:
                 return dist
         else:

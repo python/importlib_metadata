@@ -13,6 +13,8 @@ v1.6.1
 * Ensure inputs to FastPath are Unicode. Closes #121.
 * Tests now rely on ``importlib.resources.files`` (and
   backport) instead of the older ``path`` function.
+* Support any iterable from ``find_distributions``.
+  Closes #122.
 
 v1.6.0
 ======
