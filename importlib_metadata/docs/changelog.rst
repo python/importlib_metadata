@@ -2,6 +2,51 @@
  importlib_metadata NEWS
 =========================
 
+v1.6.1
+======
+
+* Ensure inputs to FastPath are Unicode. Closes #121.
+* Tests now rely on ``importlib.resources.files`` (and
+  backport) instead of the older ``path`` function.
+
+v1.6.0
+======
+
+* Added ``module`` and ``attr`` attributes to ``EntryPoint``
+
+v1.5.2
+======
+
+* Fix redundant entries from ``FastPath.zip_children``.
+  Closes #117.
+
+v1.5.1
+======
+
+* Improve reliability and consistency of compatibility
+  imports for contextlib and pathlib when running tests.
+  Closes #116.
+
+v1.5.0
+======
+
+* Additional performance optimizations in FastPath now
+  saves an additional 20% on a typical call.
+* Correct for issue where PyOxidizer finder has no
+  ``__module__`` attribute. Closes #110.
+
+v1.4.0
+======
+
+* Through careful optimization, ``distribution()`` is
+  3-4x faster. Thanks to Antony Lee for the
+  contribution. Closes #95.
+
+* When searching through ``sys.path``, if any error
+  occurs attempting to list a path entry, that entry
+  is skipped, making the system much more lenient
+  to errors. Closes #94.
+
 v1.3.0
 ======
 

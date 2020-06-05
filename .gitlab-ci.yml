@@ -22,6 +22,10 @@ coverage:
     paths:
       - coverage.xml
 
+benchmark:
+  script:
+    - tox -e perf
+
 diffcov:
   script:
     - tox -e py27-diffcov,py35-diffcov,py36-diffcov,py37-diffcov,py38-diffcov
