@@ -8,8 +8,8 @@ import packaging.version
 
 from . import fixtures
 from .. import (
-    _compat,
     Distribution,
+    _compat,
     version,
     )
 
