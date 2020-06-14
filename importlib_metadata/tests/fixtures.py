@@ -5,6 +5,7 @@ import sys
 import shutil
 import tempfile
 import textwrap
+import test.support
 
 from .._compat import pathlib, contextlib
 
@@ -217,11 +218,6 @@ def build_files(file_defs, prefix=pathlib.Path()):
 
 class FileBuilder:
     def unicode_filename(self):
-        try:
-            import test.support
-        except ImportError:
-            # outside CPython, hard-code a unicode snowman
-            return '☃'
         return test.support.FS_NONASCII or \
             self.skip("File system does not support non-ascii.")
 
