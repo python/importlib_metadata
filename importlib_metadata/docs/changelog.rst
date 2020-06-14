@@ -2,6 +2,14 @@
  importlib_metadata NEWS
 =========================
 
+v1.7.0
+======
+
+* ``PathNotFoundError`` now has a custom ``__str__``
+  mentioning "package metadata" being missing to help
+  guide users to the cause when the package is installed
+  but no metadata is present. Closes #124.
+
 v1.6.1
 ======
 
