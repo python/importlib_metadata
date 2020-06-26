@@ -618,6 +618,3 @@ def requires(distribution_name):
     packaging.requirement.Requirement.
     """
     return distribution(distribution_name).requires
-
-
-__version__ = version(__name__)

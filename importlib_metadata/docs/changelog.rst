@@ -2,6 +2,16 @@
  importlib_metadata NEWS
 =========================
 
+v2.0.0
+======
+
+* ``importlib_metadata`` no longer presents a
+  ``__version__`` attribute. Consumers wishing to
+  resolve the version of the package should query it
+  directly with
+  ``importlib_metadata.version('importlib-metadata')``.
+  Closes #71.
+
 v1.7.0
 ======
 
