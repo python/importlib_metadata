@@ -11,7 +11,7 @@ import importlib_metadata
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
-from .. import (
+from importlib_metadata import (
     Distribution, EntryPoint, MetadataPathFinder,
     PackageNotFoundError, distributions,
     entry_points, metadata, version,

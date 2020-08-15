@@ -7,7 +7,7 @@ import packaging.requirements
 import packaging.version
 
 from . import fixtures
-from .. import (
+from importlib_metadata import (
     Distribution,
     _compat,
     version,

@@ -3,7 +3,7 @@ import textwrap
 import unittest
 
 from . import fixtures
-from .. import (
+from importlib_metadata import (
     Distribution, PackageNotFoundError, distribution,
     entry_points, files, metadata, requires, version,
     )

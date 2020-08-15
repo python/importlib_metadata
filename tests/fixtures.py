@@ -7,7 +7,7 @@ import tempfile
 import textwrap
 import test.support
 
-from .._compat import pathlib, contextlib
+from importlib_metadata._compat import pathlib, contextlib
 
 
 __metaclass__ = type
