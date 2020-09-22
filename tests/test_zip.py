@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-from .. import (
+from importlib_metadata import (
     distribution, entry_points, files, PackageNotFoundError,
     version, distributions,
     )
@@ -20,7 +20,7 @@ except ImportError:
 
 
 class TestZip(unittest.TestCase):
-    root = 'importlib_metadata.tests.data'
+    root = 'tests.data'
 
     def _fixture_on_path(self, filename):
         pkg_file = resources.files(self.root).joinpath(filename)
