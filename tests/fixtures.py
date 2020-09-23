@@ -1,16 +1,11 @@
-from __future__ import unicode_literals
-
 import os
 import sys
 import shutil
+import pathlib
 import tempfile
 import textwrap
+import contextlib
 import test.support
-
-from importlib_metadata._compat import pathlib, contextlib
-
-
-__metaclass__ = type
 
 
 @contextlib.contextmanager
