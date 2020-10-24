@@ -2,8 +2,13 @@
  ``importlib_metadata``
 =========================
 
-``importlib_metadata`` is a library to access the metadata for a Python
-package.  It is intended to be ported to Python 3.8.
+``importlib_metadata`` is a library to access the metadata for a
+Python package.
+
+It has been `added to the Python standard library
+<https://docs.python.org/3/library/importlib.metadata.html>`_ as of
+Python 3.8, but exists here to support backported usage in earlier
+versions.
 
 
 Usage
