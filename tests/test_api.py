@@ -22,6 +22,7 @@ except ImportError:
 class APITests(
         fixtures.EggInfoPkg,
         fixtures.DistInfoPkg,
+        fixtures.DistInfoPkgWithDot,
         fixtures.EggInfoFile,
         unittest.TestCase):
 
@@ -40,6 +41,9 @@ class APITests(
     def test_for_name_does_not_exist(self):
         with self.assertRaises(PackageNotFoundError):
             distribution('does-not-exist')
+
+    def test_for_name_containing_dot(self):
+        assert distribution('pkg-dot').metadata['Name'] == 'pkg.dot'
 
     def test_for_top_level(self):
         self.assertEqual(

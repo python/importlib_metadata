@@ -104,6 +104,21 @@ class DistInfoPkg(OnSysPath, SiteDir):
         build_files(DistInfoPkg.files, self.site_dir)
 
 
+class DistInfoPkgWithDot(OnSysPath, SiteDir):
+    files = {
+        "pkg.dot-1.0.0.dist-info": {
+            "METADATA": """
+                Name: pkg.dot
+                Version: 1.0.0
+                """,
+            },
+        }
+
+    def setUp(self):
+        super(DistInfoPkgWithDot, self).setUp()
+        build_files(DistInfoPkgWithDot.files, self.site_dir)
+
+
 class DistInfoPkgOffPath(SiteDir):
     def setUp(self):
         super(DistInfoPkgOffPath, self).setUp()
