@@ -13,17 +13,17 @@ import itertools
 import posixpath
 import collections
 
+from ._compat import (
+    NullFinder,
+    PyPy_repr,
+    install,
+    )
+
 from configparser import ConfigParser
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-
-from ._compat import (
-    install,
-    NullFinder,
-    PyPy_repr,
-    )
 
 
 __all__ = [
