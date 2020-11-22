@@ -86,13 +86,13 @@ class DistInfoPkg(OnSysPath, SiteDir):
                 [entries]
                 main = mod:main
                 ns:sub = mod:main
-            """
-            },
+            """,
+        },
         "mod.py": """
             def main():
                 print("hello world")
             """,
-        }
+    }
 
     def setUp(self):
         super(DistInfoPkg, self).setUp()
@@ -129,13 +129,13 @@ class EggInfoPkg(OnSysPath, SiteDir):
                 [test]
                 pytest
             """,
-            "top_level.txt": "mod\n"
-            },
+            "top_level.txt": "mod\n",
+        },
         "mod.py": """
             def main():
                 print("hello world")
             """,
-        }
+    }
 
     def setUp(self):
         super(EggInfoPkg, self).setUp()
@@ -156,7 +156,7 @@ class EggInfoFile(OnSysPath, SiteDir):
             Description: UNKNOWN
             Platform: UNKNOWN
             """,
-        }
+    }
 
     def setUp(self):
         super(EggInfoFile, self).setUp()
@@ -169,7 +169,7 @@ class LocalPackage:
             import setuptools
             setuptools.setup(name="local-pkg", version="2.0.1")
             """,
-        }
+    }
 
     def setUp(self):
         self.fixtures = contextlib.ExitStack()
@@ -214,8 +214,7 @@ def build_files(file_defs, prefix=pathlib.Path()):
 
 class FileBuilder:
     def unicode_filename(self):
-        return FS_NONASCII or \
-            self.skip("File system does not support non-ascii.")
+        return FS_NONASCII or self.skip("File system does not support non-ascii.")
 
 
 def DALS(str):

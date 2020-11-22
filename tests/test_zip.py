@@ -3,12 +3,17 @@ import unittest
 
 from contextlib import ExitStack
 from importlib_metadata import (
-    distribution, entry_points, files, PackageNotFoundError,
-    version, distributions,
-    )
+    distribution,
+    entry_points,
+    files,
+    PackageNotFoundError,
+    version,
+    distributions,
+)
 
 try:
     from importlib import resources
+
     getattr(resources, 'files')
     getattr(resources, 'as_file')
 except (ImportError, AttributeError):

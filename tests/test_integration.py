@@ -7,16 +7,16 @@ from importlib_metadata import (
     Distribution,
     _compat,
     version,
-    )
+)
 
 
 class IntegrationTests(fixtures.DistInfoPkg, unittest.TestCase):
-
     def test_package_spec_installed(self):
         """
         Illustrate the recommended procedure to determine if
         a specified version of a package is installed.
         """
+
         def is_installed(package_spec):
             req = packaging.requirements.Requirement(package_spec)
             return version(req.name) in req.specifier
@@ -27,19 +27,18 @@ class IntegrationTests(fixtures.DistInfoPkg, unittest.TestCase):
 
 
 class FinderTests(fixtures.Fixtures, unittest.TestCase):
-
     def test_finder_without_module(self):
         class ModuleFreeFinder(fixtures.NullFinder):
             """
             A finder without an __module__ attribute
             """
+
             def __getattribute__(self, name):
                 if name == '__module__':
                     raise AttributeError(name)
                 return super().__getattribute__(name)
 
-        self.fixtures.enter_context(
-            fixtures.install_finder(ModuleFreeFinder()))
+        self.fixtures.enter_context(fixtures.install_finder(ModuleFreeFinder()))
         _compat.disable_stdlib_finder()
 
 
