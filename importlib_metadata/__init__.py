@@ -473,7 +473,7 @@ class FastPath:
         for child in self.children():
             n_low = child.lower()
             if (n_low in name.exact_matches
-                    or n_low.startswith(name.prefix)
+                    or n_low.replace('.', '_').startswith(name.prefix)
                     and n_low.endswith(name.suffixes)
                     # legacy case:
                     or self.is_egg(name) and n_low == 'egg-info'):
