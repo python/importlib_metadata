@@ -1,6 +1,7 @@
 import sys
 import unittest
 
+from contextlib import ExitStack
 from importlib_metadata import (
     distribution, entry_points, files, PackageNotFoundError,
     version, distributions,
@@ -12,11 +13,6 @@ try:
     getattr(resources, 'as_file')
 except (ImportError, AttributeError):
     import importlib_resources as resources
-
-try:
-    from contextlib import ExitStack
-except ImportError:
-    from contextlib2 import ExitStack
 
 
 class TestZip(unittest.TestCase):

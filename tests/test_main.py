@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals
-
 import re
 import json
 import pickle
@@ -17,18 +14,13 @@ from importlib_metadata import (
     entry_points, metadata, version,
     )
 
-try:
-    from builtins import str as text
-except ImportError:
-    from __builtin__ import unicode as text
-
 
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
         dist = Distribution.from_name('distinfo-pkg')
-        assert isinstance(dist.version, text)
+        assert isinstance(dist.version, str)
         assert re.match(self.version_pattern, dist.version)
 
     def test_for_name_does_not_exist(self):

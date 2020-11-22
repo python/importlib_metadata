@@ -8,16 +8,6 @@ from importlib_metadata import (
     entry_points, files, metadata, requires, version,
     )
 
-try:
-    from collections.abc import Iterator
-except ImportError:
-    from collections import Iterator  # noqa: F401
-
-try:
-    from builtins import str as text
-except ImportError:
-    from __builtin__ import unicode as text
-
 
 class APITests(
         fixtures.EggInfoPkg,
@@ -29,12 +19,12 @@ class APITests(
 
     def test_retrieves_version_of_self(self):
         pkg_version = version('egginfo-pkg')
-        assert isinstance(pkg_version, text)
+        assert isinstance(pkg_version, str)
         assert re.match(self.version_pattern, pkg_version)
 
     def test_retrieves_version_of_distinfo_pkg(self):
         pkg_version = version('distinfo-pkg')
-        assert isinstance(pkg_version, text)
+        assert isinstance(pkg_version, str)
         assert re.match(self.version_pattern, pkg_version)
 
     def test_for_name_does_not_exist(self):

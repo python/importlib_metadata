@@ -1,17 +1,12 @@
-from __future__ import unicode_literals
-
 import os
 import sys
 import shutil
+import pathlib
 import tempfile
 import textwrap
+import contextlib
 
 from .py39compat import FS_NONASCII
-
-from importlib_metadata._compat import pathlib, contextlib
-
-
-__metaclass__ = type
 
 
 @contextlib.contextmanager

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals, absolute_import
-
 import io
 import os
 import re
@@ -7,6 +5,8 @@ import abc
 import csv
 import sys
 import zipp
+import email
+import pathlib
 import operator
 import functools
 import itertools
@@ -14,28 +14,16 @@ import posixpath
 import collections
 
 from ._compat import (
-    install,
     NullFinder,
-    ConfigParser,
-    suppress,
-    map,
-    FileNotFoundError,
-    IsADirectoryError,
-    NotADirectoryError,
-    PermissionError,
-    pathlib,
-    ModuleNotFoundError,
-    MetaPathFinder,
-    email_message_from_string,
     PyPy_repr,
-    unique_ordered,
-    str,
+    install,
     )
+
+from configparser import ConfigParser
+from contextlib import suppress
 from importlib import import_module
+from importlib.abc import MetaPathFinder
 from itertools import starmap
-
-
-__metaclass__ = type
 
 
 __all__ = [
@@ -277,7 +265,7 @@ class Distribution:
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
             )
-        return email_message_from_string(text)
+        return email.message_from_string(text)
 
     @property
     def version(self):
@@ -457,7 +445,7 @@ class FastPath:
         names = zip_path.root.namelist()
         self.joinpath = zip_path.joinpath
 
-        return unique_ordered(
+        return dict.fromkeys(
             child.split(posixpath.sep, 1)[0]
             for child in names
             )

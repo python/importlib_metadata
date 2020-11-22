@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v3.0.0
+======
+
+* Require Python 3.6 or later.
+
 v2.0.0
 ======
 
