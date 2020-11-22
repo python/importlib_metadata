@@ -106,7 +106,7 @@ class DistInfoPkg(OnSysPath, SiteDir):
 
 class DistInfoPkgWithDot(OnSysPath, SiteDir):
     files = {
-        "pkg.dot-1.0.0.dist-info": {
+        "pkg_dot-1.0.0.dist-info": {
             "METADATA": """
                 Name: pkg.dot
                 Version: 1.0.0

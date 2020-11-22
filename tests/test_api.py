@@ -42,8 +42,11 @@ class APITests(
         with self.assertRaises(PackageNotFoundError):
             distribution('does-not-exist')
 
-    def test_for_name_containing_dot(self):
-        assert distribution('pkg-dot').metadata['Name'] == 'pkg.dot'
+    def test_name_normalization(self):
+        names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.dot'
 
     def test_for_top_level(self):
         self.assertEqual(
