@@ -3,12 +3,12 @@ import unittest
 
 from contextlib import ExitStack
 from importlib_metadata import (
+    PackageNotFoundError,
     distribution,
+    distributions,
     entry_points,
     files,
-    PackageNotFoundError,
     version,
-    distributions,
 )
 
 try:
