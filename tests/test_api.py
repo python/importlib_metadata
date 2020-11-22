@@ -1,6 +1,10 @@
 import re
 import textwrap
-import unittest
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from . import fixtures
 from importlib_metadata import (
