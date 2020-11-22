@@ -10,9 +10,11 @@ Python 3.7 and newer (backported as :doc:`importlib_resources <importlib_resourc
 versions of Python), this can eliminate the need to use the older and less
 efficient ``pkg_resources`` package.
 
-``importlib_metadata`` is a backport of Python 3.8's standard library
-:doc:`importlib.metadata <library/importlib.metadata>` module for Python 2.7, and 3.4 through 3.7.  Users of
-Python 3.8 and beyond are encouraged to use the standard library module.
+``importlib_metadata`` supplies a backport of
+:doc:`importlib.metadata <library/importlib.metadata>` as found in
+Python 3.8 and later for earlier Python releases.  Users of
+Python 3.8 and beyond are encouraged to use the standard library module
+when possible and fall back to ``importlib_metadata`` when necessary.
 When imported on Python 3.8 and later, ``importlib_metadata`` replaces the
 DistributionFinder behavior from the stdlib, but leaves the API in tact.
 Developers looking for detailed API descriptions should refer to the Python

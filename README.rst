@@ -5,10 +5,11 @@
 ``importlib_metadata`` is a library to access the metadata for a
 Python package.
 
-It has been `added to the Python standard library
-<https://docs.python.org/3/library/importlib.metadata.html>`_ as of
-Python 3.8, but exists here to support backported usage in earlier
-versions.
+As of Python 3.8, this functionality has been added to the
+`Python standard library
+<https://docs.python.org/3/library/importlib.metadata.html>`_.
+This package supplies backports of that functionality including
+improvements added to subsequent Python versions.
 
 
 Usage
