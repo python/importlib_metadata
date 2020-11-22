@@ -1,6 +1,5 @@
-===============================
- Welcome to importlib_metadata
-===============================
+Welcome to importlib_metadata
+=============================
 
 ``importlib_metadata`` is a library which provides an API for accessing an
 installed package's metadata (see :pep:`566`), such as its entry points or its top-level
@@ -24,11 +23,10 @@ The documentation here includes a general :ref:`usage <using>` guide.
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
-   using.rst
-   changelog (links).rst
+   using
+   history
 
 
 Project details

@@ -1,6 +1,22 @@
-=========================
- ``importlib_metadata``
-=========================
+.. image:: https://img.shields.io/pypi/v/importlib_metadata.svg
+   :target: `PyPI link`_
+
+.. image:: https://img.shields.io/pypi/pyversions/importlib_metadata.svg
+   :target: `PyPI link`_
+
+.. _PyPI link: https://pypi.org/project/importlib_metadata
+
+.. image:: https://github.com/python/importlib_metadata/workflows/Automated%20Tests/badge.svg
+   :target: https://github.com/python/importlib_metadata/actions?query=workflow%3A%22Automated+Tests%22
+   :alt: Automated Tests
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Code style: Black
+
+.. image:: https://readthedocs.org/projects/importlib-metadata/badge/?version=latest
+   :target: https://importlib-metadata.readthedocs.io/en/latest/?badge=latest
+
 
 ``importlib_metadata`` is a library to access the metadata for a
 Python package.
