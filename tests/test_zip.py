@@ -17,7 +17,7 @@ try:
     getattr(resources, 'files')
     getattr(resources, 'as_file')
 except (ImportError, AttributeError):
-    import importlib_resources as resources
+    import importlib_resources as resources  # type: ignore
 
 
 class TestZip(unittest.TestCase):

@@ -7,6 +7,7 @@ import textwrap
 import contextlib
 
 from .py39compat import FS_NONASCII
+from typing import Dict, Union
 
 
 @contextlib.contextmanager
@@ -71,8 +72,13 @@ class OnSysPath(Fixtures):
         self.fixtures.enter_context(self.add_sys_path(self.site_dir))
 
 
+# Except for python/mypy#731, prefer to define
+# FilesDef = Dict[str, Union['FilesDef', str]]
+FilesDef = Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str]]
+
+
 class DistInfoPkg(OnSysPath, SiteDir):
-    files = {
+    files: FilesDef = {
         "distinfo_pkg-1.0.0.dist-info": {
             "METADATA": """
                 Name: distinfo-pkg
@@ -106,7 +112,7 @@ class DistInfoPkgOffPath(SiteDir):
 
 
 class EggInfoPkg(OnSysPath, SiteDir):
-    files = {
+    files: FilesDef = {
         "egginfo_pkg.egg-info": {
             "PKG-INFO": """
                 Name: egginfo-pkg
@@ -143,7 +149,7 @@ class EggInfoPkg(OnSysPath, SiteDir):
 
 
 class EggInfoFile(OnSysPath, SiteDir):
-    files = {
+    files: FilesDef = {
         "egginfo_file.egg-info": """
             Metadata-Version: 1.0
             Name: egginfo_file
@@ -164,7 +170,7 @@ class EggInfoFile(OnSysPath, SiteDir):
 
 
 class LocalPackage:
-    files = {
+    files: FilesDef = {
         "setup.py": """
             import setuptools
             setuptools.setup(name="local-pkg", version="2.0.1")
