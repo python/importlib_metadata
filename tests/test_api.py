@@ -163,6 +163,14 @@ class APITests(
         assert deps == expected
 
 
+class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
+    def test_name_normalization(self):
+        names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.dot'
+
+
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
     def test_find_distributions_specified_path(self):
         dists = Distribution.discover(path=[str(self.site_dir)])
