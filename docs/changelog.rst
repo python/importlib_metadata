@@ -2,6 +2,18 @@
  importlib_metadata NEWS
 =========================
 
+v3.1.0
+======
+
+* Merge with 2.1.0.
+
+v2.1.0
+======
+
+* #253: When querying for package metadata, the lookup
+  now honors
+  `package normalization rules <https://packaging.python.org/specifications/recording-installed-packages/>`_.
+
 v3.0.0
 ======
 
