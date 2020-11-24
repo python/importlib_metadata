@@ -135,6 +135,7 @@ v1.0.0
 
 0.23
 ====
+
 * Added a compatibility shim to prevent failures on beta releases
   of Python before the signature changed to accept the
   "context" parameter on find_distributions. This workaround
@@ -143,6 +144,7 @@ v1.0.0
 
 0.22
 ====
+
 * Renamed ``package`` parameter to ``distribution_name``
   as `recommended <https://bugs.python.org/issue34632#msg349423>`_
   in the following functions: ``distribution``, ``metadata``,
@@ -153,6 +155,7 @@ v1.0.0
 
 0.21
 ====
+
 * ``importlib.metadata`` now exposes the ``DistributionFinder``
   metaclass and references it in the docs for extending the
   search algorithm.
@@ -170,6 +173,7 @@ v1.0.0
 
 0.20
 ====
+
 * Clarify in the docs that calls to ``.files`` could return
   ``None`` when the metadata is not present. Closes #69.
 * Return all requirements and not just the first for dist-info
@@ -177,28 +181,34 @@ v1.0.0
 
 0.19
 ====
+
 * Restrain over-eager egg metadata resolution.
 * Add support for entry points with colons in the name. Closes #75.
 
 0.18
 ====
+
 * Parse entry points case sensitively.  Closes #68
 * Add a version constraint on the backport configparser package.  Closes #66
 
 0.17
 ====
+
 * Fix a permission problem in the tests on Windows.
 
 0.16
 ====
+
 * Don't crash if there exists an EGG-INFO directory on sys.path.
 
 0.15
 ====
+
 * Fix documentation.
 
 0.14
 ====
+
 * Removed ``local_distribution`` function from the API.
   **This backward-incompatible change removes this
   behavior summarily**. Projects should remove their
@@ -208,21 +218,25 @@ v1.0.0
 
 0.13
 ====
+
 * Update docstrings to match PEP 8. Closes #63.
 * Merged modules into one module. Closes #62.
 
 0.12
 ====
+
 * Add support for eggs.  !65; Closes #19.
 
 0.11
 ====
+
 * Support generic zip files (not just wheels).  Closes #59
 * Support zip files with multiple distributions in them.  Closes #60
 * Fully expose the public API in ``importlib_metadata.__all__``.
 
 0.10
 ====
+
 * The ``Distribution`` ABC is now officially part of the public API.
   Closes #37.
 * Fixed support for older single file egg-info formats.  Closes #43.
@@ -231,6 +245,7 @@ v1.0.0
 
 0.9
 ===
+
 * Fixed issue where entry points without an attribute would raise an
   Exception.  Closes #40.
 * Removed unused ``name`` parameter from ``entry_points()``. Closes #44.
@@ -239,6 +254,7 @@ v1.0.0
 
 0.8
 ===
+
 * This library can now discover/enumerate all installed packages. **This
   backward-incompatible change alters the protocol finders must
   implement to support distribution package discovery.** Closes #24.
@@ -267,6 +283,7 @@ v1.0.0
 
 0.7
 ===
+
 * Fixed issue where packages with dashes in their names would
   not be discovered. Closes #21.
 * Distribution lookup is now case-insensitive. Closes #20.
@@ -276,6 +293,7 @@ v1.0.0
 
 0.6
 ===
+
 * Removed ``importlib_metadata.distribution`` function. Now
   the public interface is primarily the utility functions exposed
   in ``importlib_metadata.__all__``. Closes #14.
@@ -284,6 +302,7 @@ v1.0.0
 
 0.5
 ===
+
 * Updated README and removed details about Distribution
   class, now considered private. Closes #15.
 * Added test suite support for Python 3.4+.
@@ -292,21 +311,25 @@ v1.0.0
 
 0.4
 ===
+
 * Housekeeping.
 
 0.3
 ===
+
 * Added usage documentation.  Closes #8
 * Add support for getting metadata from wheels on ``sys.path``.  Closes #9
 
 0.2
 ===
+
 * Added ``importlib_metadata.entry_points()``.  Closes #1
 * Added ``importlib_metadata.resolve()``.  Closes #12
 * Add support for Python 2.7.  Closes #4
 
 0.1
 ===
+
 * Initial release.
 
 
