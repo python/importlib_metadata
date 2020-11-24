@@ -473,7 +473,7 @@ class FastPath:
         for child in self.children():
             n_low = child.lower()
             if (n_low in name.exact_matches
-                    or n_low.startswith(name.prefix)
+                    or n_low.replace('.', '_').startswith(name.prefix)
                     and n_low.endswith(name.suffixes)
                     # legacy case:
                     or self.is_egg(name) and n_low == 'egg-info'):
@@ -494,11 +494,18 @@ class Prepared:
         self.name = name
         if name is None:
             return
-        self.normalized = name.lower().replace('-', '_')
+        self.normalized = self.normalize(name)
         self.prefix = self.normalized + '-'
         self.exact_matches = [
             self.normalized + suffix for suffix in self.suffixes]
         self.versionless_egg_name = self.normalized + '.egg'
+
+    @staticmethod
+    def normalize(name):
+        """
+        PEP 503 normalization plus dashes as underscores.
+        """
+        return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
 
 
 @install
