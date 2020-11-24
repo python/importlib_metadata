@@ -16,7 +16,11 @@ from importlib_metadata import (
 
 
 class APITests(
-    fixtures.EggInfoPkg, fixtures.DistInfoPkg, fixtures.EggInfoFile, unittest.TestCase
+    fixtures.EggInfoPkg,
+    fixtures.DistInfoPkg,
+    fixtures.DistInfoPkgWithDot,
+    fixtures.EggInfoFile,
+    unittest.TestCase,
 ):
 
     version_pattern = r'\d+\.\d+(\.\d)?'
@@ -34,6 +38,12 @@ class APITests(
     def test_for_name_does_not_exist(self):
         with self.assertRaises(PackageNotFoundError):
             distribution('does-not-exist')
+
+    def test_name_normalization(self):
+        names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.dot'
 
     def test_for_top_level(self):
         self.assertEqual(
@@ -141,6 +151,14 @@ class APITests(
         # tightly than some other part of the environment expression.
 
         assert deps == expected
+
+
+class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
+    def test_name_normalization(self):
+        names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.dot'
 
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
