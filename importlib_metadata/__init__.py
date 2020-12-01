@@ -17,6 +17,7 @@ from ._compat import (
     NullFinder,
     PyPy_repr,
     install,
+    Protocol,
 )
 
 from configparser import ConfigParser
@@ -24,6 +25,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
+from typing import Any, List, TypeVar, Union
 
 
 __all__ = [
@@ -166,6 +168,25 @@ class FileHash:
         return '<FileHash mode: {} value: {}>'.format(self.mode, self.value)
 
 
+_T = TypeVar("_T")
+
+
+class PackageMetadata(Protocol):
+    def __len__(self) -> int:
+        ...  # pragma: no cover
+
+    def __contains__(self, item: str) -> bool:
+        ...  # pragma: no cover
+
+    def __getitem__(self, key: str) -> str:
+        ...  # pragma: no cover
+
+    def get_all(self, name: str, failobj: _T = ...) -> Union[List[Any], _T]:
+        """
+        Return all values associated with a possibly multi-valued key.
+        """
+
+
 class Distribution:
     """A Python distribution package."""
 
@@ -250,7 +271,7 @@ class Distribution:
         return PathDistribution(zipp.Path(meta.build_as_zip(builder)))
 
     @property
-    def metadata(self):
+    def metadata(self) -> PackageMetadata:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
