@@ -462,18 +462,11 @@ class FastPath:
             for child in names
             )
 
-    def is_egg(self, search):
-        base = self.base
-        return (
-            base == search.versionless_egg_name
-            or base.startswith(search.prefix)
-            and base.endswith('.egg'))
-
     def search(self, name):
         return (
             self.joinpath(child)
             for child in self.children()
-            if name.matches(child, self)
+            if name.matches(child, self.base)
             )
 
 
@@ -504,15 +497,21 @@ class Prepared:
         """
         return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
 
-    def matches(self, name, path):
+    def matches(self, name, base):
         n_low = name.lower()
         return (
             n_low in self.exact_matches
             or n_low.replace('.', '_').startswith(self.prefix)
             and n_low.endswith(self.suffixes)
             # legacy case:
-            or path.is_egg(self) and n_low == 'egg-info'
+            or self.is_egg(base) and n_low == 'egg-info'
             )
+
+    def is_egg(self, base):
+        return (
+            base == self.versionless_egg_name
+            or base.startswith(self.prefix)
+            and base.endswith('.egg'))
 
 
 @install
