@@ -497,14 +497,16 @@ class Prepared:
         """
         return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
 
-    def matches(self, name, base):
-        n_low = name.lower()
+    def matches(self, cand, base):
+        low = cand.lower()
+        pre, ext = os.path.splitext(low)
+        name, sep, rest = pre.partition('-')
         return (
-            n_low in self.exact_matches
-            or n_low.replace('.', '_').startswith(self.prefix)
-            and n_low.endswith(self.suffixes)
+            low in self.exact_matches
+            or name.replace('.', '_').startswith(self.normalized)
+            and ext in self.suffixes
             # legacy case:
-            or self.is_egg(base) and n_low == 'egg-info'
+            or self.is_egg(base) and low == 'egg-info'
             )
 
     def is_egg(self, base):
