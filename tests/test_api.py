@@ -174,6 +174,12 @@ class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
 
+    def test_name_normalization_versionless_egg_info(self):
+        names = 'pkg.lot', 'pkg_lot', 'pkg-lot', 'pkg..lot', 'Pkg.Lot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.lot'
+
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
     def test_find_distributions_specified_path(self):

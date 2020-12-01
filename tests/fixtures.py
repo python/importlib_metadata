@@ -127,6 +127,12 @@ class DistInfoPkgWithDotLegacy(OnSysPath, SiteDir):
                 Version: 1.0.0
                 """,
             },
+        "pkg.lot.egg-info": {
+            "METADATA": """
+                Name: pkg.lot
+                Version: 1.0.0
+                """,
+            },
         }
 
     def setUp(self):
