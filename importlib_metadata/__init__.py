@@ -470,14 +470,11 @@ class FastPath:
             and base.endswith('.egg'))
 
     def search(self, name):
-        for child in self.children():
-            n_low = child.lower()
-            if (n_low in name.exact_matches
-                    or n_low.replace('.', '_').startswith(name.prefix)
-                    and n_low.endswith(name.suffixes)
-                    # legacy case:
-                    or self.is_egg(name) and n_low == 'egg-info'):
-                yield self.joinpath(child)
+        return (
+            self.joinpath(child)
+            for child in self.children()
+            if name.matches(child, self)
+            )
 
 
 class Prepared:
@@ -506,6 +503,16 @@ class Prepared:
         PEP 503 normalization plus dashes as underscores.
         """
         return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
+
+    def matches(self, name, path):
+        n_low = name.lower()
+        return (
+            n_low in self.exact_matches
+            or n_low.replace('.', '_').startswith(self.prefix)
+            and n_low.endswith(self.suffixes)
+            # legacy case:
+            or path.is_egg(self) and n_low == 'egg-info'
+            )
 
 
 @install
