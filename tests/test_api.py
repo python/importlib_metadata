@@ -52,6 +52,13 @@ class APITests(
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
 
+    def test_prefix_not_matched(self):
+        prefixes = 'p', 'pkg', 'pkg.'
+        for prefix in prefixes:
+            with self.subTest(prefix):
+                with self.assertRaises(PackageNotFoundError):
+                    distribution(prefix)
+
     def test_for_top_level(self):
         self.assertEqual(
             distribution('egginfo-pkg').read_text('top_level.txt').strip(),
@@ -173,6 +180,12 @@ class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
         for name in names:
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
+
+    def test_name_normalization_versionless_egg_info(self):
+        names = 'pkg.lot', 'pkg_lot', 'pkg-lot', 'pkg..lot', 'Pkg.Lot'
+        for name in names:
+            with self.subTest(name):
+                assert distribution(name).metadata['Name'] == 'pkg.lot'
 
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):

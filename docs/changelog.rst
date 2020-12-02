@@ -2,6 +2,13 @@
  importlib_metadata NEWS
 =========================
 
+v2.1.1
+======
+
+* #261: Restored compatibility for package discovery for
+  metadata without version in the name and for legacy
+  eggs.
+
 v2.1.0
 ======
 
