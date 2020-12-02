@@ -52,6 +52,13 @@ class APITests(
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
 
+    def test_prefix_not_matched(self):
+        prefixes = 'p', 'pkg', 'pkg.'
+        for prefix in prefixes:
+            with self.subTest(prefix):
+                with self.assertRaises(PackageNotFoundError):
+                    distribution(prefix)
+
     def test_for_top_level(self):
         self.assertEqual(
             distribution('egginfo-pkg').read_text('top_level.txt').strip(),
