@@ -475,20 +475,16 @@ class Prepared:
     A prepared search for metadata on a possibly-named package.
     """
     normalized = None
-    prefix = ''
     suffixes = '.dist-info', '.egg-info'
     exact_matches = [''][:0]
-    versionless_egg_name = ''
 
     def __init__(self, name):
         self.name = name
         if name is None:
             return
         self.normalized = self.normalize(name)
-        self.prefix = self.normalized + '-'
         self.exact_matches = [
             self.normalized + suffix for suffix in self.suffixes]
-        self.versionless_egg_name = self.normalized + '.egg'
 
     @staticmethod
     def normalize(name):
@@ -496,6 +492,14 @@ class Prepared:
         PEP 503 normalization plus dashes as underscores.
         """
         return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
+
+    @staticmethod
+    def legacy_normalize(name):
+        """
+        Normalize the package name as found in the convention in
+        older packaging tools versions and specs.
+        """
+        return name.lower().replace('-', '_')
 
     def matches(self, cand, base):
         low = cand.lower()
@@ -512,9 +516,12 @@ class Prepared:
             )
 
     def is_egg(self, base):
+        normalized = self.legacy_normalize(self.name or '')
+        prefix = normalized + '-' if normalized else ''
+        versionless_egg_name = normalized + '.egg' if self.name else ''
         return (
-            base == self.versionless_egg_name
-            or base.startswith(self.prefix)
+            base == versionless_egg_name
+            or base.startswith(prefix)
             and base.endswith('.egg'))
 
 
