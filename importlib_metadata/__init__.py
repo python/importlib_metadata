@@ -474,7 +474,7 @@ class Prepared:
     """
     A prepared search for metadata on a possibly-named package.
     """
-    normalized = ''
+    normalized = None
     prefix = ''
     suffixes = '.dist-info', '.egg-info'
     exact_matches = [''][:0]
@@ -503,8 +503,10 @@ class Prepared:
         name, sep, rest = pre.partition('-')
         return (
             low in self.exact_matches
-            or name.replace('.', '_').startswith(self.normalized)
-            and ext in self.suffixes
+            or ext in self.suffixes and (
+                not self.normalized or
+                name.replace('.', '_') == self.normalized
+                )
             # legacy case:
             or self.is_egg(base) and low == 'egg-info'
             )
