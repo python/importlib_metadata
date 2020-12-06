@@ -172,6 +172,10 @@ class EntryPoint(
         match = self.pattern.match(self.value)
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
+    @classmethod
+    def _new_for(cls, name, value, group, dist):
+        return cls(name, value, group)._for(dist)
+
     def _for(self, dist):
         self.dist = dist
         return self
@@ -189,8 +193,8 @@ class EntryPoint(
 
     def __reduce__(self):
         return (
-            self.__class__,
-            (self.name, self.value, self.group),
+            EntryPoint._new_for,
+            (self.name, self.value, self.group, self.dist),
         )
 
     def matches(self, **params):

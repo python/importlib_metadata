@@ -229,6 +229,12 @@ class TestEntryPoints(unittest.TestCase):
         revived = pickle.loads(pickle.dumps(self.ep))
         assert revived == self.ep
 
+    def test_entry_point_with_dist_pickleable(self):
+        dist = Distribution()
+        ep = importlib_metadata.EntryPoint('name', 'value', 'group')._for(dist)
+        revived = pickle.loads(pickle.dumps(ep))
+        assert revived == ep
+
     def test_immutable(self):
         """EntryPoints should be immutable"""
         with self.assertRaises(AttributeError):
