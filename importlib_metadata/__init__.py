@@ -23,6 +23,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
+from typing import Optional
 
 
 __all__ = [
@@ -53,7 +54,7 @@ class PackageNotFoundError(ModuleNotFoundError):
 
 
 class EntryPoint(
-    PyPy_repr, collections.namedtuple('EntryPointBase', 'dist name value group')
+    PyPy_repr, collections.namedtuple('EntryPointBase', 'name value group')
 ):
     """An entry point as defined by Python packaging conventions.
 
@@ -83,6 +84,8 @@ class EntryPoint(
     following the attr, and following any extras.
     """
 
+    dist: Optional['Distribution'] = None
+
     def load(self):
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
@@ -109,20 +112,28 @@ class EntryPoint(
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
     @classmethod
-    def _from_config(cls, dist, config):
-        return [
-            cls(dist, name, value, group)
+    def _from_config(cls, config):
+        return (
+            cls(name, value, group)
             for group in config.sections()
             for name, value in config.items(group)
-        ]
+        )
 
     @classmethod
-    def _from_text(cls, dist, text):
+    def _from_text(cls, text):
         config = ConfigParser(delimiters='=')
         # case sensitive: https://stackoverflow.com/q/1611799/812183
         config.optionxform = str
         config.read_string(text)
-        return EntryPoint._from_config(dist, config)
+        return cls._from_config(config)
+
+    @classmethod
+    def _from_text_for(cls, text, dist):
+        return (ep._for(dist) for ep in cls._from_text(text))
+
+    def _for(self, dist):
+        self.dist = dist
+        return self
 
     def __iter__(self):
         """
@@ -273,7 +284,7 @@ class Distribution:
 
     @property
     def entry_points(self):
-        return EntryPoint._from_text(self, self.read_text('entry_points.txt'))
+        return list(EntryPoint._from_text_for(self.read_text('entry_points.txt'), self))
 
     @property
     def files(self):
