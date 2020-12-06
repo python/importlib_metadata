@@ -1,4 +1,3 @@
-import io
 import os
 import re
 import abc
@@ -122,11 +121,7 @@ class EntryPoint(
         config = ConfigParser(delimiters='=')
         # case sensitive: https://stackoverflow.com/q/1611799/812183
         config.optionxform = str
-        try:
-            config.read_string(text)
-        except AttributeError:  # pragma: nocover
-            # Python 2 has no read_string
-            config.readfp(io.StringIO(text))
+        config.read_string(text)
         return EntryPoint._from_config(config)
 
     def __iter__(self):
