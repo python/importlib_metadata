@@ -589,11 +589,11 @@ def distributions(**kwargs):
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name):
+def metadata(distribution_name) -> PackageMetadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
-    :return: An email.Message containing the parsed metadata.
+    :return: A PackageMetadata containing the parsed metadata.
     """
     return Distribution.from_name(distribution_name).metadata
 
