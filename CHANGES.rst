@@ -6,6 +6,16 @@ v3.2.0
   with declared support for the ``.get_all()`` method.
   Fixes #126.
 
+v3.1.1
+======
+
+v2.1.1
+======
+
+* #261: Restored compatibility for package discovery for
+  metadata without version in the name and for legacy
+  eggs.
+
 v3.1.0
 ======
 

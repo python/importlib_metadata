@@ -257,6 +257,17 @@ class TestEntryPoints(unittest.TestCase):
     def test_attr(self):
         assert self.ep.attr is None
 
+    def test_sortable(self):
+        """
+        EntryPoint objects are sortable, but result is undefined.
+        """
+        sorted(
+            [
+                EntryPoint('b', 'val', 'group'),
+                EntryPoint('a', 'val', 'group'),
+            ]
+        )
+
 
 class FileSystem(
     fixtures.OnSysPath, fixtures.SiteDir, fixtures.FileBuilder, unittest.TestCase
