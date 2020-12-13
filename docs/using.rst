@@ -108,8 +108,9 @@ Every distribution includes some metadata, which you can extract using the
 
     >>> wheel_metadata = metadata('wheel')
 
-The keys of the returned data structure [#f1]_ name the metadata keywords, and
-their values are returned unparsed from the distribution metadata::
+The keys of the returned data structure, a ``PackageMetadata``,
+name the metadata keywords, and
+the values are returned unparsed from the distribution metadata::
 
     >>> wheel_metadata['Requires-Python']
     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
