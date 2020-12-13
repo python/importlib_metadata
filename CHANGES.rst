@@ -1,9 +1,17 @@
+v3.3.0
+======
+
+* * #265: ``EntryPoint`` objects now expose a ``.dist`` object
+  referencing the ``Distribution`` when constructed from a
+  Distribution.
+
 v3.2.0
 ======
 
-* #265: ``EntryPoint`` objects now expose a ``.dist`` object
-  referencing the ``Distribution`` when constructed from a
-  Distribution.
+* The object returned by ``metadata()`` now has a
+  formally-defined protocol called ``PackageMetadata``
+  with declared support for the ``.get_all()`` method.
+  Fixes #126.
 
 v3.1.1
 ======
