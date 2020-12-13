@@ -24,7 +24,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, List, TypeVar, Union
+from typing import Any, List, Optional, TypeVar, Union
 
 
 __all__ = [
@@ -85,6 +85,8 @@ class EntryPoint(
     following the attr, and following any extras.
     """
 
+    dist: Optional['Distribution'] = None
+
     def load(self):
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
@@ -112,11 +114,11 @@ class EntryPoint(
 
     @classmethod
     def _from_config(cls, config):
-        return [
+        return (
             cls(name, value, group)
             for group in config.sections()
             for name, value in config.items(group)
-        ]
+        )
 
     @classmethod
     def _from_text(cls, text):
@@ -124,7 +126,15 @@ class EntryPoint(
         # case sensitive: https://stackoverflow.com/q/1611799/812183
         config.optionxform = str
         config.read_string(text)
-        return EntryPoint._from_config(config)
+        return cls._from_config(config)
+
+    @classmethod
+    def _from_text_for(cls, text, dist):
+        return (ep._for(dist) for ep in cls._from_text(text))
+
+    def _for(self, dist):
+        self.dist = dist
+        return self
 
     def __iter__(self):
         """
@@ -283,13 +293,18 @@ class Distribution:
         return email.message_from_string(text)
 
     @property
+    def name(self):
+        """Return the 'Name' metadata for the distribution package."""
+        return self.metadata['Name']
+
+    @property
     def version(self):
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
 
     @property
     def entry_points(self):
-        return EntryPoint._from_text(self.read_text('entry_points.txt'))
+        return list(EntryPoint._from_text_for(self.read_text('entry_points.txt'), self))
 
     @property
     def files(self):
