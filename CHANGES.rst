@@ -1,7 +1,7 @@
 v3.3.0
 ======
 
-* * #265: ``EntryPoint`` objects now expose a ``.dist`` object
+* #265: ``EntryPoint`` objects now expose a ``.dist`` object
   referencing the ``Distribution`` when constructed from a
   Distribution.
 
