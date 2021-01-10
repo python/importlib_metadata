@@ -5,6 +5,7 @@ import packaging.version
 from . import fixtures
 from importlib_metadata import (
     Distribution,
+    MetadataPathFinder,
     _compat,
     version,
 )
@@ -47,3 +48,14 @@ class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
         dist = Distribution._local()
         assert dist.metadata['Name'] == 'local-pkg'
         assert dist.version == '2.0.1'
+
+
+class DistSearch(unittest.TestCase):
+    def test_search_dist_dirs(self):
+        """
+        Pip needs the _search_paths interface to locate
+        distribution metadata dirs. Protect it for PyPA
+        use-cases (only). Ref python/importlib_metadata#111.
+        """
+        res = MetadataPathFinder._search_paths('any-name', [])
+        assert list(res) == []

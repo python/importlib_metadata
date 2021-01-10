@@ -4,6 +4,9 @@ v3.4.0
 * #10: Project now declares itself as being typed.
 * #272: Additional performance enhancements to distribution
   discovery.
+* #111: For PyPA projects, add test ensuring that
+  ``MetadataPathFinder._search_paths`` honors the needed
+  interface. Method is still private.
 
 v3.3.0
 ======
