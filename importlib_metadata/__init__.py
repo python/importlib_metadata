@@ -493,15 +493,22 @@ class Prepared:
     """
 
     normalized = None
-    suffixes = '.dist-info', '.egg-info'
+    suffixes = 'dist-info', 'egg-info'
     exact_matches = [''][:0]
+    egg_prefix = ''
+    versionless_egg_name = ''
 
     def __init__(self, name):
         self.name = name
         if name is None:
             return
         self.normalized = self.normalize(name)
-        self.exact_matches = [self.normalized + suffix for suffix in self.suffixes]
+        self.exact_matches = [
+            self.normalized + '.' + suffix for suffix in self.suffixes
+        ]
+        legacy_normalized = self.legacy_normalize(self.name)
+        self.egg_prefix = legacy_normalized + '-'
+        self.versionless_egg_name = legacy_normalized + '.egg'
 
     @staticmethod
     def normalize(name):
@@ -520,8 +527,10 @@ class Prepared:
 
     def matches(self, cand, base):
         low = cand.lower()
-        pre, ext = os.path.splitext(low)
-        name, sep, rest = pre.partition('-')
+        # rpartition is like os.path.splitext, but much faster.  They'd only
+        # differ if pre is empty, but in that case we don't have a match anyways.
+        pre, _, ext = low.rpartition('.')
+        name, _, rest = pre.partition('-')
         return (
             low in self.exact_matches
             or ext in self.suffixes
@@ -532,12 +541,9 @@ class Prepared:
         )
 
     def is_egg(self, base):
-        normalized = self.legacy_normalize(self.name or '')
-        prefix = normalized + '-' if normalized else ''
-        versionless_egg_name = normalized + '.egg' if self.name else ''
         return (
-            base == versionless_egg_name
-            or base.startswith(prefix)
+            base == self.versionless_egg_name
+            or base.startswith(self.egg_prefix)
             and base.endswith('.egg')
         )
 
@@ -565,8 +571,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     @classmethod
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
+        prepared = Prepared(name)
         return itertools.chain.from_iterable(
-            path.search(Prepared(name)) for path in map(FastPath, paths)
+            path.search(prepared) for path in map(FastPath, paths)
         )
 
 
