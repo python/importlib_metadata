@@ -527,8 +527,7 @@ class Prepared:
 
     def matches(self, cand, base):
         low = cand.lower()
-        # rpartition is like os.path.splitext, but much faster.  They'd only
-        # differ if pre is empty, but in that case we don't have a match anyways.
+        # rpartition is faster than splitext and suitable for this purpose.
         pre, _, ext = low.rpartition('.')
         name, _, rest = pre.partition('-')
         return (
