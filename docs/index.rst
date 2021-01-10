@@ -1,5 +1,5 @@
-Welcome to importlib_metadata
-=============================
+Welcome to |project| documentation!
+===================================
 
 ``importlib_metadata`` is a library which provides an API for accessing an
 installed package's metadata (see :pep:`566`), such as its entry points or its top-level
