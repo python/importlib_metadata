@@ -565,8 +565,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     @classmethod
     def _search_paths(cls, name, paths):
         """Find metadata directories in paths heuristically."""
+        prepared = Prepared(name)
         return itertools.chain.from_iterable(
-            path.search(Prepared(name)) for path in map(FastPath, paths)
+            path.search(prepared) for path in map(FastPath, paths)
         )
 
 
