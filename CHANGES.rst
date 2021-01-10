@@ -1,3 +1,8 @@
+v3.4.0
+======
+
+* #10: Project now declares itself as being typed.
+
 v3.3.0
 ======
 
