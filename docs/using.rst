@@ -200,9 +200,9 @@ Thus, an alternative way to get the version number is through the
 There are all kinds of additional metadata available on the ``Distribution``
 instance::
 
-    >>> d.metadata['Requires-Python']
+    >>> dist.metadata['Requires-Python']
     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
-    >>> d.metadata['License']
+    >>> dist.metadata['License']
     'MIT'
 
 The full set of available metadata is not described here.  See :pep:`566`
