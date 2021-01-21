@@ -138,7 +138,11 @@ class EntryPoint(
 
     def __iter__(self):
         """
-        Supply iter so one may construct dicts of EntryPoints easily.
+        Supply iter so one may construct dicts of EntryPoints by name.
+
+        >>> eps = [EntryPoint('a', 'b', 'c'), EntryPoint('d', 'e', 'f')]
+        >>> dict(eps)['a']
+        EntryPoint(name='a', value='b', group='c')
         """
         return iter((self.name, self))
 
