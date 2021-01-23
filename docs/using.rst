@@ -67,7 +67,7 @@ This package provides the following functionality via its public API.
 Entry points
 ------------
 
-The ``entry_points()`` function returns a dictionary of all entry points,
+The ``entry_points()`` function returns a sequence of all entry points,
 keyed by group.  Entry points are represented by ``EntryPoint`` instances;
 each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes and
 a ``.load()`` method to resolve the value.  There are also ``.module``,
@@ -75,10 +75,12 @@ a ``.load()`` method to resolve the value.  There are also ``.module``,
 ``.value`` attribute::
 
     >>> eps = entry_points()
-    >>> list(eps)
+    >>> sorted(eps.groups)
     ['console_scripts', 'distutils.commands', 'distutils.setup_keywords', 'egg_info.writers', 'setuptools.installation']
     >>> scripts = eps['console_scripts']
-    >>> wheel = [ep for ep in scripts if ep.name == 'wheel'][0]
+    >>> 'wheel' in scripts.names
+    True
+    >>> wheel = scripts['wheel']
     >>> wheel
     EntryPoint(name='wheel', value='wheel.cli:main', group='console_scripts')
     >>> wheel.module
