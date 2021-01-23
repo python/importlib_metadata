@@ -82,6 +82,16 @@ class APITests(
     def test_entry_points_missing_group(self):
         assert entry_points()['missing'] == ()
 
+    def test_entry_points_dict_construction(self):
+        """
+        Prior versions of entry_points() returned simple lists and
+        allowed casting those lists into maps by name using ``dict()``.
+        Capture this now deprecated use-case.
+        """
+        eps = dict(entry_points()['entries'])
+        assert 'main' in eps
+        assert eps['main'] == entry_points()['entries']['main']
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
