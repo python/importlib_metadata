@@ -1,3 +1,16 @@
+v3.5.0
+======
+
+* ``entry_points()`` now returns an ``GroupedEntryPoints``
+  object, a tuple of all entry points but with a convenience
+  property ``groups`` and ``__getitem__`` accessor. Further,
+  accessing a group returns an ``EntryPoints`` object,
+  another tuple of entry points in the group, accessible by
+  name. Construction of entry points using
+  ``dict([EntryPoint, ...])`` is now deprecated and raises
+  an appropriate DeprecationWarning and will be removed in
+  a future version.
+
 v3.4.0
 ======
 
