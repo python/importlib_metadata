@@ -7,6 +7,7 @@ import zipp
 import email
 import pathlib
 import operator
+import warnings
 import functools
 import itertools
 import posixpath
@@ -139,11 +140,12 @@ class EntryPoint(
     def __iter__(self):
         """
         Supply iter so one may construct dicts of EntryPoints by name.
-
-        >>> eps = [EntryPoint('a', 'b', 'c'), EntryPoint('d', 'e', 'f')]
-        >>> dict(eps)['a']
-        EntryPoint(name='a', value='b', group='c')
         """
+        msg = (
+            "Construction of dict of EntryPoints is deprecated in "
+            "favor of EntryPoints."
+        )
+        warnings.warn(msg, DeprecationWarning)
         return iter((self.name, self))
 
     def __reduce__(self):

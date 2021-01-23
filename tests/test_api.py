@@ -1,6 +1,7 @@
 import re
 import textwrap
 import unittest
+import warnings
 
 from . import fixtures
 from importlib_metadata import (
@@ -88,9 +89,16 @@ class APITests(
         allowed casting those lists into maps by name using ``dict()``.
         Capture this now deprecated use-case.
         """
-        eps = dict(entry_points()['entries'])
+        with warnings.catch_warnings(record=True) as caught:
+            eps = dict(entry_points()['entries'])
+
         assert 'main' in eps
         assert eps['main'] == entry_points()['entries']['main']
+
+        # check warning
+        expected = next(iter(caught))
+        assert expected.category is DeprecationWarning
+        assert "Construction of dict of EntryPoints is deprecated" in str(expected)
 
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
