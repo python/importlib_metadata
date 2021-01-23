@@ -3,6 +3,7 @@ import json
 import pickle
 import textwrap
 import unittest
+import warnings
 import importlib
 import importlib_metadata
 import pyfakefs.fake_filesystem_unittest as ffs
@@ -247,7 +248,8 @@ class TestEntryPoints(unittest.TestCase):
         json should not expect to be able to dump an EntryPoint
         """
         with self.assertRaises(Exception):
-            json.dumps(self.ep)
+            with warnings.catch_warnings(record=True):
+                json.dumps(self.ep)
 
     def test_module(self):
         assert self.ep.module == 'value'
