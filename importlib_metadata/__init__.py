@@ -166,6 +166,10 @@ class EntryPoints(tuple):
         except Exception:
             raise KeyError(name)
 
+    @property
+    def names(self):
+        return set(ep.name for ep in self)
+
 
 class GroupedEntryPoints(tuple):
     """
@@ -174,6 +178,10 @@ class GroupedEntryPoints(tuple):
 
     def __getitem__(self, group) -> EntryPoints:
         return EntryPoints(ep for ep in self if ep.group == group)
+
+    @property
+    def groups(self):
+        return set(ep.group for ep in self)
 
 
 class PackagePath(pathlib.PurePosixPath):

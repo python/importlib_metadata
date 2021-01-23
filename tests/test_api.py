@@ -65,7 +65,11 @@ class APITests(
         self.assertEqual(top_level.read_text(), 'mod\n')
 
     def test_entry_points(self):
-        ep = entry_points()['entries']['main']
+        eps = entry_points()
+        assert 'entries' in eps.groups
+        entries = eps['entries']
+        assert 'main' in entries.names
+        ep = entries['main']
         self.assertEqual(ep.value, 'mod:main')
         self.assertEqual(ep.extras, [])
 
