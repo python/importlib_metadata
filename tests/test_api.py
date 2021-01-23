@@ -64,17 +64,23 @@ class APITests(
         self.assertEqual(top_level.read_text(), 'mod\n')
 
     def test_entry_points(self):
-        entries = dict(entry_points()['entries'])
-        ep = entries['main']
+        ep = entry_points()['entries']['main']
         self.assertEqual(ep.value, 'mod:main')
         self.assertEqual(ep.extras, [])
 
     def test_entry_points_distribution(self):
-        entries = dict(entry_points()['entries'])
+        entries = entry_points()['entries']
         for entry in ("main", "ns:sub"):
             ep = entries[entry]
             self.assertIn(ep.dist.name, ('distinfo-pkg', 'egginfo-pkg'))
             self.assertEqual(ep.dist.version, "1.0.0")
+
+    def test_entry_points_missing_name(self):
+        with self.assertRaises(KeyError):
+            entry_points()['entries']['missing']
+
+    def test_entry_points_missing_group(self):
+        assert entry_points()['missing'] == ()
 
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
