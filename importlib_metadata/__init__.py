@@ -153,6 +153,27 @@ class EntryPoint(
         )
 
 
+class EntryPoints(tuple):
+    """
+    A collection of EntryPoint objects, retrievable by name.
+    """
+
+    def __getitem__(self, name) -> EntryPoint:
+        try:
+            return next(ep for ep in self if ep.name == name)
+        except Exception:
+            raise KeyError(name)
+
+
+class GroupedEntryPoints(tuple):
+    """
+    A collection of EntryPoint objects, retrievable by group.
+    """
+
+    def __getitem__(self, group) -> EntryPoints:
+        return EntryPoints(ep for ep in self if ep.group == group)
+
+
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
@@ -308,7 +329,8 @@ class Distribution:
 
     @property
     def entry_points(self):
-        return list(EntryPoint._from_text_for(self.read_text('entry_points.txt'), self))
+        eps = EntryPoint._from_text_for(self.read_text('entry_points.txt'), self)
+        return GroupedEntryPoints(eps)
 
     @property
     def files(self):
@@ -647,10 +669,7 @@ def entry_points():
     :return: EntryPoint objects for all installed packages.
     """
     eps = itertools.chain.from_iterable(dist.entry_points for dist in distributions())
-    by_group = operator.attrgetter('group')
-    ordered = sorted(eps, key=by_group)
-    grouped = itertools.groupby(ordered, by_group)
-    return {group: tuple(eps) for group, eps in grouped}
+    return GroupedEntryPoints(eps)
 
 
 def files(distribution_name):
