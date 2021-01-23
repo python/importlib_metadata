@@ -104,6 +104,17 @@ class APITests(
         assert expected.category is DeprecationWarning
         assert "Construction of dict of EntryPoints is deprecated" in str(expected)
 
+    def test_entry_points_groups_get(self):
+        """
+        Prior versions of entry_points() returned a dict. Ensure
+        that callers using '.get()' are supported but warned to
+        migrate.
+        """
+        with warnings.catch_warnings(record=True):
+            entry_points().get('missing', 'default') == 'default'
+            entry_points().get('entries', 'default') == entry_points()['entries']
+            entry_points().get('missing', ()) == entry_points()['missing']
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'

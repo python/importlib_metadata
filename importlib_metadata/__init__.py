@@ -183,6 +183,14 @@ class GroupedEntryPoints(tuple):
     def groups(self):
         return set(ep.group for ep in self)
 
+    def get(self, group, default=None):
+        """
+        For backward compatibility, supply .get
+        """
+        msg = "GroupedEntryPoints.get is deprecated. Just use __getitem__."
+        warnings.warn(msg, DeprecationWarning)
+        return self[group] or default
+
 
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
