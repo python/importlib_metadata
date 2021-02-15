@@ -157,8 +157,10 @@ class EntryPoint(
 
 class EntryPoints(tuple):
     """
-    A collection of EntryPoint objects, retrievable by name.
+    An immutable collection of EntryPoint objects, retrievable by name.
     """
+
+    __slots__ = ()
 
     def __getitem__(self, name) -> EntryPoint:
         try:
@@ -173,8 +175,10 @@ class EntryPoints(tuple):
 
 class GroupedEntryPoints(tuple):
     """
-    A collection of EntryPoint objects, retrievable by group.
+    An immutable collection of EntryPoint objects, retrievable by group.
     """
+
+    __slots__ = ()
 
     def __getitem__(self, group) -> EntryPoints:
         return EntryPoints(ep for ep in self if ep.group == group)
