@@ -5,6 +5,7 @@ import csv
 import sys
 import zipp
 import email
+import inspect
 import pathlib
 import operator
 import warnings
@@ -191,8 +192,9 @@ class GroupedEntryPoints(tuple):
         """
         For backward compatibility, supply .get
         """
+        is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
         msg = "GroupedEntryPoints.get is deprecated. Just use __getitem__."
-        warnings.warn(msg, DeprecationWarning)
+        is_flake8 or warnings.warn(msg, DeprecationWarning)
         return self[group] or default
 
 
