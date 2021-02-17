@@ -67,14 +67,14 @@ class APITests(
     def test_entry_points(self):
         eps = entry_points()
         assert 'entries' in eps.groups
-        entries = eps['entries']
+        entries = eps.select(group='entries')
         assert 'main' in entries.names
         ep = entries['main']
         self.assertEqual(ep.value, 'mod:main')
         self.assertEqual(ep.extras, [])
 
     def test_entry_points_distribution(self):
-        entries = entry_points()['entries']
+        entries = entry_points(group='entries')
         for entry in ("main", "ns:sub"):
             ep = entries[entry]
             self.assertIn(ep.dist.name, ('distinfo-pkg', 'egginfo-pkg'))
@@ -82,10 +82,10 @@ class APITests(
 
     def test_entry_points_missing_name(self):
         with self.assertRaises(KeyError):
-            entry_points()['entries']['missing']
+            entry_points(group='entries')['missing']
 
     def test_entry_points_missing_group(self):
-        assert entry_points()['missing'] == ()
+        assert entry_points(group='missing') == ()
 
     def test_entry_points_dict_construction(self):
         """
@@ -94,15 +94,27 @@ class APITests(
         Capture this now deprecated use-case.
         """
         with warnings.catch_warnings(record=True) as caught:
-            eps = dict(entry_points()['entries'])
+            eps = dict(entry_points(group='entries'))
 
         assert 'main' in eps
-        assert eps['main'] == entry_points()['entries']['main']
+        assert eps['main'] == entry_points(group='entries')['main']
 
         # check warning
         expected = next(iter(caught))
         assert expected.category is DeprecationWarning
         assert "Construction of dict of EntryPoints is deprecated" in str(expected)
+
+    def test_entry_points_groups_getitem(self):
+        """
+        Prior versions of entry_points() returned a dict. Ensure
+        that callers using '.__getitem__()' are supported but warned to
+        migrate.
+        """
+        with warnings.catch_warnings(record=True):
+            entry_points()['entries'] == entry_points(group='entries')
+
+        with self.assertRaises(KeyError):
+            entry_points()['missing']
 
     def test_entry_points_groups_get(self):
         """
@@ -113,7 +125,7 @@ class APITests(
         with warnings.catch_warnings(record=True):
             entry_points().get('missing', 'default') == 'default'
             entry_points().get('entries', 'default') == entry_points()['entries']
-            entry_points().get('missing', ()) == entry_points()['missing']
+            entry_points().get('missing', ()) == ()
 
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')

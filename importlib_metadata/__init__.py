@@ -130,10 +130,6 @@ class EntryPoint(
         config.read_string(text)
         return cls._from_config(config)
 
-    @classmethod
-    def _from_text_for(cls, text, dist):
-        return (ep._for(dist) for ep in cls._from_text(text))
-
     def _for(self, dist):
         self.dist = dist
         return self
@@ -155,34 +151,41 @@ class EntryPoint(
             (self.name, self.value, self.group),
         )
 
+    def matches(self, **params):
+        attrs = (getattr(self, param) for param in params)
+        return all(map(operator.eq, params.values(), attrs))
+
 
 class EntryPoints(tuple):
     """
-    An immutable collection of EntryPoint objects, retrievable by name.
+    An immutable collection of selectable EntryPoint objects.
     """
 
     __slots__ = ()
 
-    def __getitem__(self, name) -> EntryPoint:
+    def __getitem__(self, name) -> Union[EntryPoint, 'EntryPoints']:
         try:
-            return next(ep for ep in self if ep.name == name)
-        except Exception:
+            match = next(iter(self.select(name=name)))
+            return match
+        except StopIteration:
+            if name in self.groups:
+                return self._group_getitem(name)
             raise KeyError(name)
+
+    def _group_getitem(self, name):
+        """
+        For backward compatability, supply .__getitem__ for groups.
+        """
+        msg = "GroupedEntryPoints.__getitem__ is deprecated for groups. Use select."
+        warnings.warn(msg, DeprecationWarning)
+        return self.select(group=name)
+
+    def select(self, **params):
+        return EntryPoints(ep for ep in self if ep.matches(**params))
 
     @property
     def names(self):
         return set(ep.name for ep in self)
-
-
-class GroupedEntryPoints(tuple):
-    """
-    An immutable collection of EntryPoint objects, retrievable by group.
-    """
-
-    __slots__ = ()
-
-    def __getitem__(self, group) -> EntryPoints:
-        return EntryPoints(ep for ep in self if ep.group == group)
 
     @property
     def groups(self):
@@ -193,9 +196,13 @@ class GroupedEntryPoints(tuple):
         For backward compatibility, supply .get
         """
         is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
-        msg = "GroupedEntryPoints.get is deprecated. Just use __getitem__."
+        msg = "GroupedEntryPoints.get is deprecated. Use select."
         is_flake8 or warnings.warn(msg, DeprecationWarning)
-        return self[group] or default
+        return self.select(group=group) or default
+
+    @classmethod
+    def _from_text_for(cls, text, dist):
+        return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
 
 
 class PackagePath(pathlib.PurePosixPath):
@@ -353,8 +360,7 @@ class Distribution:
 
     @property
     def entry_points(self):
-        eps = EntryPoint._from_text_for(self.read_text('entry_points.txt'), self)
-        return GroupedEntryPoints(eps)
+        return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
     def files(self):
@@ -687,13 +693,13 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-def entry_points():
+def entry_points(**params):
     """Return EntryPoint objects for all installed packages.
 
     :return: EntryPoint objects for all installed packages.
     """
     eps = itertools.chain.from_iterable(dist.entry_points for dist in distributions())
-    return GroupedEntryPoints(eps)
+    return EntryPoints(eps).select(**params)
 
 
 def files(distribution_name):

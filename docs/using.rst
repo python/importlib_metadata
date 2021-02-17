@@ -77,7 +77,7 @@ a ``.load()`` method to resolve the value.  There are also ``.module``,
     >>> eps = entry_points()
     >>> sorted(eps.groups)
     ['console_scripts', 'distutils.commands', 'distutils.setup_keywords', 'egg_info.writers', 'setuptools.installation']
-    >>> scripts = eps['console_scripts']
+    >>> scripts = eps.select(group='console_scripts')
     >>> 'wheel' in scripts.names
     True
     >>> wheel = scripts['wheel']

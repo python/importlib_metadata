@@ -58,11 +58,11 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
             importlib.import_module('does_not_exist')
 
     def test_resolve(self):
-        ep = entry_points()['entries']['main']
+        ep = entry_points(group='entries')['main']
         self.assertEqual(ep.load().__name__, "main")
 
     def test_entrypoint_with_colon_in_name(self):
-        ep = entry_points()['entries']['ns:sub']
+        ep = entry_points(group='entries')['ns:sub']
         self.assertEqual(ep.value, 'mod:main')
 
     def test_resolve_without_attr(self):
