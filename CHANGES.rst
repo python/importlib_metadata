@@ -1,3 +1,9 @@
+v3.5.0
+======
+
+* #280: ``entry_points`` now only returns entry points for
+  unique distributions (by name).
+
 v3.4.0
 ======
 
