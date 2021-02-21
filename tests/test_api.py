@@ -76,6 +76,34 @@ class APITests(
             self.assertIn(ep.dist.name, ('distinfo-pkg', 'egginfo-pkg'))
             self.assertEqual(ep.dist.version, "1.0.0")
 
+    def test_entry_points_unique_packages(self):
+        """
+        Entry points should only be exposed for the first package
+        on sys.path with a given name.
+        """
+        alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
+        self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
+        alt_pkg = {
+            "distinfo_pkg-1.1.0.dist-info": {
+                "METADATA": """
+                Name: distinfo-pkg
+                Version: 1.1.0
+                """,
+                "entry_points.txt": """
+                [entries]
+                main = mod:altmain
+            """,
+            },
+        }
+        fixtures.build_files(alt_pkg, alt_site_dir)
+        entries = dict(entry_points()['entries'])
+        assert not any(
+            ep.dist.name == 'distinfo-pkg' and ep.dist.version == '1.0.0'
+            for ep in entries.values()
+        )
+        # ns:sub doesn't exist in alt_pkg
+        assert 'ns:sub' not in entries
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
