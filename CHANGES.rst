@@ -1,17 +1,33 @@
+v4.0.0
+======
+
+* #284: Introduces new ``EntryPoints`` object, a tuple of
+  ``EntryPoint`` objects but with convenience properties for
+  selecting and inspecting the results:
+
+  - ``.select()`` accepts ``group`` or ``name`` keyword
+    parameters and returns a new ``EntryPoints`` tuple
+    with only those that match the selection.
+  - ``.groups`` property presents all of the group names.
+  - ``.names`` property presents the names of the entry points.
+  - Item access (e.g. ``eps[name]``) retrieves a single
+    entry point by name.
+
+  ``entry_points()`` now returns an ``EntryPoints``
+  object, but provides for backward compatibility with
+  a ``__getitem__`` accessor by group and a ``get()``
+  method.
+
+  Construction of entry points using
+  ``dict([EntryPoint, ...])`` is now deprecated and raises
+  an appropriate DeprecationWarning and will be removed in
+  a future version.
+
 v3.5.0
 ======
 
 * #280: ``entry_points`` now only returns entry points for
   unique distributions (by name).
-* ``entry_points()`` now returns an ``GroupedEntryPoints``
-  object, a tuple of all entry points but with a convenience
-  property ``groups`` and ``__getitem__`` accessor. Further,
-  accessing a group returns an ``EntryPoints`` object,
-  another tuple of entry points in the group, accessible by
-  name. Construction of entry points using
-  ``dict([EntryPoint, ...])`` is now deprecated and raises
-  an appropriate DeprecationWarning and will be removed in
-  a future version.
 
 v3.4.0
 ======
