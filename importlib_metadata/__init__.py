@@ -21,6 +21,8 @@ from ._compat import (
     Protocol,
 )
 
+from ._itertools import unique_everseen
+
 from configparser import ConfigParser
 from contextlib import suppress
 from importlib import import_module
@@ -698,7 +700,10 @@ def entry_points(**params):
 
     :return: EntryPoint objects for all installed packages.
     """
-    eps = itertools.chain.from_iterable(dist.entry_points for dist in distributions())
+    unique = functools.partial(unique_everseen, key=operator.attrgetter('name'))
+    eps = itertools.chain.from_iterable(
+        dist.entry_points for dist in unique(distributions())
+    )
     return EntryPoints(eps).select(**params)
 
 

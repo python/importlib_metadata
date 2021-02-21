@@ -1,6 +1,8 @@
 v3.5.0
 ======
 
+* #280: ``entry_points`` now only returns entry points for
+  unique distributions (by name).
 * ``entry_points()`` now returns an ``GroupedEntryPoints``
   object, a tuple of all entry points but with a convenience
   property ``groups`` and ``__getitem__`` accessor. Further,
