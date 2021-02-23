@@ -188,27 +188,38 @@ class EntryPoints(tuple):
 
 
 class LegacyGroupedEntryPoints(EntryPoints):
-    def __getitem__(self, name) -> Union[EntryPoint, 'EntryPoints']:
-        try:
-            return super().__getitem__(name)
-        except KeyError:
-            if name not in self.groups:
-                raise
+    """
+    Compatibility wrapper around EntryPoints to provide
+    much of the 'dict' interface previously returned by
+    entry_points.
+    """
 
-        msg = "GroupedEntryPoints.__getitem__ is deprecated for groups. Use select."
-        warnings.warn(msg, DeprecationWarning)
-        return self.select(group=name)
+    def __getitem__(self, name) -> Union[EntryPoint, 'EntryPoints']:
+        """
+        When accessed by name that matches a group, return the group.
+        """
+        group = self.select(group=name)
+        if group:
+            msg = "GroupedEntryPoints.__getitem__ is deprecated for groups. Use select."
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            return group
+
+        return super().__getitem__(name)
 
     def get(self, group, default=None):
         """
-        For backward compatibility, supply .get
+        For backward compatibility, supply .get.
         """
         is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
         msg = "GroupedEntryPoints.get is deprecated. Use select."
-        is_flake8 or warnings.warn(msg, DeprecationWarning)
+        is_flake8 or warnings.warn(msg, DeprecationWarning, stacklevel=2)
         return self.select(group=group) or default
 
     def select(self, **params):
+        """
+        Prevent transform to EntryPoints during call to entry_points if
+        no selection parameters were passed.
+        """
         if not params:
             return self
         return super().select(**params)
