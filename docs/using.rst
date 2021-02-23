@@ -67,8 +67,8 @@ This package provides the following functionality via its public API.
 Entry points
 ------------
 
-The ``entry_points()`` function returns a sequence of all entry points,
-keyed by group.  Entry points are represented by ``EntryPoint`` instances;
+The ``entry_points()`` function returns a collection of entry points.
+Entry points are represented by ``EntryPoint`` instances;
 each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes and
 a ``.load()`` method to resolve the value.  There are also ``.module``,
 ``.attr``, and ``.extras`` attributes for getting the components of the

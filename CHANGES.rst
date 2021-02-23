@@ -1,4 +1,4 @@
-v4.0.0
+v3.6.0
 ======
 
 * #284: Introduces new ``EntryPoints`` object, a tuple of
@@ -13,10 +13,21 @@ v4.0.0
   - Item access (e.g. ``eps[name]``) retrieves a single
     entry point by name.
 
-  ``entry_points()`` now returns an ``EntryPoints``
-  object, but provides for backward compatibility with
-  a ``__getitem__`` accessor by group and a ``get()``
-  method.
+  ``entry_points`` now accepts "selection parameters",
+  same as ``EntryPoint.select()``.
+
+  ``entry_points()`` now provides a future-compatible
+  ``SelectableGroups`` object that supplies the above interface
+  but remains a dict for compatibility.
+
+  In the future, ``entry_points()`` will return an
+  ``EntryPoints`` object, but provide for backward
+  compatibility with a deprecated  ``__getitem__``
+  accessor by group and a ``get()`` method.
+
+  If passing selection parameters to ``entry_points``, the
+  future behavior is invoked and an ``EntryPoints`` is the
+  result.
 
   Construction of entry points using
   ``dict([EntryPoint, ...])`` is now deprecated and raises

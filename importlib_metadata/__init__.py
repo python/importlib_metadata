@@ -187,6 +187,37 @@ class EntryPoints(tuple):
         return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
 
 
+class SelectableGroups(dict):
+    """
+    A backward- and forward-compatible result from
+    entry_points that fully implements the dict interface.
+    """
+
+    @classmethod
+    def load(cls, eps):
+        by_group = operator.attrgetter('group')
+        ordered = sorted(eps, key=by_group)
+        grouped = itertools.groupby(ordered, by_group)
+        return cls((group, EntryPoints(eps)) for group, eps in grouped)
+
+    @property
+    def groups(self):
+        return self.keys()
+
+    @property
+    def names(self):
+        return (ep.name for ep in self._all)
+
+    @property
+    def _all(self):
+        return itertools.chain.from_iterable(self.values())
+
+    def select(self, **params):
+        if not params:
+            return self
+        return EntryPoints(self._all).select(**params)
+
+
 class LegacyGroupedEntryPoints(EntryPoints):
     """
     Compatibility wrapper around EntryPoints to provide
@@ -713,16 +744,29 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-def entry_points(**params):
+def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
-    :return: EntryPoint objects for all installed packages.
+    Pass selection parameters (group or name) to filter the
+    result to entry points matching those properties (see
+    EntryPoints.select()).
+
+    For compatibility, returns ``SelectableGroups`` object unless
+    selection parameters are supplied. In the future, this function
+    will return ``LegacyGroupedEntryPoints`` instead of
+    ``SelectableGroups`` and eventually will only return
+    ``EntryPoints``.
+
+    For maximum future compatibility, pass selection parameters
+    or invoke ``.select`` with parameters on the result.
+
+    :return: EntryPoints or SelectableGroups for all installed packages.
     """
     unique = functools.partial(unique_everseen, key=operator.attrgetter('name'))
     eps = itertools.chain.from_iterable(
         dist.entry_points for dist in unique(distributions())
     )
-    return LegacyGroupedEntryPoints(eps).select(**params)
+    return SelectableGroups.load(eps).select(**params)
 
 
 def files(distribution_name):
