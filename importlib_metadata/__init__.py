@@ -206,8 +206,12 @@ class SelectableGroups(dict):
         return cls((group, EntryPoints(eps)) for group, eps in grouped)
 
     @property
+    def _all(self):
+        return EntryPoints(itertools.chain.from_iterable(self.values()))
+
+    @property
     def groups(self):
-        return set(self.keys())
+        return self._all.groups
 
     @property
     def names(self):
@@ -216,16 +220,12 @@ class SelectableGroups(dict):
         >>> SelectableGroups().names
         set()
         """
-        return set(ep.name for ep in self._all)
-
-    @property
-    def _all(self):
-        return itertools.chain.from_iterable(self.values())
+        return self._all.names
 
     def select(self, **params):
         if not params:
             return self
-        return EntryPoints(self._all).select(**params)
+        return self._all.select(**params)
 
 
 class LegacyGroupedEntryPoints(EntryPoints):  # pragma: nocover
