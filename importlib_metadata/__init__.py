@@ -180,6 +180,11 @@ class EntryPoints(tuple):
 
     @property
     def groups(self):
+        """
+        For coverage while SelectableGroups is present.
+        >>> EntryPoints().groups
+        set()
+        """
         return set(ep.group for ep in self)
 
     @classmethod
@@ -202,11 +207,16 @@ class SelectableGroups(dict):
 
     @property
     def groups(self):
-        return self.keys()
+        return set(self.keys())
 
     @property
     def names(self):
-        return (ep.name for ep in self._all)
+        """
+        for coverage:
+        >>> SelectableGroups().names
+        set()
+        """
+        return set(ep.name for ep in self._all)
 
     @property
     def _all(self):
@@ -218,7 +228,7 @@ class SelectableGroups(dict):
         return EntryPoints(self._all).select(**params)
 
 
-class LegacyGroupedEntryPoints(EntryPoints):
+class LegacyGroupedEntryPoints(EntryPoints):  # pragma: nocover
     """
     Compatibility wrapper around EntryPoints to provide
     much of the 'dict' interface previously returned by
