@@ -21,7 +21,6 @@ from ._compat import (
 
 from ._itertools import unique_everseen
 
-from configparser import ConfigParser
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
@@ -115,20 +114,17 @@ class EntryPoint(
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
     @classmethod
-    def _from_config(cls, config):
-        return (
-            cls(name, value, group)
-            for group in config.sections()
-            for name, value in config.items(group)
-        )
-
-    @classmethod
     def _from_text(cls, text):
-        config = ConfigParser(delimiters='=')
-        # case sensitive: https://stackoverflow.com/q/1611799/812183
-        config.optionxform = str
-        config.read_string(text)
-        return cls._from_config(config)
+        # A hand-rolled parser is much faster than ConfigParser.
+        if not text:
+            return
+        group = None
+        for line in filter(None, map(str.strip, text.splitlines())):
+            if line.startswith("["):
+                group = line[1:-1]
+            else:
+                name, value = map(str.strip, line.split("=", 1))
+                yield cls(name, value, group)
 
     @classmethod
     def _from_text_for(cls, text, dist):
