@@ -1,3 +1,9 @@
+v3.7.0
+======
+
+* #131: Added ``packages_distributions`` to conveniently
+  resolve a top-level package or module to its distribution(s).
+
 v3.6.0
 ======
 

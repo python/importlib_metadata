@@ -182,6 +182,17 @@ function::
     ["pytest (>=3.0.0) ; extra == 'test'", "pytest-cov ; extra == 'test'"]
 
 
+Package distributions
+---------------------
+
+A convience method to resolve the distribution or
+distributions (in the case of a namespace package) for top-level
+Python packages or modules::
+
+    >>> packages_distributions()
+    {'importlib_metadata': ['importlib-metadata'], 'yaml': ['PyYAML'], 'jaraco': ['jaraco.classes', 'jaraco.functools'], ...}
+
+
 Distributions
 =============
 
