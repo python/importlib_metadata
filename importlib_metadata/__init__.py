@@ -5,8 +5,10 @@ import csv
 import sys
 import zipp
 import email
+import inspect
 import pathlib
 import operator
+import warnings
 import functools
 import itertools
 import posixpath
@@ -130,10 +132,6 @@ class EntryPoint(
         config.read_string(text)
         return cls._from_config(config)
 
-    @classmethod
-    def _from_text_for(cls, text, dist):
-        return (ep._for(dist) for ep in cls._from_text(text))
-
     def _for(self, dist):
         self.dist = dist
         return self
@@ -141,11 +139,12 @@ class EntryPoint(
     def __iter__(self):
         """
         Supply iter so one may construct dicts of EntryPoints by name.
-
-        >>> eps = [EntryPoint('a', 'b', 'c'), EntryPoint('d', 'e', 'f')]
-        >>> dict(eps)['a']
-        EntryPoint(name='a', value='b', group='c')
         """
+        msg = (
+            "Construction of dict of EntryPoints is deprecated in "
+            "favor of EntryPoints."
+        )
+        warnings.warn(msg, DeprecationWarning)
         return iter((self.name, self))
 
     def __reduce__(self):
@@ -153,6 +152,118 @@ class EntryPoint(
             self.__class__,
             (self.name, self.value, self.group),
         )
+
+    def matches(self, **params):
+        attrs = (getattr(self, param) for param in params)
+        return all(map(operator.eq, params.values(), attrs))
+
+
+class EntryPoints(tuple):
+    """
+    An immutable collection of selectable EntryPoint objects.
+    """
+
+    __slots__ = ()
+
+    def __getitem__(self, name):  # -> EntryPoint:
+        try:
+            return next(iter(self.select(name=name)))
+        except StopIteration:
+            raise KeyError(name)
+
+    def select(self, **params):
+        return EntryPoints(ep for ep in self if ep.matches(**params))
+
+    @property
+    def names(self):
+        return set(ep.name for ep in self)
+
+    @property
+    def groups(self):
+        """
+        For coverage while SelectableGroups is present.
+        >>> EntryPoints().groups
+        set()
+        """
+        return set(ep.group for ep in self)
+
+    @classmethod
+    def _from_text_for(cls, text, dist):
+        return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
+
+
+class SelectableGroups(dict):
+    """
+    A backward- and forward-compatible result from
+    entry_points that fully implements the dict interface.
+    """
+
+    @classmethod
+    def load(cls, eps):
+        by_group = operator.attrgetter('group')
+        ordered = sorted(eps, key=by_group)
+        grouped = itertools.groupby(ordered, by_group)
+        return cls((group, EntryPoints(eps)) for group, eps in grouped)
+
+    @property
+    def _all(self):
+        return EntryPoints(itertools.chain.from_iterable(self.values()))
+
+    @property
+    def groups(self):
+        return self._all.groups
+
+    @property
+    def names(self):
+        """
+        for coverage:
+        >>> SelectableGroups().names
+        set()
+        """
+        return self._all.names
+
+    def select(self, **params):
+        if not params:
+            return self
+        return self._all.select(**params)
+
+
+class LegacyGroupedEntryPoints(EntryPoints):  # pragma: nocover
+    """
+    Compatibility wrapper around EntryPoints to provide
+    much of the 'dict' interface previously returned by
+    entry_points.
+    """
+
+    def __getitem__(self, name) -> Union[EntryPoint, 'EntryPoints']:
+        """
+        When accessed by name that matches a group, return the group.
+        """
+        group = self.select(group=name)
+        if group:
+            msg = "GroupedEntryPoints.__getitem__ is deprecated for groups. Use select."
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            return group
+
+        return super().__getitem__(name)
+
+    def get(self, group, default=None):
+        """
+        For backward compatibility, supply .get.
+        """
+        is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
+        msg = "GroupedEntryPoints.get is deprecated. Use select."
+        is_flake8 or warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        return self.select(group=group) or default
+
+    def select(self, **params):
+        """
+        Prevent transform to EntryPoints during call to entry_points if
+        no selection parameters were passed.
+        """
+        if not params:
+            return self
+        return super().select(**params)
 
 
 class PackagePath(pathlib.PurePosixPath):
@@ -310,7 +421,7 @@ class Distribution:
 
     @property
     def entry_points(self):
-        return list(EntryPoint._from_text_for(self.read_text('entry_points.txt'), self))
+        return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
     def files(self):
@@ -643,19 +754,29 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-def entry_points():
+def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
-    :return: EntryPoint objects for all installed packages.
+    Pass selection parameters (group or name) to filter the
+    result to entry points matching those properties (see
+    EntryPoints.select()).
+
+    For compatibility, returns ``SelectableGroups`` object unless
+    selection parameters are supplied. In the future, this function
+    will return ``LegacyGroupedEntryPoints`` instead of
+    ``SelectableGroups`` and eventually will only return
+    ``EntryPoints``.
+
+    For maximum future compatibility, pass selection parameters
+    or invoke ``.select`` with parameters on the result.
+
+    :return: EntryPoints or SelectableGroups for all installed packages.
     """
     unique = functools.partial(unique_everseen, key=operator.attrgetter('name'))
     eps = itertools.chain.from_iterable(
         dist.entry_points for dist in unique(distributions())
     )
-    by_group = operator.attrgetter('group')
-    ordered = sorted(eps, key=by_group)
-    grouped = itertools.groupby(ordered, by_group)
-    return {group: tuple(eps) for group, eps in grouped}
+    return SelectableGroups.load(eps).select(**params)
 
 
 def files(distribution_name):
