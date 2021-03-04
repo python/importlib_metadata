@@ -234,15 +234,17 @@ class DeprecatedDict(dict):  # pragma: nocover
     Mapping behavior is deprecated.
     """
 
+    def _warn(self):
+        msg = "SelectableGroups dict interface is deprecated. Use select."
+        warnings.warn(msg, DeprecationWarning, stacklevel=3)
+
     def __getitem__(self, name):
-        msg = "SelectableGroups.__getitem__ is deprecated. Use select."
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        self._warn()
         return super().__getitem__(name)
 
     def get(self, name, default=None):
         is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
-        msg = "SelectableGroups.get is deprecated. Use select."
-        is_flake8 or warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        is_flake8 or self._warn()
         return super().get(name, default)
 
 
