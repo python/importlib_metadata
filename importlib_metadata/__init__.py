@@ -197,12 +197,13 @@ def flake8_bypass(func):
     return func if not is_flake8 else lambda: None
 
 
-class DeprecatedDict(dict):
+class Deprecated:
     """
-    Compatibility wrapper around dict to indicate that
-    Mapping behavior is deprecated.
+    Compatibility add-in for mapping to indicate that
+    mapping behavior is deprecated.
 
     >>> recwarn = getfixture('recwarn')
+    >>> class DeprecatedDict(Deprecated, dict): pass
     >>> dd = DeprecatedDict(foo='bar')
     >>> dd.get('baz', None)
     >>> dd['foo']
