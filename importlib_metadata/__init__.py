@@ -228,42 +228,22 @@ class SelectableGroups(dict):
         return self._all.select(**params)
 
 
-class LegacyGroupedEntryPoints(EntryPoints):  # pragma: nocover
+class DeprecatedDict(dict):  # pragma: nocover
     """
-    Compatibility wrapper around EntryPoints to provide
-    much of the 'dict' interface previously returned by
-    entry_points.
+    Compatibility wrapper around dict to indicate that
+    Mapping behavior is deprecated.
     """
 
-    def __getitem__(self, name) -> Union[EntryPoint, 'EntryPoints']:
-        """
-        When accessed by name that matches a group, return the group.
-        """
-        group = self.select(group=name)
-        if group:
-            msg = "GroupedEntryPoints.__getitem__ is deprecated for groups. Use select."
-            warnings.warn(msg, DeprecationWarning, stacklevel=2)
-            return group
-
+    def __getitem__(self, name):
+        msg = "SelectableGroups.__getitem__ is deprecated. Use select."
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
         return super().__getitem__(name)
 
-    def get(self, group, default=None):
-        """
-        For backward compatibility, supply .get.
-        """
+    def get(self, name, default=None):
         is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
-        msg = "GroupedEntryPoints.get is deprecated. Use select."
+        msg = "SelectableGroups.get is deprecated. Use select."
         is_flake8 or warnings.warn(msg, DeprecationWarning, stacklevel=2)
-        return self.select(group=group) or default
-
-    def select(self, **params):
-        """
-        Prevent transform to EntryPoints during call to entry_points if
-        no selection parameters were passed.
-        """
-        if not params:
-            return self
-        return super().select(**params)
+        return super().get(name, default)
 
 
 class PackagePath(pathlib.PurePosixPath):
