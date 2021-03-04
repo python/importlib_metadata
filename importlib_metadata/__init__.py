@@ -267,6 +267,9 @@ class SelectableGroups(dict):
 
     @property
     def _all(self):
+        """
+        Reconstruct a list of all entrypoints from the groups.
+        """
         return EntryPoints(itertools.chain.from_iterable(self.values()))
 
     @property
