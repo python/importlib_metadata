@@ -196,7 +196,9 @@ class EntryPoints(tuple):
 class Flake8Bypass(warnings.catch_warnings, contextlib.ContextDecorator):
     def __enter__(self):
         super().__enter__()
-        is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
+        is_flake8 = any(
+            'flake8' in str(frame.filename) for frame in inspect.stack()[:5]
+        )
         is_flake8 and warnings.simplefilter('ignore', DeprecationWarning)
 
 
@@ -219,7 +221,7 @@ class DeprecatedDict(dict):
     >>> list(dd.values())
     ['bar']
     >>> len(recwarn)
-    1
+    2
     """
 
     _warn = functools.partial(
