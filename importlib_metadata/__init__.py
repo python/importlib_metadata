@@ -12,7 +12,6 @@ import warnings
 import functools
 import itertools
 import posixpath
-import contextlib
 import collections.abc
 
 from ._compat import (
@@ -193,13 +192,9 @@ class EntryPoints(tuple):
         return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
 
 
-class Flake8Bypass(warnings.catch_warnings, contextlib.ContextDecorator):
-    def __enter__(self):
-        super().__enter__()
-        is_flake8 = any(
-            'flake8' in str(frame.filename) for frame in inspect.stack()[:5]
-        )
-        is_flake8 and warnings.simplefilter('ignore', DeprecationWarning)
+def flake8_bypass(func):
+    is_flake8 = any('flake8' in str(frame.filename) for frame in inspect.stack()[:5])
+    return func if not is_flake8 else lambda: None
 
 
 class DeprecatedDict(dict):
@@ -221,7 +216,7 @@ class DeprecatedDict(dict):
     >>> list(dd.values())
     ['bar']
     >>> len(recwarn)
-    2
+    1
     """
 
     _warn = functools.partial(
@@ -235,9 +230,8 @@ class DeprecatedDict(dict):
         self._warn()
         return super().__getitem__(name)
 
-    @Flake8Bypass()
     def get(self, name, default=None):
-        self._warn()
+        flake8_bypass(self._warn)()
         return super().get(name, default)
 
     def __iter__(self):
