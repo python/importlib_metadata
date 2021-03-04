@@ -224,7 +224,7 @@ class Deprecated:
         warnings.warn,
         "SelectableGroups dict interface is deprecated. Use select.",
         DeprecationWarning,
-        stacklevel=3,
+        stacklevel=2,
     )
 
     def __getitem__(self, name):
