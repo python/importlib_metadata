@@ -5,12 +5,14 @@ import csv
 import sys
 import zipp
 import email
+import inspect
 import pathlib
 import operator
 import warnings
 import functools
 import itertools
 import posixpath
+import contextlib
 import collections.abc
 
 from ._compat import (
@@ -227,6 +229,13 @@ class SelectableGroups(dict):
         return self._all.select(**params)
 
 
+class Flake8Bypass(warnings.catch_warnings, contextlib.ContextDecorator):
+    def __enter__(self):
+        super().__enter__()
+        is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
+        is_flake8 and warnings.simplefilter('ignore', DeprecationWarning)
+
+
 class DeprecatedDict(dict):
     """
     Compatibility wrapper around dict to indicate that
@@ -252,6 +261,7 @@ class DeprecatedDict(dict):
         self._warn()
         return super().__getitem__(name)
 
+    @Flake8Bypass()
     def get(self, name, default=None):
         self._warn()
         return super().get(name, default)
