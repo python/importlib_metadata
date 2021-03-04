@@ -5,7 +5,6 @@ import csv
 import sys
 import zipp
 import email
-import inspect
 import pathlib
 import operator
 import warnings
@@ -228,23 +227,33 @@ class SelectableGroups(dict):
         return self._all.select(**params)
 
 
-class DeprecatedDict(dict):  # pragma: nocover
+class DeprecatedDict(dict):
     """
     Compatibility wrapper around dict to indicate that
     Mapping behavior is deprecated.
+
+    >>> recwarn = getfixture('recwarn')
+    >>> dd = DeprecatedDict(foo='bar')
+    >>> dd.get('baz', None)
+    >>> dd['foo']
+    'bar'
+    >>> len(recwarn)
+    1
     """
 
-    def _warn(self):
-        msg = "SelectableGroups dict interface is deprecated. Use select."
-        warnings.warn(msg, DeprecationWarning, stacklevel=3)
+    _warn = functools.partial(
+        warnings.warn,
+        "SelectableGroups dict interface is deprecated. Use select.",
+        DeprecationWarning,
+        stacklevel=3,
+    )
 
     def __getitem__(self, name):
         self._warn()
         return super().__getitem__(name)
 
     def get(self, name, default=None):
-        is_flake8 = any('flake8' in str(frame) for frame in inspect.stack())
-        is_flake8 or self._warn()
+        self._warn()
         return super().get(name, default)
 
 
