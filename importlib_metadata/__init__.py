@@ -193,42 +193,6 @@ class EntryPoints(tuple):
         return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
 
 
-class SelectableGroups(dict):
-    """
-    A backward- and forward-compatible result from
-    entry_points that fully implements the dict interface.
-    """
-
-    @classmethod
-    def load(cls, eps):
-        by_group = operator.attrgetter('group')
-        ordered = sorted(eps, key=by_group)
-        grouped = itertools.groupby(ordered, by_group)
-        return cls((group, EntryPoints(eps)) for group, eps in grouped)
-
-    @property
-    def _all(self):
-        return EntryPoints(itertools.chain.from_iterable(self.values()))
-
-    @property
-    def groups(self):
-        return self._all.groups
-
-    @property
-    def names(self):
-        """
-        for coverage:
-        >>> SelectableGroups().names
-        set()
-        """
-        return self._all.names
-
-    def select(self, **params):
-        if not params:
-            return self
-        return self._all.select(**params)
-
-
 class Flake8Bypass(warnings.catch_warnings, contextlib.ContextDecorator):
     def __enter__(self):
         super().__enter__()
@@ -289,6 +253,42 @@ class DeprecatedDict(dict):
     def values(self):
         self._warn()
         return super().values()
+
+
+class SelectableGroups(dict):
+    """
+    A backward- and forward-compatible result from
+    entry_points that fully implements the dict interface.
+    """
+
+    @classmethod
+    def load(cls, eps):
+        by_group = operator.attrgetter('group')
+        ordered = sorted(eps, key=by_group)
+        grouped = itertools.groupby(ordered, by_group)
+        return cls((group, EntryPoints(eps)) for group, eps in grouped)
+
+    @property
+    def _all(self):
+        return EntryPoints(itertools.chain.from_iterable(self.values()))
+
+    @property
+    def groups(self):
+        return self._all.groups
+
+    @property
+    def names(self):
+        """
+        for coverage:
+        >>> SelectableGroups().names
+        set()
+        """
+        return self._all.names
+
+    def select(self, **params):
+        if not params:
+            return self
+        return self._all.select(**params)
 
 
 class PackagePath(pathlib.PurePosixPath):
