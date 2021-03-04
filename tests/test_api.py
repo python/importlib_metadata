@@ -141,8 +141,8 @@ class APITests(
         with warnings.catch_warnings(record=True):
             entry_points()['entries'] == entry_points(group='entries')
 
-        with self.assertRaises(KeyError):
-            entry_points()['missing']
+            with self.assertRaises(KeyError):
+                entry_points()['missing']
 
     def test_entry_points_groups_get(self):
         """
