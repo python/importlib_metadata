@@ -246,6 +246,14 @@ class DeprecatedDict(dict):
     >>> dd.get('baz', None)
     >>> dd['foo']
     'bar'
+    >>> list(dd)
+    ['foo']
+    >>> list(dd.keys())
+    ['foo']
+    >>> 'foo' in dd
+    True
+    >>> list(dd.values())
+    ['bar']
     >>> len(recwarn)
     1
     """
@@ -265,6 +273,22 @@ class DeprecatedDict(dict):
     def get(self, name, default=None):
         self._warn()
         return super().get(name, default)
+
+    def __iter__(self):
+        self._warn()
+        return super().__iter__()
+
+    def __contains__(self, *args):
+        self._warn()
+        return super().__contains__(*args)
+
+    def keys(self):
+        self._warn()
+        return super().keys()
+
+    def values(self):
+        self._warn()
+        return super().values()
 
 
 class PackagePath(pathlib.PurePosixPath):
