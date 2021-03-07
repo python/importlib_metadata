@@ -122,6 +122,7 @@ class APITests(
         Capture this now deprecated use-case.
         """
         with warnings.catch_warnings(record=True) as caught:
+            warnings.filterwarnings("default", category=DeprecationWarning)
             eps = dict(entry_points(group='entries'))
 
         assert 'main' in eps
