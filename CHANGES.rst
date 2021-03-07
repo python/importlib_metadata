@@ -1,3 +1,9 @@
+v3.7.1
+======
+
+* Internal refactoring to facilitate ``entry_points() -> dict``
+  deprecation.
+
 v3.7.0
 ======
 
