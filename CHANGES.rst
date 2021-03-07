@@ -1,3 +1,8 @@
+v3.7.2
+======
+
+* Cleaned up cruft in entry_points docstring.
+
 v3.7.1
 ======
 

@@ -788,9 +788,8 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
 
     For compatibility, returns ``SelectableGroups`` object unless
     selection parameters are supplied. In the future, this function
-    will return ``LegacyGroupedEntryPoints`` instead of
-    ``SelectableGroups`` and eventually will only return
-    ``EntryPoints``.
+    will return ``EntryPoints`` instead of ``SelectableGroups``
+    even when no selection parameters are supplied.
 
     For maximum future compatibility, pass selection parameters
     or invoke ``.select`` with parameters on the result.
