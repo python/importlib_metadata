@@ -12,6 +12,7 @@ import warnings
 import functools
 import itertools
 import posixpath
+import contextlib
 import collections.abc
 
 from ._compat import (
@@ -602,13 +603,10 @@ class FastPath:
 
     @functools.lru_cache()  # type: ignore
     def __new__(cls, root):
-        self = object().__new__(cls)
+        return super().__new__(cls)
+
+    def __init__(self, root):
         self.root = str(root)
-        self.base = os.path.basename(self.root).lower()
-        self.last_mtime = -1
-        self.infos = {}
-        self.eggs = {}
-        return self
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
@@ -624,47 +622,54 @@ class FastPath:
         zip_path = zipp.Path(self.root)
         names = zip_path.root.namelist()
         self.joinpath = zip_path.joinpath
+
         return dict.fromkeys(child.split(posixpath.sep, 1)[0] for child in names)
 
-    def update_cache(self):
-        root = self.root or "."
-        try:
-            mtime = os.stat(root).st_mtime
-        except OSError:
-            self.infos.clear()
-            self.eggs.clear()
-            self.last_mtime = -1
-            return
-        if mtime == self.last_mtime:
-            return
-        self.infos.clear()
-        self.eggs.clear()
-        base_is_egg = self.base.endswith(".egg")
-        for child in self.children():
+    def search(self, name):
+        return self.lookup(self.mtime).search(name)
+
+    @property
+    def mtime(self):
+        with contextlib.suppress(OSError):
+            return os.stat(self.root).st_mtime
+        FastPath.lookup.cache_clear()
+
+    @functools.lru_cache()
+    def lookup(self, mtime):
+        return Lookup(self)
+
+
+class Lookup:
+    def __init__(self, path: FastPath):
+        base = os.path.basename(path.root).lower()
+        base_is_egg = base.endswith(".egg")
+        self.infos = collections.defaultdict(list)
+        self.eggs = collections.defaultdict(list)
+
+        for child in path.children():
             low = child.lower()
             if low.endswith((".dist-info", ".egg-info")):
                 # rpartition is faster than splitext and suitable for this purpose.
                 name = low.rpartition(".")[0].partition("-")[0]
                 normalized = Prepared.normalize(name)
-                self.infos.setdefault(normalized, []).append(child)
+                self.infos[normalized].append(path.joinpath(child))
             elif base_is_egg and low == "egg-info":
-                name = self.base.rpartition(".")[0].partition("-")[0]
+                name = base.rpartition(".")[0].partition("-")[0]
                 legacy_normalized = Prepared.legacy_normalize(name)
-                self.eggs.setdefault(legacy_normalized, []).append(child)
-        self.last_mtime = mtime
+                self.eggs[legacy_normalized].append(path.joinpath(child))
 
     def search(self, prepared):
-        self.update_cache()
-        if prepared.name:
-            infos = self.infos.get(prepared.normalized, [])
-            yield from map(self.joinpath, infos)
-            eggs = self.eggs.get(prepared.legacy_normalized, [])
-            yield from map(self.joinpath, eggs)
-        else:
-            for infos in self.infos.values():
-                yield from map(self.joinpath, infos)
-            for eggs in self.eggs.values():
-                yield from map(self.joinpath, eggs)
+        infos = (
+            self.infos[prepared.normalized]
+            if prepared
+            else itertools.chain.from_iterable(self.infos.values())
+        )
+        eggs = (
+            self.eggs[prepared.legacy_normalized]
+            if prepared
+            else itertools.chain.from_iterable(self.eggs.values())
+        )
+        return itertools.chain(infos, eggs)
 
 
 class Prepared:
@@ -696,6 +701,9 @@ class Prepared:
         older packaging tools versions and specs.
         """
         return name.lower().replace('-', '_')
+
+    def __bool__(self):
+        return bool(self.name)
 
 
 @install
