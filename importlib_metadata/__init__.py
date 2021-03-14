@@ -167,21 +167,33 @@ class EntryPoints(tuple):
     __slots__ = ()
 
     def __getitem__(self, name):  # -> EntryPoint:
+        """
+        Get the EntryPoint in self matching name.
+        """
         try:
             return next(iter(self.select(name=name)))
         except StopIteration:
             raise KeyError(name)
 
     def select(self, **params):
+        """
+        Select entry points from self that match the
+        given parameters (typically group and/or name).
+        """
         return EntryPoints(ep for ep in self if ep.matches(**params))
 
     @property
     def names(self):
+        """
+        Return the set of all names of all entry points.
+        """
         return set(ep.name for ep in self)
 
     @property
     def groups(self):
         """
+        Return the set of all groups of all entry points.
+
         For coverage while SelectableGroups is present.
         >>> EntryPoints().groups
         set()
