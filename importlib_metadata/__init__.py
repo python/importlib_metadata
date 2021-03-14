@@ -5,7 +5,6 @@ import csv
 import sys
 import zipp
 import email
-import inspect
 import pathlib
 import operator
 import warnings
@@ -206,6 +205,9 @@ class EntryPoints(tuple):
 
 
 def flake8_bypass(func):
+    # defer inspect import as performance optimization.
+    import inspect
+
     is_flake8 = any('flake8' in str(frame.filename) for frame in inspect.stack()[:5])
     return func if not is_flake8 else lambda: None
 
