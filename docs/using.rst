@@ -80,7 +80,7 @@ Query all entry points::
 
 The ``entry_points()`` function returns an ``EntryPoints`` object,
 a sequence of all ``EntryPoint`` objects with ``names`` and ``groups``
-attributes for convenience.
+attributes for convenience::
 
     >>> sorted(eps.groups)
     ['console_scripts', 'distutils.commands', 'distutils.setup_keywords', 'egg_info.writers', 'setuptools.installation']
