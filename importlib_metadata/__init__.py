@@ -40,6 +40,7 @@ __all__ = [
     'entry_points',
     'files',
     'metadata',
+    'packages_distributions',
     'requires',
     'version',
 ]
