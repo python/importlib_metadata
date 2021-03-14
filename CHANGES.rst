@@ -1,3 +1,9 @@
+v3.7.3
+======
+
+* Docs enhancements and cleanup following review in
+  `GH-24782 <https://github.com/python/cpython/pull/24782>`_.
+
 v3.7.2
 ======
 
