@@ -11,7 +11,7 @@ import warnings
 import functools
 import itertools
 import posixpath
-import collections.abc
+import collections
 
 from ._compat import (
     NullFinder,
@@ -842,6 +842,7 @@ def packages_distributions() -> Mapping[str, List[str]]:
     Return a mapping of top-level packages to their
     distributions.
 
+    >>> import collections.abc
     >>> pkgs = packages_distributions()
     >>> all(isinstance(dist, collections.abc.Sequence) for dist in pkgs.values())
     True
