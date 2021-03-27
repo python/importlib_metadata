@@ -685,7 +685,7 @@ class Lookup:
             if prepared
             else itertools.chain.from_iterable(self.eggs.values())
         )
-        return itertools.chain(infos, eggs)
+        return list(itertools.chain(infos, eggs))
 
 
 class Prepared:

@@ -1,3 +1,8 @@
+v3.8.1
+======
+
+* #293: Workaround for error in distribution search.
+
 v3.8.0
 ======
 
