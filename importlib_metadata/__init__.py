@@ -632,7 +632,6 @@ class FastPath:
     def mtime(self):
         with contextlib.suppress(OSError):
             return os.stat(self.root).st_mtime
-        FastPath.lookup.cache_clear()
 
     @functools.lru_cache()
     def lookup(self, mtime):
