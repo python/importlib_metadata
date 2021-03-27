@@ -22,6 +22,7 @@ from ._compat import (
     Protocol,
 )
 
+from ._functools import method_cache
 from ._itertools import unique_everseen
 
 from configparser import ConfigParser
@@ -632,8 +633,9 @@ class FastPath:
     def mtime(self):
         with contextlib.suppress(OSError):
             return os.stat(self.root).st_mtime
+        self.lookup.cache_clear()
 
-    @functools.lru_cache()
+    @method_cache
     def lookup(self, mtime):
         return Lookup(self)
 
