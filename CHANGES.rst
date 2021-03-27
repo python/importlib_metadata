@@ -14,6 +14,11 @@ v3.9.0
   Preferably, switch to the ``select`` interface introduced
   in 3.7.0.
 
+* #283: Entry point parsing no longer relies on ConfigParser
+  and instead uses a custom, one-pass parser to load the
+  config, resulting in a ~20% performance improvement when
+  loading entry points.
+
 v3.8.0
 ======
 
