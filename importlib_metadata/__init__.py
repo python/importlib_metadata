@@ -15,13 +15,13 @@ import posixpath
 import contextlib
 import collections
 
+from ._collections import freezable_defaultdict
 from ._compat import (
     NullFinder,
+    Protocol,
     PyPy_repr,
     install,
-    Protocol,
 )
-
 from ._functools import method_cache
 from ._itertools import unique_everseen
 
@@ -710,8 +710,8 @@ class Lookup:
     def __init__(self, path: FastPath):
         base = os.path.basename(path.root).lower()
         base_is_egg = base.endswith(".egg")
-        self.infos = collections.defaultdict(list)
-        self.eggs = collections.defaultdict(list)
+        self.infos = freezable_defaultdict(list)
+        self.eggs = freezable_defaultdict(list)
 
         for child in path.children():
             low = child.lower()
@@ -725,6 +725,9 @@ class Lookup:
                 legacy_normalized = Prepared.legacy_normalize(name)
                 self.eggs[legacy_normalized].append(path.joinpath(child))
 
+        self.infos.freeze()
+        self.eggs.freeze()
+
     def search(self, prepared):
         infos = (
             self.infos[prepared.normalized]
@@ -736,7 +739,7 @@ class Lookup:
             if prepared
             else itertools.chain.from_iterable(self.eggs.values())
         )
-        return list(itertools.chain(infos, eggs))
+        return itertools.chain(infos, eggs)
 
 
 class Prepared:
