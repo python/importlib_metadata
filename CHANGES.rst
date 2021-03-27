@@ -1,3 +1,19 @@
+v3.9.0
+======
+
+* Use of Mapping (dict) interfaces on ``SelectableGroups``
+  is now flagged as deprecated. Instead, users are advised
+  to use the select interface for future compatibility.
+
+  Suppress the warning with this filter:
+  ``ignore:SelectableGroups dict interface``.
+
+  Or with this invocation in the Python environment:
+  ``warnings.filterwarnings('ignore', 'SelectableGroups dict interface')``.
+
+  Preferably, switch to the ``select`` interface introduced
+  in 3.7.0.
+
 v3.8.0
 ======
 
@@ -48,12 +64,10 @@ v3.6.0
 
   ``entry_points()`` now provides a future-compatible
   ``SelectableGroups`` object that supplies the above interface
-  but remains a dict for compatibility.
+  (except item access) but remains a dict for compatibility.
 
   In the future, ``entry_points()`` will return an
-  ``EntryPoints`` object, but provide for backward
-  compatibility with a deprecated  ``__getitem__``
-  accessor by group and a ``get()`` method.
+  ``EntryPoints`` object for all entry points.
 
   If passing selection parameters to ``entry_points``, the
   future behavior is invoked and an ``EntryPoints`` is the

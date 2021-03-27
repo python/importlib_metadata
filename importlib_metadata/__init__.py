@@ -269,7 +269,7 @@ class Deprecated:
         return super().values()
 
 
-class SelectableGroups(dict):
+class SelectableGroups(Deprecated, dict):
     """
     A backward- and forward-compatible result from
     entry_points that fully implements the dict interface.
@@ -287,7 +287,8 @@ class SelectableGroups(dict):
         """
         Reconstruct a list of all entrypoints from the groups.
         """
-        return EntryPoints(itertools.chain.from_iterable(self.values()))
+        groups = super(Deprecated, self).values()
+        return EntryPoints(itertools.chain.from_iterable(groups))
 
     @property
     def groups(self):
