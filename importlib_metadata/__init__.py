@@ -7,6 +7,7 @@ import zipp
 import email
 import pathlib
 import operator
+import textwrap
 import warnings
 import functools
 import itertools
@@ -24,7 +25,6 @@ from ._compat import (
 from ._functools import method_cache
 from ._itertools import unique_everseen
 
-from configparser import ConfigParser
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
@@ -58,6 +58,60 @@ class PackageNotFoundError(ModuleNotFoundError):
     def name(self):
         (name,) = self.args
         return name
+
+
+class Sectioned:
+    """
+    A simple entry point config parser for performance
+
+    >>> res = Sectioned.get_sections(Sectioned._sample)
+    >>> sec, values = next(res)
+    >>> sec
+    'sec1'
+    >>> [(key, value) for key, value in values]
+    [('a', '1'), ('b', '2')]
+    >>> sec, values = next(res)
+    >>> sec
+    'sec2'
+    >>> [(key, value) for key, value in values]
+    [('a', '2')]
+    >>> list(res)
+    []
+    """
+
+    _sample = textwrap.dedent(
+        """
+        [sec1]
+        a = 1
+        b = 2
+
+        [sec2]
+        a = 2
+        """
+    ).lstrip()
+
+    def __init__(self):
+        self.section = None
+
+    def __call__(self, line):
+        if line.startswith('[') and line.endswith(']'):
+            # new section
+            self.section = line.strip('[]')
+            return
+        return self.section
+
+    @classmethod
+    def get_sections(cls, text):
+        lines = filter(None, map(str.strip, text.splitlines()))
+        return (
+            (section, map(cls.parse_value, values))
+            for section, values in itertools.groupby(lines, cls())
+            if section is not None
+        )
+
+    @staticmethod
+    def parse_value(line):
+        return map(str.strip, line.split("=", 1))
 
 
 class EntryPoint(
@@ -117,22 +171,6 @@ class EntryPoint(
     def extras(self):
         match = self.pattern.match(self.value)
         return list(re.finditer(r'\w+', match.group('extras') or ''))
-
-    @classmethod
-    def _from_config(cls, config):
-        return (
-            cls(name, value, group)
-            for group in config.sections()
-            for name, value in config.items(group)
-        )
-
-    @classmethod
-    def _from_text(cls, text):
-        config = ConfigParser(delimiters='=')
-        # case sensitive: https://stackoverflow.com/q/1611799/812183
-        config.optionxform = str
-        config.read_string(text)
-        return cls._from_config(config)
 
     def _for(self, dist):
         self.dist = dist
@@ -203,7 +241,19 @@ class EntryPoints(tuple):
 
     @classmethod
     def _from_text_for(cls, text, dist):
-        return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
+        return cls(ep._for(dist) for ep in cls._from_text(text))
+
+    @classmethod
+    def _from_text(cls, text):
+        return itertools.starmap(EntryPoint, cls._parse_groups(text or ''))
+
+    @staticmethod
+    def _parse_groups(text):
+        return (
+            (name, value, section)
+            for section, values in Sectioned.get_sections(text)
+            for name, value in values
+        )
 
 
 def flake8_bypass(func):
