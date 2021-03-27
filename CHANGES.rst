@@ -19,6 +19,11 @@ v3.9.0
   config, resulting in a ~20% performance improvement when
   loading entry points.
 
+v3.8.1
+======
+
+* #293: Workaround for error in distribution search.
+
 v3.8.0
 ======
 
