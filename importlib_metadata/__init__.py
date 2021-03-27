@@ -172,18 +172,6 @@ class EntryPoint(
         match = self.pattern.match(self.value)
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
-    @classmethod
-    def _from_text(cls, text):
-        return itertools.starmap(cls, cls._parse_groups(text or ''))
-
-    @staticmethod
-    def _parse_groups(text):
-        return (
-            (name, value, section)
-            for section, values in Sectioned.get_sections(text)
-            for name, value in values
-        )
-
     def _for(self, dist):
         self.dist = dist
         return self
@@ -253,7 +241,19 @@ class EntryPoints(tuple):
 
     @classmethod
     def _from_text_for(cls, text, dist):
-        return cls(ep._for(dist) for ep in EntryPoint._from_text(text))
+        return cls(ep._for(dist) for ep in cls._from_text(text))
+
+    @classmethod
+    def _from_text(cls, text):
+        return itertools.starmap(EntryPoint, cls._parse_groups(text or ''))
+
+    @staticmethod
+    def _parse_groups(text):
+        return (
+            (name, value, section)
+            for section, values in Sectioned.get_sections(text)
+            for name, value in values
+        )
 
 
 def flake8_bypass(func):
