@@ -7,6 +7,7 @@ import zipp
 import email
 import pathlib
 import operator
+import textwrap
 import functools
 import itertools
 import posixpath
@@ -53,6 +54,60 @@ class PackageNotFoundError(ModuleNotFoundError):
     def name(self):
         (name,) = self.args
         return name
+
+
+class Sectioned:
+    """
+    A simple entry point config parser for performance
+
+    >>> res = Sectioned.get_sections(Sectioned._sample)
+    >>> sec, values = next(res)
+    >>> sec
+    'sec1'
+    >>> [(key, value) for key, value in values]
+    [('a', '1'), ('b', '2')]
+    >>> sec, values = next(res)
+    >>> sec
+    'sec2'
+    >>> [(key, value) for key, value in values]
+    [('a', '2')]
+    >>> list(res)
+    []
+    """
+
+    _sample = textwrap.dedent(
+        """
+        [sec1]
+        a = 1
+        b = 2
+
+        [sec2]
+        a = 2
+        """
+    ).lstrip()
+
+    def __init__(self):
+        self.section = None
+
+    def __call__(self, line):
+        if line.startswith('[') and line.endswith(']'):
+            # new section
+            self.section = line.strip('[]')
+            return
+        return self.section
+
+    @classmethod
+    def get_sections(cls, text):
+        lines = filter(None, map(str.strip, text.splitlines()))
+        return (
+            (section, map(cls.parse_value, values))
+            for section, values in itertools.groupby(lines, cls())
+            if section is not None
+        )
+
+    @staticmethod
+    def parse_value(line):
+        return map(str.strip, line.split("=", 1))
 
 
 class EntryPoint(
@@ -115,16 +170,15 @@ class EntryPoint(
 
     @classmethod
     def _from_text(cls, text):
-        # A hand-rolled parser is much faster than ConfigParser.
-        if not text:
-            return
-        group = None
-        for line in filter(None, map(str.strip, text.splitlines())):
-            if line.startswith("["):
-                group = line[1:-1]
-            else:
-                name, value = map(str.strip, line.split("=", 1))
-                yield cls(name, value, group)
+        return itertools.starmap(cls, cls._parse_groups(text or ''))
+
+    @staticmethod
+    def _parse_groups(text):
+        return (
+            (name, value, section)
+            for section, values in Sectioned.get_sections(text)
+            for name, value in values
+        )
 
     @classmethod
     def _from_text_for(cls, text, dist):
