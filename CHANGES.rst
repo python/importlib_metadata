@@ -1,3 +1,10 @@
+v3.8.0
+======
+
+* #290: Add mtime-based caching for ``FastPath`` and its
+  lookups, dramatically increasing performance for repeated
+  distribution lookups.
+
 v3.7.3
 ======
 

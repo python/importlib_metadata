@@ -11,6 +11,7 @@ import warnings
 import functools
 import itertools
 import posixpath
+import contextlib
 import collections
 
 from ._compat import (
@@ -20,6 +21,7 @@ from ._compat import (
     Protocol,
 )
 
+from ._functools import method_cache
 from ._itertools import unique_everseen
 
 from configparser import ConfigParser
@@ -615,9 +617,12 @@ class FastPath:
     children.
     """
 
+    @functools.lru_cache()  # type: ignore
+    def __new__(cls, root):
+        return super().__new__(cls)
+
     def __init__(self, root):
         self.root = str(root)
-        self.base = os.path.basename(self.root).lower()
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
@@ -637,11 +642,50 @@ class FastPath:
         return dict.fromkeys(child.split(posixpath.sep, 1)[0] for child in names)
 
     def search(self, name):
-        return (
-            self.joinpath(child)
-            for child in self.children()
-            if name.matches(child, self.base)
+        return self.lookup(self.mtime).search(name)
+
+    @property
+    def mtime(self):
+        with contextlib.suppress(OSError):
+            return os.stat(self.root).st_mtime
+        self.lookup.cache_clear()
+
+    @method_cache
+    def lookup(self, mtime):
+        return Lookup(self)
+
+
+class Lookup:
+    def __init__(self, path: FastPath):
+        base = os.path.basename(path.root).lower()
+        base_is_egg = base.endswith(".egg")
+        self.infos = collections.defaultdict(list)
+        self.eggs = collections.defaultdict(list)
+
+        for child in path.children():
+            low = child.lower()
+            if low.endswith((".dist-info", ".egg-info")):
+                # rpartition is faster than splitext and suitable for this purpose.
+                name = low.rpartition(".")[0].partition("-")[0]
+                normalized = Prepared.normalize(name)
+                self.infos[normalized].append(path.joinpath(child))
+            elif base_is_egg and low == "egg-info":
+                name = base.rpartition(".")[0].partition("-")[0]
+                legacy_normalized = Prepared.legacy_normalize(name)
+                self.eggs[legacy_normalized].append(path.joinpath(child))
+
+    def search(self, prepared):
+        infos = (
+            self.infos[prepared.normalized]
+            if prepared
+            else itertools.chain.from_iterable(self.infos.values())
         )
+        eggs = (
+            self.eggs[prepared.legacy_normalized]
+            if prepared
+            else itertools.chain.from_iterable(self.eggs.values())
+        )
+        return itertools.chain(infos, eggs)
 
 
 class Prepared:
@@ -650,22 +694,14 @@ class Prepared:
     """
 
     normalized = None
-    suffixes = 'dist-info', 'egg-info'
-    exact_matches = [''][:0]
-    egg_prefix = ''
-    versionless_egg_name = ''
+    legacy_normalized = None
 
     def __init__(self, name):
         self.name = name
         if name is None:
             return
         self.normalized = self.normalize(name)
-        self.exact_matches = [
-            self.normalized + '.' + suffix for suffix in self.suffixes
-        ]
-        legacy_normalized = self.legacy_normalize(self.name)
-        self.egg_prefix = legacy_normalized + '-'
-        self.versionless_egg_name = legacy_normalized + '.egg'
+        self.legacy_normalized = self.legacy_normalize(name)
 
     @staticmethod
     def normalize(name):
@@ -682,26 +718,8 @@ class Prepared:
         """
         return name.lower().replace('-', '_')
 
-    def matches(self, cand, base):
-        low = cand.lower()
-        # rpartition is faster than splitext and suitable for this purpose.
-        pre, _, ext = low.rpartition('.')
-        name, _, rest = pre.partition('-')
-        return (
-            low in self.exact_matches
-            or ext in self.suffixes
-            and (not self.normalized or name.replace('.', '_') == self.normalized)
-            # legacy case:
-            or self.is_egg(base)
-            and low == 'egg-info'
-        )
-
-    def is_egg(self, base):
-        return (
-            base == self.versionless_egg_name
-            or base.startswith(self.egg_prefix)
-            and base.endswith('.egg')
-        )
+    def __bool__(self):
+        return bool(self.name)
 
 
 @install
@@ -731,6 +749,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         return itertools.chain.from_iterable(
             path.search(prepared) for path in map(FastPath, paths)
         )
+
+    def invalidate_caches(cls):
+        FastPath.__new__.cache_clear()
 
 
 class PathDistribution(Distribution):
