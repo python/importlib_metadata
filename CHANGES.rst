@@ -1,3 +1,83 @@
+v3.9.0
+======
+
+* Use of Mapping (dict) interfaces on ``SelectableGroups``
+  is now flagged as deprecated. Instead, users are advised
+  to use the select interface for future compatibility.
+
+  Suppress the warning with this filter:
+  ``ignore:SelectableGroups dict interface``.
+
+  Or with this invocation in the Python environment:
+  ``warnings.filterwarnings('ignore', 'SelectableGroups dict interface')``.
+
+  Preferably, switch to the ``select`` interface introduced
+  in 3.7.0.
+
+v3.8.0
+======
+
+* #290: Add mtime-based caching for ``FastPath`` and its
+  lookups, dramatically increasing performance for repeated
+  distribution lookups.
+
+v3.7.3
+======
+
+* Docs enhancements and cleanup following review in
+  `GH-24782 <https://github.com/python/cpython/pull/24782>`_.
+
+v3.7.2
+======
+
+* Cleaned up cruft in entry_points docstring.
+
+v3.7.1
+======
+
+* Internal refactoring to facilitate ``entry_points() -> dict``
+  deprecation.
+
+v3.7.0
+======
+
+* #131: Added ``packages_distributions`` to conveniently
+  resolve a top-level package or module to its distribution(s).
+
+v3.6.0
+======
+
+* #284: Introduces new ``EntryPoints`` object, a tuple of
+  ``EntryPoint`` objects but with convenience properties for
+  selecting and inspecting the results:
+
+  - ``.select()`` accepts ``group`` or ``name`` keyword
+    parameters and returns a new ``EntryPoints`` tuple
+    with only those that match the selection.
+  - ``.groups`` property presents all of the group names.
+  - ``.names`` property presents the names of the entry points.
+  - Item access (e.g. ``eps[name]``) retrieves a single
+    entry point by name.
+
+  ``entry_points`` now accepts "selection parameters",
+  same as ``EntryPoint.select()``.
+
+  ``entry_points()`` now provides a future-compatible
+  ``SelectableGroups`` object that supplies the above interface
+  (except item access) but remains a dict for compatibility.
+
+  In the future, ``entry_points()`` will return an
+  ``EntryPoints`` object for all entry points.
+
+  If passing selection parameters to ``entry_points``, the
+  future behavior is invoked and an ``EntryPoints`` is the
+  result.
+
+  Construction of entry points using
+  ``dict([EntryPoint, ...])`` is now deprecated and raises
+  an appropriate DeprecationWarning and will be removed in
+  a future version.
+
 v3.5.0
 ======
 
