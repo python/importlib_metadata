@@ -1,3 +1,9 @@
+v3.8.2
+======
+
+* #293: Re-enabled lazy evaluation of path lookup through
+  a FreezableDefaultDict.
+
 v3.8.1
 ======
 
