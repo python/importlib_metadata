@@ -35,7 +35,7 @@ jobs:
       - name: Run benchmarks
         run: tox
         env:
-          TOXENV: perf
+          TOXENV: perf{,-ref}
 
   diffcov:
     runs-on: ubuntu-latest
