@@ -14,7 +14,7 @@ import posixpath
 import contextlib
 import collections
 
-from ._collections import freezable_defaultdict
+from ._collections import FreezableDefaultDict
 from ._compat import (
     NullFinder,
     Protocol,
@@ -659,8 +659,8 @@ class Lookup:
     def __init__(self, path: FastPath):
         base = os.path.basename(path.root).lower()
         base_is_egg = base.endswith(".egg")
-        self.infos = freezable_defaultdict(list)
-        self.eggs = freezable_defaultdict(list)
+        self.infos = FreezableDefaultDict(list)
+        self.eggs = FreezableDefaultDict(list)
 
         for child in path.children():
             low = child.lower()
