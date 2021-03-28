@@ -19,6 +19,12 @@ v3.9.0
   config, resulting in a ~20% performance improvement when
   loading entry points.
 
+v3.8.2
+======
+
+* #293: Re-enabled lazy evaluation of path lookup through
+  a FreezableDefaultDict.
+
 v3.8.1
 ======
 

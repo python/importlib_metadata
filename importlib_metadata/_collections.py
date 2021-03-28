@@ -1,11 +1,14 @@
 import collections
 
 
-class freezable_defaultdict(collections.defaultdict):
+# from jaraco.collections 3.3
+class FreezableDefaultDict(collections.defaultdict):
     """
-    Mix-in to freeze a defaultdict.
+    Often it is desirable to prevent the mutation of
+    a default dict after its initial construction, such
+    as to prevent mutation during iteration.
 
-    >>> dd = freezable_defaultdict(list)
+    >>> dd = FreezableDefaultDict(list)
     >>> dd[0].append('1')
     >>> dd.freeze()
     >>> dd[1]
