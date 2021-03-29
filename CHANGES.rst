@@ -1,3 +1,8 @@
+v3.9.1
+======
+
+* #296: Exclude 'prepare' package.
+
 v3.9.0
 ======
 
