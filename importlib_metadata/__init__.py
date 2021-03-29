@@ -82,6 +82,7 @@ class Sectioned:
     _sample = textwrap.dedent(
         """
         [sec1]
+        # comments ignored
         a = 1
         b = 2
 
@@ -102,12 +103,16 @@ class Sectioned:
 
     @classmethod
     def get_sections(cls, text):
-        lines = filter(None, map(str.strip, text.splitlines()))
+        lines = filter(cls.valid, map(str.strip, text.splitlines()))
         return (
             (section, map(cls.parse_value, values))
             for section, values in itertools.groupby(lines, cls())
             if section is not None
         )
+
+    @staticmethod
+    def valid(line):
+        return line and not line.startswith('#')
 
     @staticmethod
     def parse_value(line):

@@ -2,6 +2,7 @@ v3.9.1
 ======
 
 * #296: Exclude 'prepare' package.
+* #297: Fix ValueError when entry points contains comments.
 
 v3.9.0
 ======
