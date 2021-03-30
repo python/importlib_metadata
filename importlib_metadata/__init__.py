@@ -15,7 +15,7 @@ import posixpath
 import contextlib
 import collections
 
-from ._collections import FreezableDefaultDict
+from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
     Protocol,
@@ -64,17 +64,27 @@ class Sectioned:
     """
     A simple entry point config parser for performance
 
-    >>> res = Sectioned.get_sections(Sectioned._sample)
-    >>> sec, values = next(res)
-    >>> sec
+    >>> for item in Sectioned.read(Sectioned._sample):
+    ...     print(item)
+    Pair(name='sec1', value='# comments ignored')
+    Pair(name='sec1', value='a = 1')
+    Pair(name='sec1', value='b = 2')
+    Pair(name='sec2', value='a = 2')
+
+    >>> res = Sectioned.section_pairs(Sectioned._sample)
+    >>> item = next(res)
+    >>> item.name
     'sec1'
-    >>> [(key, value) for key, value in values]
-    [('a', '1'), ('b', '2')]
-    >>> sec, values = next(res)
-    >>> sec
+    >>> item.value
+    Pair(name='a', value='1')
+    >>> item = next(res)
+    >>> item.value
+    Pair(name='b', value='2')
+    >>> item = next(res)
+    >>> item.name
     'sec2'
-    >>> [(key, value) for key, value in values]
-    [('a', '2')]
+    >>> item.value
+    Pair(name='a', value='2')
     >>> list(res)
     []
     """
@@ -91,32 +101,28 @@ class Sectioned:
         """
     ).lstrip()
 
-    def __init__(self):
-        self.section = None
-
-    def __call__(self, line):
-        if line.startswith('[') and line.endswith(']'):
-            # new section
-            self.section = line.strip('[]')
-            return
-        return self.section
-
     @classmethod
-    def get_sections(cls, text):
-        lines = filter(cls.valid, map(str.strip, text.splitlines()))
+    def section_pairs(cls, text):
         return (
-            (section, map(cls.parse_value, values))
-            for section, values in itertools.groupby(lines, cls())
-            if section is not None
+            section._replace(value=Pair.parse(section.value))
+            for section in cls.read(text, filter_=cls.valid)
+            if section.name is not None
         )
+
+    @staticmethod
+    def read(text, filter_=None):
+        lines = filter(filter_, map(str.strip, text.splitlines()))
+        name = None
+        for value in lines:
+            section_match = value.startswith('[') and value.endswith(']')
+            if section_match:
+                name = value.strip('[]')
+                continue
+            yield Pair(name, value)
 
     @staticmethod
     def valid(line):
         return line and not line.startswith('#')
-
-    @staticmethod
-    def parse_value(line):
-        return map(str.strip, line.split("=", 1))
 
 
 class EntryPoint(
@@ -255,9 +261,8 @@ class EntryPoints(tuple):
     @staticmethod
     def _parse_groups(text):
         return (
-            (name, value, section)
-            for section, values in Sectioned.get_sections(text)
-            for name, value in values
+            (item.value.name, item.value.value, item.name)
+            for item in Sectioned.section_pairs(text)
         )
 
 
@@ -573,24 +578,7 @@ class Distribution:
 
     @classmethod
     def _deps_from_requires_text(cls, source):
-        section_pairs = cls._read_sections(source.splitlines())
-        sections = {
-            section: list(map(operator.itemgetter('line'), results))
-            for section, results in itertools.groupby(
-                section_pairs, operator.itemgetter('section')
-            )
-        }
-        return cls._convert_egg_info_reqs_to_simple_reqs(sections)
-
-    @staticmethod
-    def _read_sections(lines):
-        section = None
-        for line in filter(None, lines):
-            section_match = re.match(r'\[(.*)\]$', line)
-            if section_match:
-                section = section_match.group(1)
-                continue
-            yield locals()
+        return cls._convert_egg_info_reqs_to_simple_reqs(Sectioned.read(source))
 
     @staticmethod
     def _convert_egg_info_reqs_to_simple_reqs(sections):
@@ -615,9 +603,8 @@ class Distribution:
             conditions = list(filter(None, [markers, make_condition(extra)]))
             return '; ' + ' and '.join(conditions) if conditions else ''
 
-        for section, deps in sections.items():
-            for dep in deps:
-                yield dep + parse_condition(section)
+        for section in sections:
+            yield section.value + parse_condition(section.name)
 
 
 class DistributionFinder(MetaPathFinder):
