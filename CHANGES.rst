@@ -23,7 +23,18 @@ v3.9.0
   ``warnings.filterwarnings('ignore', 'SelectableGroups dict interface')``.
 
   Preferably, switch to the ``select`` interface introduced
-  in 3.7.0.
+  in 3.7.0. See the
+  `entry points documentation <https://importlib-metadata.readthedocs.io/en/latest/using.html#entry-points>`_ and changelog for the 3.6
+  release below for more detail.
+
+  For some use-cases, especially those that rely on
+  ``importlib.metadata`` in Python 3.8 and 3.9 or
+  those relying on older ``importlib_metadata`` (especially
+  on Python 3.5 and earlier),
+  `backports.entry_points_selectable <https://pypi.org/project/backports.entry_points_selectable>`_
+  was created to ease the transition. Please have a look
+  at that project if simply relying on importlib_metadata 3.6+
+  is not straightforward. Background in #298.
 
 * #283: Entry point parsing no longer relies on ConfigParser
   and instead uses a custom, one-pass parser to load the
