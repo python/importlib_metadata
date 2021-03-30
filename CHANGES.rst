@@ -1,3 +1,8 @@
+v3.10.0
+=======
+
+* #295: Internal refactoring to unify section parsing logic.
+
 v3.9.1
 ======
 
