@@ -64,20 +64,27 @@ class Sectioned:
     """
     A simple entry point config parser for performance
 
+    >>> for item in Sectioned.read(Sectioned._sample):
+    ...     print(item)
+    Pair(name='sec1', value='# comments ignored')
+    Pair(name='sec1', value='a = 1')
+    Pair(name='sec1', value='b = 2')
+    Pair(name='sec2', value='a = 2')
+
     >>> res = Sectioned.section_pairs(Sectioned._sample)
     >>> item = next(res)
     >>> item.name
     'sec1'
-    >>> tuple(item.value)
-    ('a', '1')
+    >>> item.value
+    Pair(name='a', value='1')
     >>> item = next(res)
-    >>> tuple(item.value)
-    ('b', '2')
+    >>> item.value
+    Pair(name='b', value='2')
     >>> item = next(res)
     >>> item.name
     'sec2'
-    >>> tuple(item.value)
-    ('a', '2')
+    >>> item.value
+    Pair(name='a', value='2')
     >>> list(res)
     []
     """
