@@ -15,7 +15,7 @@ import posixpath
 import contextlib
 import collections
 
-from ._collections import FreezableDefaultDict
+from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
     Protocol,
@@ -64,25 +64,23 @@ class Sectioned:
     """
     A simple entry point config parser for performance
 
-    >>> res = Sectioned.get_sections(Sectioned._sample)
-    >>> sec, pair = next(res)
-    >>> sec
+    >>> res = Sectioned.section_pairs(Sectioned._sample)
+    >>> item = next(res)
+    >>> item.name
     'sec1'
-    >>> tuple(pair)
+    >>> tuple(item.value)
     ('a', '1')
-    >>> sec, pair = next(res)
-    >>> tuple(pair)
+    >>> item = next(res)
+    >>> tuple(item.value)
     ('b', '2')
-    >>> sec, pair = next(res)
-    >>> sec
+    >>> item = next(res)
+    >>> item.name
     'sec2'
-    >>> tuple(pair)
+    >>> tuple(item.value)
     ('a', '2')
     >>> list(res)
     []
     """
-
-    Pair = collections.namedtuple('Pair', 'name value')
 
     _sample = textwrap.dedent(
         """
@@ -97,9 +95,9 @@ class Sectioned:
     ).lstrip()
 
     @classmethod
-    def get_sections(cls, text):
+    def section_pairs(cls, text):
         return (
-            (section.name, cls.parse_value(section.value))
+            section._replace(value=Pair.parse(section.value))
             for section in cls.read(text, filter_=cls.valid)
             if section.name is not None
         )
@@ -113,15 +111,11 @@ class Sectioned:
             if section_match:
                 name = value.strip('[]')
                 continue
-            yield Sectioned.Pair(name, value)
+            yield Pair(name, value)
 
     @staticmethod
     def valid(line):
         return line and not line.startswith('#')
-
-    @staticmethod
-    def parse_value(line):
-        return map(str.strip, line.split("=", 1))
 
 
 class EntryPoint(
@@ -260,8 +254,8 @@ class EntryPoints(tuple):
     @staticmethod
     def _parse_groups(text):
         return (
-            (name, value, section)
-            for section, (name, value) in Sectioned.get_sections(text)
+            (item.value.name, item.value.value, item.name)
+            for item in Sectioned.section_pairs(text)
         )
 
 
