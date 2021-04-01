@@ -5,6 +5,7 @@ import csv
 import sys
 import zipp
 import email
+import string
 import pathlib
 import operator
 import textwrap
@@ -919,3 +920,43 @@ def packages_distributions() -> Mapping[str, List[str]]:
         for pkg in (dist.read_text('top_level.txt') or '').split():
             pkg_to_dist[pkg].append(dist.metadata['Name'])
     return dict(pkg_to_dist)
+
+
+def as_json(metadata: PackageMetadata):
+    """
+    Convert PackageMetadata to a JSON-compatible format
+    per PEP 0566.
+    """
+    # TODO: Need to match case-insensitive
+    multiple_use = {
+        'Classifier',
+        'Obsoletes-Dist',
+        'Platform',
+        'Project-URL',
+        'Provides-Dist',
+        'Provides-Extra',
+        'Requires-Dist',
+        'Requires-External',
+        'Supported-Platform',
+    }
+
+    def redent(value):
+        "Correct for RFC822 indentation"
+        if not value or '\n' not in value:
+            return value
+        return textwrap.dedent(' ' * 8 + value)
+
+    def transform(key):
+        value = (
+            metadata.get_all(key) if key in multiple_use else redent(metadata.get(key))
+        )
+        if key == 'Keywords':
+            value = value.split(string.whitespace)
+        if not value and key == 'Description':
+            value = metadata.get_payload()
+        tk = key.lower().replace('-', '_')
+        return tk, value
+
+    desc = ['Description'] if metadata.get_payload() else []  # type: ignore
+    keys = itertools.chain(metadata, desc)  # type: ignore
+    return dict(map(transform, keys))  # type: ignore
