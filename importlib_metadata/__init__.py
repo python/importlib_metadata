@@ -491,7 +491,7 @@ class Distribution:
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        return _adapters.JSONMeta(email.message_from_string(text))
+        return _adapters.Message(email.message_from_string(text))
 
     @property
     def name(self):

@@ -1,31 +1,17 @@
 import string
 import textwrap
 import itertools
+import email.message
 
-from . import _meta
 
+class Message(email.message.Message):
+    def __new__(cls, orig: email.message.Message):
+        res = super().__new__(cls)
+        vars(res).update(vars(orig))
+        return res
 
-class JSONMeta(_meta.PackageMetadata):
-    def __init__(self, orig: _meta.PackageMetadata):
-        self.orig = orig
-
-    def __getitem__(self, item):
-        return self.orig.__getitem__(item)
-
-    def __len__(self):
-        return self.orig.__len__()  # pragma: nocover
-
-    def __contains__(self, item):
-        return self.orig.__contains__(item)  # pragma: nocover
-
-    def __iter__(self):
-        return self.orig.__iter__()
-
-    def get_all(self, name):
-        return self.orig.get_all(name)
-
-    def get_payload(self):
-        return self.orig.get_payload()
+    def __init__(self, *args, **kwargs):
+        pass
 
     @property
     def json(self):
