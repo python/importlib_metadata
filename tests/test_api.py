@@ -8,7 +8,6 @@ from . import fixtures
 from importlib_metadata import (
     Distribution,
     PackageNotFoundError,
-    as_json,
     distribution,
     entry_points,
     files,
@@ -248,13 +247,13 @@ class APITests(
         assert deps == expected
 
     def test_as_json(self):
-        md = as_json(metadata('distinfo-pkg'))
+        md = metadata('distinfo-pkg').json
         assert 'name' in md
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')
 
     def test_as_json_egg_info(self):
-        md = as_json(metadata('egginfo-pkg'))
+        md = metadata('egginfo-pkg').json
         assert 'name' in md
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')

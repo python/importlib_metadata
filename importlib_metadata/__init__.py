@@ -5,7 +5,6 @@ import csv
 import sys
 import zipp
 import email
-import string
 import pathlib
 import operator
 import textwrap
@@ -16,10 +15,10 @@ import posixpath
 import contextlib
 import collections
 
+from . import _adapters, _meta
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
-    Protocol,
     PyPy_repr,
     install,
 )
@@ -30,7 +29,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, List, Mapping, Optional, TypeVar, Union
+from typing import List, Mapping, Optional, Union
 
 
 __all__ = [
@@ -394,25 +393,6 @@ class FileHash:
         return '<FileHash mode: {} value: {}>'.format(self.mode, self.value)
 
 
-_T = TypeVar("_T")
-
-
-class PackageMetadata(Protocol):
-    def __len__(self) -> int:
-        ...  # pragma: no cover
-
-    def __contains__(self, item: str) -> bool:
-        ...  # pragma: no cover
-
-    def __getitem__(self, key: str) -> str:
-        ...  # pragma: no cover
-
-    def get_all(self, name: str, failobj: _T = ...) -> Union[List[Any], _T]:
-        """
-        Return all values associated with a possibly multi-valued key.
-        """
-
-
 class Distribution:
     """A Python distribution package."""
 
@@ -497,7 +477,7 @@ class Distribution:
         return PathDistribution(zipp.Path(meta.build_as_zip(builder)))
 
     @property
-    def metadata(self) -> PackageMetadata:
+    def metadata(self) -> _meta.PackageMetadata:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
@@ -511,7 +491,7 @@ class Distribution:
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        return email.message_from_string(text)
+        return _adapters.JSONMeta(email.message_from_string(text))
 
     @property
     def name(self):
@@ -843,7 +823,7 @@ def distributions(**kwargs):
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name) -> PackageMetadata:
+def metadata(distribution_name) -> _meta.PackageMetadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -920,43 +900,3 @@ def packages_distributions() -> Mapping[str, List[str]]:
         for pkg in (dist.read_text('top_level.txt') or '').split():
             pkg_to_dist[pkg].append(dist.metadata['Name'])
     return dict(pkg_to_dist)
-
-
-def as_json(metadata: PackageMetadata):
-    """
-    Convert PackageMetadata to a JSON-compatible format
-    per PEP 0566.
-    """
-    # TODO: Need to match case-insensitive
-    multiple_use = {
-        'Classifier',
-        'Obsoletes-Dist',
-        'Platform',
-        'Project-URL',
-        'Provides-Dist',
-        'Provides-Extra',
-        'Requires-Dist',
-        'Requires-External',
-        'Supported-Platform',
-    }
-
-    def redent(value):
-        "Correct for RFC822 indentation"
-        if not value or '\n' not in value:
-            return value
-        return textwrap.dedent(' ' * 8 + value)
-
-    def transform(key):
-        value = (
-            metadata.get_all(key) if key in multiple_use else redent(metadata.get(key))
-        )
-        if key == 'Keywords':
-            value = value.split(string.whitespace)
-        if not value and key == 'Description':
-            value = metadata.get_payload()
-        tk = key.lower().replace('-', '_')
-        return tk, value
-
-    desc = ['Description'] if metadata.get_payload() else []  # type: ignore
-    keys = itertools.chain(metadata, desc)  # type: ignore
-    return dict(map(transform, keys))  # type: ignore
