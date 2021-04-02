@@ -13,6 +13,10 @@ class Message(email.message.Message):
     def __init__(self, *args, **kwargs):
         pass
 
+    # suppress spurious error from mypy
+    def __iter__(self):
+        return super().__iter__()
+
     @property
     def json(self):
         """

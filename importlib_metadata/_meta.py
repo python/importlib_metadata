@@ -1,5 +1,5 @@
 from ._compat import Protocol
-from typing import Any, List, TypeVar, Union
+from typing import Any, Dict, Iterator, List, TypeVar, Union
 
 
 _T = TypeVar("_T")
@@ -15,10 +15,19 @@ class PackageMetadata(Protocol):
     def __getitem__(self, key: str) -> str:
         ...  # pragma: no cover
 
+    def __iter__(self) -> Iterator[str]:
+        ...  # pragma: no cover
+
     def get_payload(self) -> str:
         ...  # pragma: no cover
 
     def get_all(self, name: str, failobj: _T = ...) -> Union[List[Any], _T]:
         """
         Return all values associated with a possibly multi-valued key.
+        """
+
+    @property
+    def json(self) -> Dict[str, Union[str, List[str]]]:
+        """
+        A JSON-compatible form of the metadata.
         """
