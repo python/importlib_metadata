@@ -111,10 +111,15 @@ v3.6.0
   future behavior is invoked and an ``EntryPoints`` is the
   result.
 
-  Construction of entry points using
+* #284: Construction of entry points using
   ``dict([EntryPoint, ...])`` is now deprecated and raises
   an appropriate DeprecationWarning and will be removed in
   a future version.
+
+* #300: ``Distribution.entry_points`` now presents as an
+  ``EntryPoints`` object and access by index is no longer
+  allowed. If access by index is required, cast to a sequence
+  first.
 
 v3.5.0
 ======
