@@ -1,3 +1,8 @@
+v3.10.1
+=======
+
+* Minor tweaks from CPython.
+
 v3.10.0
 =======
 
