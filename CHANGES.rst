@@ -1,3 +1,24 @@
+v4.0.0
+=======
+
+* #304: ``PackageMetadata`` as returned by ``metadata()``
+  and ``Distribution.metadata()`` now provides normalized
+  metadata honoring PEP 566:
+
+  - If a long description is provided in the payload of the
+    RFC 822 value, it can be retrieved as the ``Description``
+    field.
+  - Any multi-line values in the metadata will be returned as
+    such.
+  - For any multi-line values, line continuation characters
+    are removed. This backward-incompatible change means
+    that any projects relying on the RFC 822 line continuation
+    characters being present must be tolerant to them having
+    been removed.
+  - Add a ``json`` property that provides the metadata
+    converted to a JSON-compatible form per PEP 566.
+
+
 v3.10.1
 =======
 
