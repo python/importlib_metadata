@@ -262,6 +262,13 @@ class APITests(
         assert desc.startswith('Once upon a time\nThere was')
         assert len(md['classifier']) == 2
 
+    def test_as_json_odd_case(self):
+        self.make_uppercase()
+        md = metadata('distinfo-pkg').json
+        assert 'name' in md
+        assert len(md['requires_dist']) == 2
+        assert md['keywords'] == ['SAMPLE', 'PACKAGE']
+
 
 class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
     def test_name_normalization(self):
