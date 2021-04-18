@@ -252,6 +252,7 @@ class APITests(
         assert md['keywords'] == ['sample', 'package']
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')
+        assert len(md['requires_dist']) == 2
 
     def test_as_json_egg_info(self):
         md = metadata('egginfo-pkg').json
@@ -259,6 +260,7 @@ class APITests(
         assert md['keywords'] == ['sample', 'package']
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')
+        assert len(md['classifier']) == 2
 
 
 class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
