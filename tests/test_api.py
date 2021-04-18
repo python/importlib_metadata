@@ -249,12 +249,14 @@ class APITests(
     def test_as_json(self):
         md = metadata('distinfo-pkg').json
         assert 'name' in md
+        assert md['keywords'] == ['sample', 'package']
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')
 
     def test_as_json_egg_info(self):
         md = metadata('egginfo-pkg').json
         assert 'name' in md
+        assert md['keywords'] == ['sample', 'package']
         desc = md['description']
         assert desc.startswith('Once upon a time\nThere was')
 
