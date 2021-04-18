@@ -1,4 +1,4 @@
-import string
+import re
 import textwrap
 import email.message
 
@@ -50,7 +50,7 @@ class Message(email.message.Message):
         def transform(key):
             value = self.get_all(key) if key in multiple_use else self[key]
             if key == 'Keywords':
-                value = value.split(string.whitespace)
+                value = re.split(r'\s+', value)
             tk = key.lower().replace('-', '_')
             return tk, value
 
