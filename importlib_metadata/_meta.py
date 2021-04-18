@@ -18,9 +18,6 @@ class PackageMetadata(Protocol):
     def __iter__(self) -> Iterator[str]:
         ...  # pragma: no cover
 
-    def get_payload(self) -> str:
-        ...  # pragma: no cover
-
     def get_all(self, name: str, failobj: _T = ...) -> Union[List[Any], _T]:
         """
         Return all values associated with a possibly multi-valued key.

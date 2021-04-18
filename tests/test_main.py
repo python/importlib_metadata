@@ -162,7 +162,7 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     def test_metadata_loads_egg_info(self):
         pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
         meta = metadata(pkg_name)
-        assert meta.get_payload() == 'pôrˈtend\n'
+        assert meta['Description'] == 'pôrˈtend\n'
 
 
 class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
