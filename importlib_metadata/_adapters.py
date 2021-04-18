@@ -1,6 +1,5 @@
 import string
 import textwrap
-import itertools
 import email.message
 
 
@@ -11,11 +10,23 @@ class Message(email.message.Message):
         return res
 
     def __init__(self, *args, **kwargs):
-        pass
+        self._headers = self._repair_headers()
 
     # suppress spurious error from mypy
     def __iter__(self):
         return super().__iter__()
+
+    def _repair_headers(self):
+        def redent(value):
+            "Correct for RFC822 indentation"
+            if not value or '\n' not in value:
+                return value
+            return textwrap.dedent(' ' * 8 + value)
+
+        headers = [(key, redent(value)) for key, value in vars(self)['_headers']]
+        if self._payload:
+            headers.append(('Description', self.get_payload()))
+        return headers
 
     @property
     def json(self):
@@ -36,21 +47,11 @@ class Message(email.message.Message):
             'Supported-Platform',
         }
 
-        def redent(value):
-            "Correct for RFC822 indentation"
-            if not value or '\n' not in value:
-                return value
-            return textwrap.dedent(' ' * 8 + value)
-
         def transform(key):
-            value = self.get_all(key) if key in multiple_use else redent(self[key])
+            value = self.get_all(key) if key in multiple_use else self[key]
             if key == 'Keywords':
                 value = value.split(string.whitespace)
-            if not value and key == 'Description':
-                value = self.get_payload()
             tk = key.lower().replace('-', '_')
             return tk, value
 
-        desc = ['Description'] if self.get_payload() else []
-        keys = itertools.chain(self, desc)
-        return dict(map(transform, keys))
+        return dict(map(transform, self))
