@@ -1,3 +1,8 @@
+v4.0.1
+=======
+
+* #306: Clearer guidance about compatibility in readme.
+
 v4.0.0
 =======
 
