@@ -1,5 +1,4 @@
-from ._compat import Protocol
-from typing import Any, Dict, Iterator, List, TypeVar, Union
+from typing import Any, Dict, Iterator, List, Protocol, TypeVar, Union
 
 
 _T = TypeVar("_T")
