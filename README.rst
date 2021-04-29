@@ -17,6 +17,9 @@
 .. image:: https://readthedocs.org/projects/importlib-metadata/badge/?version=latest
    :target: https://importlib-metadata.readthedocs.io/en/latest/?badge=latest
 
+.. image:: https://img.shields.io/badge/skeleton-2021-informational
+   :target: https://blog.jaraco.com/skeleton
+
 
 Library to access the metadata for a Python package.
 
