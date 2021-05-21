@@ -26,6 +26,7 @@ The documentation here includes a general :ref:`usage <using>` guide.
    :maxdepth: 1
 
    using
+   api
    history
 
 
