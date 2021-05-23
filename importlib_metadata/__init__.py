@@ -15,6 +15,7 @@ import posixpath
 import collections
 
 from . import _adapters, _meta
+from ._meta import PackageMetadata
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -34,6 +35,7 @@ from typing import List, Mapping, Optional, Union
 __all__ = [
     'Distribution',
     'DistributionFinder',
+    'PackageMetadata',
     'PackageNotFoundError',
     'distribution',
     'distributions',
