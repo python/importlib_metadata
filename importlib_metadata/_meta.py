@@ -28,3 +28,17 @@ class PackageMetadata(Protocol):
         """
         A JSON-compatible form of the metadata.
         """
+
+
+class Path(Protocol):
+    def joinpath(self) -> 'Path':
+        ...  # pragma: no cover
+
+    def __div__(self) -> 'Path':
+        ...  # pragma: no cover
+
+    def parent(self) -> 'Path':
+        ...  # pragma: no cover
+
+    def read_text(self) -> str:
+        ...  # pragma: no cover

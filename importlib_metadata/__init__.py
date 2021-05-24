@@ -15,7 +15,7 @@ import posixpath
 import collections
 
 from . import _adapters, _meta
-from ._meta import PackageMetadata
+from ._meta import PackageMetadata, Path
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -783,7 +783,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
 
 class PathDistribution(Distribution):
-    def __init__(self, path):
+    def __init__(self, path: Path):
         """Construct a distribution from a path to the metadata directory.
 
         :param path: A pathlib.Path or similar object supporting
