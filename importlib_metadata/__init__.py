@@ -15,7 +15,6 @@ import posixpath
 import collections
 
 from . import _adapters, _meta
-from ._meta import PackageMetadata, Path
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -24,6 +23,7 @@ from ._compat import (
 )
 from ._functools import method_cache
 from ._itertools import unique_everseen
+from ._meta import PackageMetadata, Path
 
 from contextlib import suppress
 from importlib import import_module
