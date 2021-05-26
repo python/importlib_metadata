@@ -27,3 +27,15 @@ link_files = {
 
 # Be strict about any broken references:
 nitpicky = True
+
+# Support intersphinx links
+extensions += [
+    'sphinx.ext.intersphinx',
+]
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'importlib_resources': (
+        'https://importlib-resources.readthedocs.io/en/latest/',
+        None,
+    ),
+}
