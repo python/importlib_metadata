@@ -1,3 +1,8 @@
+v4.2.0
+=======
+
+* Prefer f-strings to ``.format`` calls.
+
 v4.1.0
 =======
 
