@@ -39,3 +39,10 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+# Workaround for #316
+nitpick_ignore = [
+    ('py:class', 'importlib_metadata.EntryPoints'),
+    ('py:class', 'importlib_metadata.SelectableGroups'),
+    ('py:class', 'importlib_metadata._meta._T'),
+]
