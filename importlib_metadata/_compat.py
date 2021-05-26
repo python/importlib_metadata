@@ -76,10 +76,10 @@ class PyPy_repr:
     def __compat_repr__(self):  # pragma: nocover
         def make_param(name):
             value = getattr(self, name)
-            return '{name}={value!r}'.format(**locals())
+            return f'{name}={value!r}'
 
         params = ', '.join(map(make_param, self._fields))
-        return 'EntryPoint({params})'.format(**locals())
+        return f'EntryPoint({params})'
 
     if affected:  # pragma: nocover
         __repr__ = __compat_repr__
