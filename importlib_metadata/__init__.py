@@ -23,7 +23,7 @@ from ._compat import (
 )
 from ._functools import method_cache
 from ._itertools import unique_everseen
-from ._meta import PackageMetadata
+from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
 from importlib import import_module
@@ -783,11 +783,10 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
 
 class PathDistribution(Distribution):
-    def __init__(self, path):
-        """Construct a distribution from a path to the metadata directory.
+    def __init__(self, path: SimplePath):
+        """Construct a distribution.
 
-        :param path: A pathlib.Path or similar object supporting
-                     .joinpath(), __div__, .parent, and .read_text().
+        :param path: SimplePath indicating the metadata directory.
         """
         self._path = path
 

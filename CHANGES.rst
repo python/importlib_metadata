@@ -3,6 +3,9 @@ v4.1.0
 
 * #312: Add support for metadata 2.2 (``Dynamic`` field).
 
+* #315: Add ``SimplePath`` protocol for interface clarity
+  in ``PathDistribution``.
+
 v4.0.1
 =======
 
