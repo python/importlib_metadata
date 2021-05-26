@@ -618,10 +618,11 @@ class DistributionFinder(MetaPathFinder):
         @property
         def path(self):
             """
-            The path that a distribution finder should search.
+            The sequence of directory path that a distribution finder
+            should search.
 
-            Typically refers to Python package paths and defaults
-            to ``sys.path``.
+            Typically refers to Python installed package paths such as
+            "site-packages" directories and defaults to ``sys.path``.
             """
             return vars(self).get('path', sys.path)
 
