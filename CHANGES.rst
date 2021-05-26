@@ -1,3 +1,9 @@
+v4.1.0
+=======
+
+* #315: Add ``SimplePath`` protocol for interface clarity
+  in ``PathDistribution``.
+
 v4.0.1
 =======
 
