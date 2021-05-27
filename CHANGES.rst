@@ -1,3 +1,10 @@
+v4.3.0
+=======
+
+* #317: De-duplication of distributions no longer requires
+  loading the full metadata for ``PathDistribution`` objects,
+  entry point loading performance by ~10x.
+
 v4.2.0
 =======
 
