@@ -15,6 +15,12 @@ except ImportError:  # pragma: no cover
     from typing_extensions import Protocol  # type: ignore
 
 
+if sys.version_info < (3, 7):
+    from singledispatch import singledispatch
+else:
+    from functools import singledispatch  # noqa: F401
+
+
 def install(cls):
     """
     Class decorator for installation on sys.meta_path.

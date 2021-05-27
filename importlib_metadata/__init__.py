@@ -20,6 +20,7 @@ from ._compat import (
     NullFinder,
     PyPy_repr,
     install,
+    singledispatch,
 )
 from ._functools import method_cache
 from ._itertools import unique_everseen
@@ -842,6 +843,18 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
+@singledispatch
+def normalized_name(dist: Distribution):
+    return Prepared.normalize(dist.name)
+
+
+@normalized_name.register
+def _(dist: PathDistribution):
+    stem = os.path.basename(str(dist._path))
+    name, sep, rest = stem.partition('-')
+    return name
+
+
 def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
@@ -859,7 +872,7 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
 
     :return: EntryPoints or SelectableGroups for all installed packages.
     """
-    unique = functools.partial(unique_everseen, key=operator.attrgetter('name'))
+    unique = functools.partial(unique_everseen, key=normalized_name)
     eps = itertools.chain.from_iterable(
         dist.entry_points for dist in unique(distributions())
     )
