@@ -1,3 +1,8 @@
+v4.3.0
+=======
+
+* Remove SelectableGroups deprecation exception for flake8.
+
 v4.2.0
 =======
 
