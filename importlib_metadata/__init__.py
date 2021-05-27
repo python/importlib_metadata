@@ -20,7 +20,6 @@ from ._compat import (
     NullFinder,
     PyPy_repr,
     install,
-    singledispatch,
 )
 from ._functools import method_cache
 from ._itertools import unique_everseen
@@ -500,6 +499,11 @@ class Distribution:
         return self.metadata['Name']
 
     @property
+    def _normalized_name(self):
+        """Return a normalized version of the name."""
+        return Prepared.normalize(self.name)
+
+    @property
     def version(self):
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
@@ -806,6 +810,12 @@ class PathDistribution(Distribution):
     def locate_file(self, path):
         return self._path.parent / path
 
+    @property
+    def _normalized_name(self):
+        stem = os.path.basename(str(self._path))
+        name, sep, rest = stem.partition('-')
+        return name
+
 
 def distribution(distribution_name):
     """Get the ``Distribution`` instance for the named package.
@@ -843,18 +853,6 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-@singledispatch
-def normalized_name(dist: Distribution):
-    return Prepared.normalize(dist.name)
-
-
-@normalized_name.register
-def _(dist: PathDistribution):
-    stem = os.path.basename(str(dist._path))
-    name, sep, rest = stem.partition('-')
-    return name
-
-
 def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
@@ -872,7 +870,8 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
 
     :return: EntryPoints or SelectableGroups for all installed packages.
     """
-    unique = functools.partial(unique_everseen, key=normalized_name)
+    norm_name = operator.attrgetter('_normalized_name')
+    unique = functools.partial(unique_everseen, key=norm_name)
     eps = itertools.chain.from_iterable(
         dist.entry_points for dist in unique(distributions())
     )
