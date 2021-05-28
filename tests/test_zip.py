@@ -79,3 +79,7 @@ class TestEgg(TestZip):
         for file in files('example'):
             path = str(file.dist.locate_file(file))
             assert '.egg/' in path, path
+
+    def test_normalized_name(self):
+        dist = distribution('example')
+        assert dist._normalized_name == 'example'
