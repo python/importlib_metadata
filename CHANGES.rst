@@ -3,6 +3,13 @@ v4.4.0
 
 * Remove SelectableGroups deprecation exception for flake8.
 
+v4.3.1
+=======
+
+* #320: Fix issue where normalized name for eggs was
+  incorrectly solicited, leading to metadata being
+  unavailable for eggs.
+
 v4.3.0
 =======
 
