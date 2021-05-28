@@ -812,7 +812,17 @@ class PathDistribution(Distribution):
 
     @property
     def _normalized_name(self):
+        """
+        Performance optimization: where possible, resolve the
+        normalized name from the file system path.
+        """
         stem = os.path.basename(str(self._path))
+        return self._name_from_stem(stem) or super()._normalized_name
+
+    def _name_from_stem(self, stem):
+        name, ext = os.path.splitext(stem)
+        if ext not in ('.dist-info', '.egg-info'):
+            return
         name, sep, rest = stem.partition('-')
         return name
 

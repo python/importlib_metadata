@@ -1,3 +1,10 @@
+v4.3.1
+=======
+
+* #320: Fix issue where normalized name for eggs was
+  incorrectly solicited, leading to metadata being
+  unavailable for eggs.
+
 v4.3.0
 =======
 
