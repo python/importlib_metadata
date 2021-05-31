@@ -1,3 +1,9 @@
+v4.5.0
+=======
+
+* #319: Remove ``SelectableGroups`` deprecation exception
+  for flake8.
+
 v4.4.0
 =======
 
@@ -16,8 +22,6 @@ v4.4.0
     for access by index. To avoid deprecation warnings,
     cast the result to a Sequence first
     (e.g. ``tuple(dist.entry_points)[0]``).
-
-* Remove SelectableGroups deprecation exception for flake8.
 
 v4.3.1
 =======
