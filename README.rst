@@ -40,7 +40,7 @@ were contributed to different versions in the standard library:
 
    * - importlib_metadata
      - stdlib
-   * - 4.2
+   * - 4.4
      - 3.10
    * - 1.4
      - 3.8
