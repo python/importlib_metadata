@@ -142,6 +142,7 @@ class APITests(
         """
         eps = distribution('distinfo-pkg').entry_points
         with warnings.catch_warnings(record=True) as caught:
+            warnings.filterwarnings("default", category=DeprecationWarning)
             eps[0]
 
         # check warning
