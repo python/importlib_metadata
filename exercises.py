@@ -1,4 +1,4 @@
-from pytest_perf.deco import extras
+from pytest_perf.deco import extras, deps, control
 
 
 @extras('perf')
@@ -34,3 +34,18 @@ def uncached_distribution_perf():
     # end warmup
     importlib.invalidate_caches()
     importlib_metadata.distribution('ipython')
+
+
+@deps('flake8')
+@control('v1.4.0')
+def entry_points_selected_perf():
+    import importlib_metadata  # end warmup
+
+    eps = importlib_metadata.entry_points()
+
+    try:
+        eps.select(group="flake8.extension")
+        eps.select(group="flake8.report")
+    except AttributeError:
+        eps["flake8.extension"]
+        eps["flake8.report"]
