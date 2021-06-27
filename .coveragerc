@@ -5,6 +5,7 @@ omit =
 	tests/*
 	prepare/*
 	*/_itertools.py
+	exercises.py
 
 [report]
 show_missing = True
