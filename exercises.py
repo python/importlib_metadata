@@ -36,7 +36,7 @@ def uncached_distribution_perf():
     importlib_metadata.distribution('ipython')
 
 
-@deps('flake8')
+@deps('flake8', 'pytest', 'twine', 'pre-commit')
 @control('v1.4.0')
 def entry_points_selected_perf():
     import importlib_metadata  # end warmup
