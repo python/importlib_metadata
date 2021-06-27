@@ -1,11 +1,19 @@
+v4.6.0
+======
+
+* #326: Performance tests now rely on
+  `pytest-perf <https://pypi.org/project/pytest-perf>`_.
+  To disable these tests, which require network access
+  and a git checkout, pass ``-p no:perf`` to pytest.
+
 v4.5.0
-=======
+======
 
 * #319: Remove ``SelectableGroups`` deprecation exception
   for flake8.
 
 v4.4.0
-=======
+======
 
 * #300: Restore compatibility in the result from
   ``Distribution.entry_points`` (``EntryPoints``) to honor
@@ -24,26 +32,26 @@ v4.4.0
     (e.g. ``tuple(dist.entry_points)[0]``).
 
 v4.3.1
-=======
+======
 
 * #320: Fix issue where normalized name for eggs was
   incorrectly solicited, leading to metadata being
   unavailable for eggs.
 
 v4.3.0
-=======
+======
 
 * #317: De-duplication of distributions no longer requires
   loading the full metadata for ``PathDistribution`` objects,
   entry point loading performance by ~10x.
 
 v4.2.0
-=======
+======
 
 * Prefer f-strings to ``.format`` calls.
 
 v4.1.0
-=======
+======
 
 * #312: Add support for metadata 2.2 (``Dynamic`` field).
 
@@ -51,12 +59,12 @@ v4.1.0
   in ``PathDistribution``.
 
 v4.0.1
-=======
+======
 
 * #306: Clearer guidance about compatibility in readme.
 
 v4.0.0
-=======
+======
 
 * #304: ``PackageMetadata`` as returned by ``metadata()``
   and ``Distribution.metadata()`` now provides normalized
