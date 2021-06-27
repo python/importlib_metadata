@@ -44,8 +44,11 @@ def entry_points_selected_perf():
     eps = importlib_metadata.entry_points()
 
     try:
-        eps.select(group="flake8.extension")
-        eps.select(group="flake8.report")
+        ext = eps.select(group="flake8.extension")
+        rep = eps.select(group="flake8.report")
     except AttributeError:
-        eps["flake8.extension"]
-        eps["flake8.report"]
+        ext = eps["flake8.extension"]
+        rep = eps["flake8.report"]
+
+    assert ext
+    assert rep
