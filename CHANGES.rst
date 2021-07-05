@@ -1,3 +1,9 @@
+v4.6.1
+======
+
+* #327: Deprecation warnings now honor call stack variance
+  on PyPy.
+
 v4.6.0
 ======
 

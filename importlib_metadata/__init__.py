@@ -7,6 +7,7 @@ import zipp
 import email
 import pathlib
 import operator
+import platform
 import textwrap
 import warnings
 import functools
@@ -46,6 +47,16 @@ __all__ = [
     'requires',
     'version',
 ]
+
+
+def _pypy_partial(val):
+    """
+    Adjust for variable stacklevel on partial under PyPy.
+
+    Workaround for #327.
+    """
+    is_pypy = platform.python_implementation() == 'PyPy'
+    return val + is_pypy
 
 
 class PackageNotFoundError(ModuleNotFoundError):
@@ -245,7 +256,7 @@ class DeprecatedList(list):
         warnings.warn,
         "EntryPoints list interface is deprecated. Cast to list if needed.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=_pypy_partial(2),
     )
 
     def __setitem__(self, *args, **kwargs):
@@ -394,7 +405,7 @@ class Deprecated:
         warnings.warn,
         "SelectableGroups dict interface is deprecated. Use select.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=_pypy_partial(2),
     )
 
     def __getitem__(self, name):
