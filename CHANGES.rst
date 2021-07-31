@@ -1,3 +1,9 @@
+v4.6.2
+======
+
+* bpo-44784: Avoid errors in test suite when
+  DeprecationWarnings are treated as errors.
+
 v4.6.1
 ======
 
