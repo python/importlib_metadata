@@ -1,3 +1,8 @@
+v4.6.3
+======
+
+* Moved workaround for #327 to ``_compat`` module.
+
 v4.6.2
 ======
 

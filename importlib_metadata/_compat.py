@@ -1,4 +1,5 @@
 import sys
+import platform
 
 
 __all__ = ['install', 'NullFinder', 'PyPy_repr', 'Protocol']
@@ -84,3 +85,13 @@ class PyPy_repr:
     if affected:  # pragma: nocover
         __repr__ = __compat_repr__
     del affected
+
+
+def pypy_partial(val):
+    """
+    Adjust for variable stacklevel on partial under PyPy.
+
+    Workaround for #327.
+    """
+    is_pypy = platform.python_implementation() == 'PyPy'
+    return val + is_pypy
