@@ -21,7 +21,7 @@ from importlib_metadata import (
 @contextlib.contextmanager
 def suppress_known_deprecation():
     with warnings.catch_warnings(record=True) as ctx:
-        warnings.simplefilter('default')
+        warnings.simplefilter('default', category=DeprecationWarning)
         yield ctx
 
 
