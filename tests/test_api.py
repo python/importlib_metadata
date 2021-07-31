@@ -3,6 +3,7 @@ import textwrap
 import unittest
 import warnings
 import importlib
+import contextlib
 
 from . import fixtures
 from importlib_metadata import (
@@ -15,6 +16,13 @@ from importlib_metadata import (
     requires,
     version,
 )
+
+
+@contextlib.contextmanager
+def suppress_known_deprecation():
+    with warnings.catch_warnings(record=True) as ctx:
+        warnings.simplefilter('default')
+        yield ctx
 
 
 class APITests(
@@ -122,7 +130,7 @@ class APITests(
         allowed casting those lists into maps by name using ``dict()``.
         Capture this now deprecated use-case.
         """
-        with warnings.catch_warnings(record=True) as caught:
+        with suppress_known_deprecation() as caught:
             eps = dict(entry_points(group='entries'))
 
         assert 'main' in eps
@@ -141,7 +149,7 @@ class APITests(
         See python/importlib_metadata#300 and bpo-44246.
         """
         eps = distribution('distinfo-pkg').entry_points
-        with warnings.catch_warnings(record=True) as caught:
+        with suppress_known_deprecation() as caught:
             eps[0]
 
         # check warning
@@ -155,7 +163,7 @@ class APITests(
         that callers using '.__getitem__()' are supported but warned to
         migrate.
         """
-        with warnings.catch_warnings(record=True):
+        with suppress_known_deprecation():
             entry_points()['entries'] == entry_points(group='entries')
 
             with self.assertRaises(KeyError):
@@ -167,7 +175,7 @@ class APITests(
         that callers using '.get()' are supported but warned to
         migrate.
         """
-        with warnings.catch_warnings(record=True):
+        with suppress_known_deprecation():
             entry_points().get('missing', 'default') == 'default'
             entry_points().get('entries', 'default') == entry_points()['entries']
             entry_points().get('missing', ()) == ()
