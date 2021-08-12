@@ -1,3 +1,9 @@
+v4.6.4
+======
+
+* #334: Correct ``SimplePath`` protocol to match ``pathlib``
+  protocol for ``__truediv``.
+
 v4.6.3
 ======
 
