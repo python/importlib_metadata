@@ -33,6 +33,10 @@ class PackageMetadata(Protocol):
 class SimplePath(Protocol):
     """
     A minimal subset of pathlib.Path required by PathDistribution.
+
+    >>> import pathlib
+    >>> import typing
+    >>> _: SimplePath = typing.cast(pathlib.Path, None)
     """
 
     def joinpath(self) -> 'SimplePath':
