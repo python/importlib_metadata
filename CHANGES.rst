@@ -2,7 +2,7 @@ v4.6.4
 ======
 
 * #334: Correct ``SimplePath`` protocol to match ``pathlib``
-  protocol for ``__truediv``.
+  protocol for ``__truediv__``.
 
 v4.6.3
 ======
