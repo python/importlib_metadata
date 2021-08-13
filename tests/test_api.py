@@ -115,7 +115,7 @@ class APITests(
             for ep in entries
         )
         # ns:sub doesn't exist in alt_pkg
-        assert 'ns:sub' not in entries
+        assert 'ns:sub' not in entries.names
 
     def test_entry_points_missing_name(self):
         with self.assertRaises(KeyError):
