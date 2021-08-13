@@ -180,6 +180,10 @@ class APITests(
             entry_points().get('entries', 'default') == entry_points()['entries']
             entry_points().get('missing', ()) == ()
 
+    def test_entry_point_as_dict(self):
+        ep = entry_points(group='entries')['main']
+        assert ep._asdict() == dict(name='main', group='entries', value='mod:main')
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
