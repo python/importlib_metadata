@@ -223,7 +223,9 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
 class TestEntryPoints(unittest.TestCase):
     def __init__(self, *args):
         super(TestEntryPoints, self).__init__(*args)
-        self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
+        self.ep = importlib_metadata.EntryPoint(
+            name='name', value='value', group='group'
+        )
 
     def test_entry_point_pickleable(self):
         revived = pickle.loads(pickle.dumps(self.ep))
@@ -263,8 +265,8 @@ class TestEntryPoints(unittest.TestCase):
         """
         sorted(
             [
-                EntryPoint('b', 'val', 'group'),
-                EntryPoint('a', 'val', 'group'),
+                EntryPoint(name='b', value='val', group='group'),
+                EntryPoint(name='a', value='val', group='group'),
             ]
         )
 

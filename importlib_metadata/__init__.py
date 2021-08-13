@@ -18,7 +18,6 @@ from . import _adapters, _meta
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
-    PyPy_repr,
     install,
     pypy_partial,
 )
@@ -126,9 +125,7 @@ class Sectioned:
         return line and not line.startswith('#')
 
 
-class EntryPoint(
-    PyPy_repr, collections.namedtuple('EntryPointBase', 'name value group')
-):
+class EntryPoint:
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points
@@ -159,6 +156,9 @@ class EntryPoint(
 
     dist: Optional['Distribution'] = None
 
+    def __init__(self, *, name, value, group):
+        vars(self).update(name=name, value=value, group=group)
+
     def load(self):
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
@@ -185,7 +185,7 @@ class EntryPoint(
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
     def _for(self, dist):
-        self.dist = dist
+        vars(self).update(dist=dist)
         return self
 
     def __iter__(self):
@@ -199,15 +199,30 @@ class EntryPoint(
         warnings.warn(msg, DeprecationWarning)
         return iter((self.name, self))
 
-    def __reduce__(self):
-        return (
-            self.__class__,
-            (self.name, self.value, self.group),
-        )
-
     def matches(self, **params):
         attrs = (getattr(self, param) for param in params)
         return all(map(operator.eq, params.values(), attrs))
+
+    def _key(self):
+        return tuple(getattr(self, key) for key in 'name value group'.split())
+
+    def __lt__(self, other):
+        return self._key() < other._key()
+
+    def __eq__(self, other):
+        return self._key() == other._key()
+
+    def __setattr__(self, name, value):
+        raise AttributeError("EntryPoint objects are immutable.")
+
+    def __repr__(self):
+        return (
+            f'EntryPoint(name={self.name!r}, value={self.value!r}, '
+            f'group={self.group!r})'
+        )
+
+    def __hash__(self):
+        return hash(self._key())
 
 
 class DeprecatedList(list):
@@ -356,15 +371,11 @@ class EntryPoints(DeprecatedList):
     def _from_text_for(cls, text, dist):
         return cls(ep._for(dist) for ep in cls._from_text(text))
 
-    @classmethod
-    def _from_text(cls, text):
-        return itertools.starmap(EntryPoint, cls._parse_groups(text or ''))
-
     @staticmethod
-    def _parse_groups(text):
+    def _from_text(text):
         return (
-            (item.value.name, item.value.value, item.name)
-            for item in Sectioned.section_pairs(text)
+            EntryPoint(name=item.value.name, value=item.value.value, group=item.name)
+            for item in Sectioned.section_pairs(text or '')
         )
 
 
