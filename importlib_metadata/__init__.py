@@ -209,6 +209,10 @@ class EntryPoint(
         attrs = (getattr(self, param) for param in params)
         return all(map(operator.eq, params.values(), attrs))
 
+    def _asdict(self):
+        # override _asdict, broken by custom __iter__.
+        return {key: getattr(self, key) for key in self._fields}
+
 
 class DeprecatedList(list):
     """
