@@ -1,3 +1,9 @@
+v4.7.0
+======
+
+* #337: ``EntryPoint`` objects now implement ``namedtuple._asdict``
+  to fulfill interface expecation of namedtuple objects.
+
 v4.6.4
 ======
 
