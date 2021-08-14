@@ -10,6 +10,14 @@ import contextlib
 from .py39compat import FS_NONASCII
 from typing import Dict, Union
 
+try:
+    from importlib import resources
+
+    getattr(resources, 'files')
+    getattr(resources, 'as_file')
+except (ImportError, AttributeError):
+    import importlib_resources as resources  # type: ignore
+
 
 @contextlib.contextmanager
 def tempdir():
@@ -285,3 +293,20 @@ def DALS(str):
 class NullFinder:
     def find_module(self, name):
         pass
+
+
+class ZipFixtures:
+    root = 'tests.data'
+
+    def _fixture_on_path(self, filename):
+        pkg_file = resources.files(self.root).joinpath(filename)
+        file = self.resources.enter_context(resources.as_file(pkg_file))
+        assert file.name.startswith('example-'), file.name
+        sys.path.insert(0, str(file))
+        self.resources.callback(sys.path.pop, 0)
+
+    def setUp(self):
+        # Add self.zip_name to the front of sys.path.
+        self.resources = contextlib.ExitStack()
+        self.addCleanup(self.resources.close)
+        self._fixture_on_path(self.zip_name)
