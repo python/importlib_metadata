@@ -204,7 +204,7 @@ class EntryPoint:
         return all(map(operator.eq, params.values(), attrs))
 
     def _key(self):
-        return tuple(getattr(self, key) for key in 'name value group'.split())
+        return self.name, self.value, self.group
 
     def __lt__(self, other):
         return self._key() < other._key()
