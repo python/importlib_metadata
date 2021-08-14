@@ -309,4 +309,3 @@ class ZipFixtures:
         # Add self.zip_name to the front of sys.path.
         self.resources = contextlib.ExitStack()
         self.addCleanup(self.resources.close)
-        self._fixture_on_path(self.zip_name)

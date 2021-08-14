@@ -13,7 +13,9 @@ from importlib_metadata import (
 
 
 class TestZip(fixtures.ZipFixtures, unittest.TestCase):
-    zip_name = 'example-21.12-py3-none-any.whl'
+    def setUp(self):
+        super().setUp()
+        self._fixture_on_path('example-21.12-py3-none-any.whl')
 
     def test_zip_version(self):
         self.assertEqual(version('example'), '21.12')
@@ -46,7 +48,9 @@ class TestZip(fixtures.ZipFixtures, unittest.TestCase):
 
 
 class TestEgg(TestZip):
-    zip_name = 'example-21.12-py3.6.egg'
+    def setUp(self):
+        super().setUp()
+        self._fixture_on_path('example-21.12-py3.6.egg')
 
     def test_files(self):
         for file in files('example'):
