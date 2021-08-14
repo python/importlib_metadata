@@ -17,6 +17,7 @@ from importlib_metadata import (
     distributions,
     entry_points,
     metadata,
+    packages_distributions,
     version,
 )
 
@@ -282,3 +283,9 @@ class FileSystem(
             prefix=self.site_dir,
         )
         list(distributions())
+
+
+class PackagesDistributionsTest(fixtures.ZipFixtures, unittest.TestCase):
+    def test_packages_distributions_example(self):
+        self._fixture_on_path('example-21.12-py3-none-any.whl')
+        assert packages_distributions()['example'] == ['example']
