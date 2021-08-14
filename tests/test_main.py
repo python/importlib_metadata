@@ -289,3 +289,11 @@ class PackagesDistributionsTest(fixtures.ZipFixtures, unittest.TestCase):
     def test_packages_distributions_example(self):
         self._fixture_on_path('example-21.12-py3-none-any.whl')
         assert packages_distributions()['example'] == ['example']
+
+    def test_packages_distributions_example2(self):
+        """
+        Test packages_distributions on a wheel built
+        by trampolim.
+        """
+        self._fixture_on_path('example2-1.0.0-py3-none-any.whl')
+        assert packages_distributions()['example2'] == ['example2']
