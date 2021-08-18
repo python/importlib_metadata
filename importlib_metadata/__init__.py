@@ -339,7 +339,7 @@ class EntryPoints(DeprecatedList):
         """
         Return the set of all names of all entry points.
         """
-        return set(ep.name for ep in self)
+        return {ep.name for ep in self}
 
     @property
     def groups(self):
@@ -350,7 +350,7 @@ class EntryPoints(DeprecatedList):
         >>> EntryPoints().groups
         set()
         """
-        return set(ep.group for ep in self)
+        return {ep.group for ep in self}
 
     @classmethod
     def _from_text_for(cls, text, dist):
