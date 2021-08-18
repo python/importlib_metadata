@@ -206,14 +206,8 @@ class APITests(
                 file.read_text()
 
     def test_file_hash_repr(self):
-        try:
-            assertRegex = self.assertRegex
-        except AttributeError:
-            # Python 2
-            assertRegex = self.assertRegexpMatches
-
         util = [p for p in files('distinfo-pkg') if p.name == 'mod.py'][0]
-        assertRegex(repr(util.hash), '<FileHash mode: sha256 value: .*>')
+        self.assertRegex(repr(util.hash), '<FileHash mode: sha256 value: .*>')
 
     def test_files_dist_info(self):
         self._test_files(files('distinfo-pkg'))
