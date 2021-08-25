@@ -296,7 +296,7 @@ class DeprecatedList(list):
         return super().sort(*args, **kwargs)
 
     def __eq__(self, other):
-        if not isinstance(other, tuple):
+        if isinstance(other, list):
             self._warn()
             other = tuple(other)
 
