@@ -2,18 +2,13 @@ import sys
 import platform
 
 
-__all__ = ['install', 'NullFinder', 'PyPy_repr', 'Protocol']
+__all__ = ['install', 'NullFinder', 'PyPy_repr', 'Protocol', 'SupportsIndex']
 
 
-try:
-    from typing import Protocol
-except ImportError:  # pragma: no cover
-    """
-    pytest-mypy complains here because:
-    error: Incompatible import of "Protocol" (imported name has type
-    "typing_extensions._SpecialForm", local name has type "typing._SpecialForm")
-    """
-    from typing_extensions import Protocol  # type: ignore
+if sys.version_info >= (3, 8):
+    from typing import Protocol, SupportsIndex
+else:
+    from typing_extensions import Protocol, SupportsIndex
 
 
 def install(cls):

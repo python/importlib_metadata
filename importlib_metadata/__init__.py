@@ -19,6 +19,7 @@ from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
     PyPy_repr,
+    SupportsIndex,
     install,
     pypy_partial,
 )
@@ -314,7 +315,7 @@ class EntryPoints(DeprecatedList):
         """
         Get the EntryPoint in self matching name.
         """
-        if isinstance(name, int):
+        if isinstance(name, (SupportsIndex, slice)):
             warnings.warn(
                 "Accessing entry points by index is deprecated. "
                 "Cast to tuple if needed.",
