@@ -467,12 +467,10 @@ class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
     def read_text(self, encoding='utf-8'):
-        with self.locate().open(encoding=encoding) as stream:
-            return stream.read()
+        return self.locate().read_text(encoding=encoding)
 
     def read_binary(self):
-        with self.locate().open('rb') as stream:
-            return stream.read()
+        return self.locate().read_bytes()
 
     def locate(self):
         """Return a path-like object for this path"""

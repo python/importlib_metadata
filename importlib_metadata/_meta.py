@@ -44,5 +44,8 @@ class SimplePath(Protocol):
     def parent(self) -> 'SimplePath':
         ...  # pragma: no cover
 
-    def read_text(self) -> str:
+    def read_text(self, encoding: str = ...) -> str:
+        ...  # pragma: no cover
+
+    def read_bytes(self) -> bytes:
         ...  # pragma: no cover
