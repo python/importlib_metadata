@@ -368,13 +368,12 @@ class EntryPoints(DeprecatedList):
         )
 
 
-class Deprecated:
+class DeprecatedDict(dict):
     """
     Compatibility add-in for mapping to indicate that
     mapping behavior is deprecated.
 
     >>> recwarn = getfixture('recwarn')
-    >>> class DeprecatedDict(Deprecated, dict): pass
     >>> dd = DeprecatedDict(foo='bar')
     >>> dd.get('baz', None)
     >>> dd['foo']
@@ -423,7 +422,7 @@ class Deprecated:
         return super().values()
 
 
-class SelectableGroups(Deprecated, dict):
+class SelectableGroups(DeprecatedDict):
     """
     A backward- and forward-compatible result from
     entry_points that fully implements the dict interface.
@@ -441,7 +440,7 @@ class SelectableGroups(Deprecated, dict):
         """
         Reconstruct a list of all entrypoints from the groups.
         """
-        groups = super(Deprecated, self).values()
+        groups = super(DeprecatedDict, self).values()
         return EntryPoints(itertools.chain.from_iterable(groups))
 
     @property
