@@ -1,3 +1,10 @@
+v4.7.0
+======
+
+* #330: In ``packages_distributions``, now infer top-level
+  names from ``.files()`` when a ``top-level.txt``
+  (Setuptools-specific metadata) is not present.
+
 v4.6.4
 ======
 
