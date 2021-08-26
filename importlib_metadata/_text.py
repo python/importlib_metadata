@@ -94,8 +94,8 @@ class FoldedCase(str):
     def lower(self):
         return super().lower()
 
-    def index(self, sub):
-        return self.lower().index(sub.lower())
+    def index(self, sub, start=None, end=None):
+        return self.lower().index(sub.lower(), start, end)
 
     def split(self, splitter=None, maxsplit=0):
         if splitter is None:
