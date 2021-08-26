@@ -1,6 +1,8 @@
 import re
 
+from ._compat import SupportsIndex
 from ._functools import method_cache
+from typing import List, Optional
 
 
 # from jaraco.text 3.5
@@ -67,37 +69,42 @@ class FoldedCase(str):
     False
     """
 
-    def __lt__(self, other):
+    def __lt__(self, other: str) -> bool:
         return self.lower() < other.lower()
 
-    def __gt__(self, other):
+    def __gt__(self, other: str) -> bool:
         return self.lower() > other.lower()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, str) and self.lower() == other.lower()
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return isinstance(other, str) and self.lower() != other.lower()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.lower())
 
-    def __contains__(self, other):
+    def __contains__(self, other: object) -> bool:
         return isinstance(other, str) and super().lower().__contains__(other.lower())
 
-    def in_(self, other):
+    def in_(self, other: str) -> bool:
         "Does self appear in other?"
         return self in FoldedCase(other)
 
     # cache lower since it's likely to be called frequently.
     @method_cache
-    def lower(self):
+    def lower(self) -> str:
         return super().lower()
 
-    def index(self, sub, start=None, end=None):
+    def index(
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
+    ) -> int:
         return self.lower().index(sub.lower(), start, end)
 
-    def split(self, splitter=None, maxsplit=0):
+    def split(self, splitter: Optional[str] = None, maxsplit: int = 0) -> List[str]:
         if splitter is None:
             return super().split()
         pattern = re.compile(re.escape(splitter), re.I)

@@ -1,4 +1,5 @@
 from ._compat import Protocol
+from os import PathLike
 from typing import Any, Dict, Iterator, List, TypeVar, Union
 
 
@@ -35,12 +36,13 @@ class SimplePath(Protocol):
     A minimal subset of pathlib.Path required by PathDistribution.
     """
 
-    def joinpath(self) -> 'SimplePath':
+    def joinpath(self, *other: Union[str, 'PathLike[str]']) -> 'SimplePath':
         ...  # pragma: no cover
 
-    def __truediv__(self) -> 'SimplePath':
+    def __truediv__(self, other: Union[str, 'PathLike[str]']) -> 'SimplePath':
         ...  # pragma: no cover
 
+    @property
     def parent(self) -> 'SimplePath':
         ...  # pragma: no cover
 

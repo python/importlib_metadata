@@ -7,11 +7,11 @@ collect_ignore = [
 ]
 
 
-def pytest_configure():
+def pytest_configure() -> None:
     remove_importlib_metadata()
 
 
-def remove_importlib_metadata():
+def remove_importlib_metadata() -> None:
     """
     Because pytest imports importlib_metadata, the coverage
     reports are broken (#322). So work around the issue by

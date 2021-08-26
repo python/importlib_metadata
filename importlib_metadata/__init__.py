@@ -18,6 +18,7 @@ from . import _adapters, _meta
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
+    Protocol,
     PyPy_repr,
     SupportsIndex,
     install,
@@ -31,7 +32,26 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    KeysView,
+    List,
+    Mapping,
+    Match,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    ValuesView,
+    overload,
+)
 
 
 __all__ = [
@@ -53,11 +73,13 @@ __all__ = [
 class PackageNotFoundError(ModuleNotFoundError):
     """The package was not found."""
 
-    def __str__(self):
+    args: Tuple[str]
+
+    def __str__(self) -> str:
         return f"No package metadata was found for {self.name}"
 
     @property
-    def name(self):
+    def name(self) -> str:  # type: ignore[override]
         (name,) = self.args
         return name
 
@@ -104,7 +126,7 @@ class Sectioned:
     ).lstrip()
 
     @classmethod
-    def section_pairs(cls, text):
+    def section_pairs(cls, text: str) -> Iterator[Pair]:
         return (
             section._replace(value=Pair.parse(section.value))
             for section in cls.read(text, filter_=cls.valid)
@@ -112,7 +134,9 @@ class Sectioned:
         )
 
     @staticmethod
-    def read(text, filter_=None):
+    def read(
+        text: str, filter_: Optional[Callable[[str], bool]] = None
+    ) -> Iterator[Pair]:
         lines = filter(filter_, map(str.strip, text.splitlines()))
         name = None
         for value in lines:
@@ -123,13 +147,17 @@ class Sectioned:
             yield Pair(name, value)
 
     @staticmethod
-    def valid(line):
-        return line and not line.startswith('#')
+    def valid(line: str) -> bool:
+        return line != '' and not line.startswith('#')
 
 
-class EntryPoint(
-    PyPy_repr, collections.namedtuple('EntryPointBase', 'name value group')
-):
+class EntryPointBase(NamedTuple):
+    name: str
+    value: str
+    group: str
+
+
+class EntryPoint(PyPy_repr, EntryPointBase):
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points
@@ -160,36 +188,40 @@ class EntryPoint(
 
     dist: 'Distribution'
 
-    def load(self):
+    def load(self) -> Any:
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
         return the named object.
         """
         match = self.pattern.match(self.value)
+        assert match is not None
         module = import_module(match.group('module'))
         attrs = filter(None, (match.group('attr') or '').split('.'))
         return functools.reduce(getattr, attrs, module)
 
     @property
-    def module(self):
+    def module(self) -> str:
         match = self.pattern.match(self.value)
+        assert match is not None
         return match.group('module')
 
     @property
-    def attr(self):
+    def attr(self) -> str:
         match = self.pattern.match(self.value)
+        assert match is not None
         return match.group('attr')
 
     @property
-    def extras(self):
+    def extras(self) -> List[Match[str]]:
         match = self.pattern.match(self.value)
+        assert match is not None
         return list(re.finditer(r'\w+', match.group('extras') or ''))
 
-    def _for(self, dist):
+    def _for(self, dist: 'Distribution') -> 'EntryPoint':
         self.dist = dist
         return self
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[object]:  # type: ignore[override]
         """
         Supply iter so one may construct dicts of EntryPoints by name.
         """
@@ -200,18 +232,28 @@ class EntryPoint(
         warnings.warn(msg, DeprecationWarning)
         return iter((self.name, self))
 
-    def __reduce__(self):
+    def __reduce__(self) -> Tuple[Type['EntryPoint'], Tuple[str, str, str]]:
         return (
             self.__class__,
             (self.name, self.value, self.group),
         )
 
-    def matches(self, **params):
+    def matches(self, **params: str) -> bool:
         attrs = (getattr(self, param) for param in params)
         return all(map(operator.eq, params.values(), attrs))
 
 
-class DeprecatedList(list):
+class _SupportsLessThan(Protocol):
+    def __lt__(self, __other: Any) -> bool:
+        ...  # pragma: no cover
+
+
+_T = TypeVar('_T')
+_DeprecatedListT = TypeVar('_DeprecatedListT', bound='DeprecatedList[Any]')
+_SupportsLessThanT = TypeVar('_SupportsLessThanT', bound=_SupportsLessThan)
+
+
+class DeprecatedList(List[_T]):
     """
     Allow an otherwise immutable object to implement mutability
     for compatibility.
@@ -250,53 +292,83 @@ class DeprecatedList(list):
         stacklevel=pypy_partial(2),
     )
 
-    def __setitem__(self, *args, **kwargs):
-        self._warn()
-        return super().__setitem__(*args, **kwargs)
+    @overload
+    def __setitem__(self, index: SupportsIndex, value: _T) -> None:
+        ...  # pragma: no cover
 
-    def __delitem__(self, *args, **kwargs):
-        self._warn()
-        return super().__delitem__(*args, **kwargs)
+    @overload
+    def __setitem__(self, index: slice, value: Iterable[_T]) -> None:
+        ...  # pragma: no cover
 
-    def append(self, *args, **kwargs):
+    def __setitem__(self, index: Union[SupportsIndex, slice], value: Any) -> None:
         self._warn()
-        return super().append(*args, **kwargs)
+        super().__setitem__(index, value)
 
-    def reverse(self, *args, **kwargs):
+    def __delitem__(self, index: Union[SupportsIndex, slice]) -> None:
         self._warn()
-        return super().reverse(*args, **kwargs)
+        super().__delitem__(index)
 
-    def extend(self, *args, **kwargs):
+    def append(self, value: _T) -> None:
         self._warn()
-        return super().extend(*args, **kwargs)
+        super().append(value)
 
-    def pop(self, *args, **kwargs):
+    def reverse(self) -> None:
         self._warn()
-        return super().pop(*args, **kwargs)
+        super().reverse()
 
-    def remove(self, *args, **kwargs):
+    def extend(self, values: Iterable[_T]) -> None:
         self._warn()
-        return super().remove(*args, **kwargs)
+        super().extend(values)
 
-    def __iadd__(self, *args, **kwargs):
+    def pop(self, index: int = -1) -> _T:
         self._warn()
-        return super().__iadd__(*args, **kwargs)
+        return super().pop(index)
 
-    def __add__(self, other):
+    def remove(self, value: _T) -> None:
+        self._warn()
+        super().remove(value)
+
+    def __iadd__(self: _DeprecatedListT, values: Iterable[_T]) -> _DeprecatedListT:
+        self._warn()
+        return super().__iadd__(values)
+
+    def __add__(
+        self: _DeprecatedListT, other: Union[List[_T], Tuple[_T, ...]]
+    ) -> _DeprecatedListT:
         if not isinstance(other, tuple):
             self._warn()
             other = tuple(other)
         return self.__class__(tuple(self) + other)
 
-    def insert(self, *args, **kwargs):
+    def insert(self, index: int, value: _T) -> None:
         self._warn()
-        return super().insert(*args, **kwargs)
+        super().insert(index, value)
 
-    def sort(self, *args, **kwargs):
+    @overload
+    def sort(
+        self: 'DeprecatedList[_SupportsLessThanT]',
+        *,
+        key: None = ...,
+        reverse: bool = ...,
+    ) -> None:
+        ...  # pragma: no cover
+
+    @overload
+    def sort(
+        self, *, key: Callable[[_T], _SupportsLessThan], reverse: bool = ...
+    ) -> None:
+        ...  # pragma: no cover
+
+    def sort(
+        self,
+        *,
+        key: Optional[Callable[[_T], _SupportsLessThan]] = None,
+        reverse: bool = False,
+    ) -> None:
         self._warn()
-        return super().sort(*args, **kwargs)
+        super().sort(key=key, reverse=reverse)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, list):
             self._warn()
             other = tuple(other)
@@ -304,14 +376,28 @@ class DeprecatedList(list):
         return tuple(self).__eq__(other)
 
 
-class EntryPoints(DeprecatedList):
+class EntryPoints(DeprecatedList[EntryPoint]):
     """
     An immutable collection of selectable EntryPoint objects.
     """
 
     __slots__ = ()
 
-    def __getitem__(self, name):  # -> EntryPoint:
+    @overload
+    def __getitem__(self, name: SupportsIndex) -> EntryPoint:
+        ...  # pragma: no cover
+
+    @overload
+    def __getitem__(self, name: slice) -> List[EntryPoint]:
+        ...  # pragma: no cover
+
+    @overload
+    def __getitem__(self, name: str) -> EntryPoint:
+        ...  # pragma: no cover
+
+    def __getitem__(
+        self, name: Union[SupportsIndex, slice, str]
+    ) -> Union[EntryPoint, List[EntryPoint]]:
         """
         Get the EntryPoint in self matching name.
         """
@@ -328,7 +414,7 @@ class EntryPoints(DeprecatedList):
         except StopIteration:
             raise KeyError(name)
 
-    def select(self, **params):
+    def select(self, **params: str) -> 'EntryPoints':
         """
         Select entry points from self that match the
         given parameters (typically group and/or name).
@@ -336,14 +422,14 @@ class EntryPoints(DeprecatedList):
         return EntryPoints(ep for ep in self if ep.matches(**params))
 
     @property
-    def names(self):
+    def names(self) -> Set[str]:
         """
         Return the set of all names of all entry points.
         """
         return {ep.name for ep in self}
 
     @property
-    def groups(self):
+    def groups(self) -> Set[str]:
         """
         Return the set of all groups of all entry points.
 
@@ -354,22 +440,26 @@ class EntryPoints(DeprecatedList):
         return {ep.group for ep in self}
 
     @classmethod
-    def _from_text_for(cls, text, dist):
+    def _from_text_for(cls, text: str, dist: 'Distribution') -> 'EntryPoints':
         return cls(ep._for(dist) for ep in cls._from_text(text))
 
     @classmethod
-    def _from_text(cls, text):
+    def _from_text(cls, text: str) -> Iterator['EntryPoint']:
         return itertools.starmap(EntryPoint, cls._parse_groups(text or ''))
 
     @staticmethod
-    def _parse_groups(text):
+    def _parse_groups(text: str) -> Iterator[Tuple[str, str, Optional[str]]]:
         return (
             (item.value.name, item.value.value, item.name)
             for item in Sectioned.section_pairs(text)
         )
 
 
-class DeprecatedDict(dict):
+_K = TypeVar('_K')
+_V = TypeVar('_V')
+
+
+class DeprecatedDict(Dict[_K, _V]):
     """
     Compatibility add-in for mapping to indicate that
     mapping behavior is deprecated.
@@ -398,46 +488,54 @@ class DeprecatedDict(dict):
         stacklevel=pypy_partial(2),
     )
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: _K) -> _V:
         self._warn()
         return super().__getitem__(name)
 
-    def get(self, name, default=None):
+    @overload
+    def get(self, name: _K) -> Optional[_V]:
+        ...  # pragma: no cover
+
+    @overload
+    def get(self, name: _K, default: _T) -> Union[_V, _T]:
+        ...  # pragma: no cover
+
+    def get(self, name: _K, default: Optional[_T] = None) -> Union[_V, _T, None]:
         self._warn()
         return super().get(name, default)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_K]:
         self._warn()
         return super().__iter__()
 
-    def __contains__(self, *args):
+    def __contains__(self, value: object) -> bool:
         self._warn()
-        return super().__contains__(*args)
+        return super().__contains__(value)
 
-    def keys(self):
+    def keys(self) -> KeysView[_K]:
         self._warn()
         return super().keys()
 
-    def values(self):
+    def values(self) -> ValuesView[_V]:
         self._warn()
         return super().values()
 
 
-class SelectableGroups(DeprecatedDict):
+class SelectableGroups(DeprecatedDict[str, EntryPoints]):
     """
     A backward- and forward-compatible result from
     entry_points that fully implements the dict interface.
     """
 
     @classmethod
-    def load(cls, eps):
+    def load(cls, eps: Iterable[EntryPoint]) -> 'SelectableGroups':
         by_group = operator.attrgetter('group')
         ordered = sorted(eps, key=by_group)
         grouped = itertools.groupby(ordered, by_group)
         return cls((group, EntryPoints(eps)) for group, eps in grouped)
 
     @property
-    def _all(self):
+    def _all(self) -> EntryPoints:
         """
         Reconstruct a list of all entrypoints from the groups.
         """
@@ -445,11 +543,11 @@ class SelectableGroups(DeprecatedDict):
         return EntryPoints(itertools.chain.from_iterable(groups))
 
     @property
-    def groups(self):
+    def groups(self) -> Set[str]:
         return self._all.groups
 
     @property
-    def names(self):
+    def names(self) -> Set[str]:
         """
         for coverage:
         >>> SelectableGroups().names
@@ -457,7 +555,31 @@ class SelectableGroups(DeprecatedDict):
         """
         return self._all.names
 
-    def select(self, **params):
+    @overload
+    def select(self) -> 'SelectableGroups':
+        ...  # pragma: no cover
+
+    @overload
+    def select(self, *, name: str, **params: str) -> EntryPoints:
+        ...  # pragma: no cover
+
+    @overload
+    def select(self, *, value: str, **params: str) -> EntryPoints:
+        ...  # pragma: no cover
+
+    @overload
+    def select(self, *, group: str, **params: str) -> EntryPoints:
+        ...  # pragma: no cover
+
+    @overload
+    def select(self, *, module: str, **params: str) -> EntryPoints:
+        ...  # pragma: no cover
+
+    @overload
+    def select(self, *, attr: str, **params: str) -> EntryPoints:
+        ...  # pragma: no cover
+
+    def select(self, **params: str) -> Union['SelectableGroups', EntryPoints]:
         if not params:
             return self
         return self._all.select(**params)
@@ -466,22 +588,26 @@ class SelectableGroups(DeprecatedDict):
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
-    def read_text(self, encoding='utf-8'):
+    hash: Optional['FileHash']
+    size: Optional[int]
+    dist: 'Distribution'
+
+    def read_text(self, encoding: str = 'utf-8') -> str:
         return self.locate().read_text(encoding=encoding)
 
-    def read_binary(self):
+    def read_binary(self) -> bytes:
         return self.locate().read_bytes()
 
-    def locate(self):
+    def locate(self) -> SimplePath:
         """Return a path-like object for this path"""
         return self.dist.locate_file(self)
 
 
 class FileHash:
-    def __init__(self, spec):
+    def __init__(self, spec: str) -> None:
         self.mode, _, self.value = spec.partition('=')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<FileHash mode: {self.mode} value: {self.value}>'
 
 
@@ -489,7 +615,7 @@ class Distribution:
     """A Python distribution package."""
 
     @abc.abstractmethod
-    def read_text(self, filename):
+    def read_text(self, filename: Union[str, 'os.PathLike[str]']) -> Optional[str]:
         """Attempt to load metadata file given by the name.
 
         :param filename: The name of the file in the distribution info.
@@ -497,14 +623,14 @@ class Distribution:
         """
 
     @abc.abstractmethod
-    def locate_file(self, path):
+    def locate_file(self, path: Union[str, 'os.PathLike[str]']) -> SimplePath:
         """
         Given a path to a file in this distribution, return a path
         to it.
         """
 
     @classmethod
-    def from_name(cls, name):
+    def from_name(cls, name: str) -> 'Distribution':
         """Return the Distribution for the given package name.
 
         :param name: The name of the distribution package to search for.
@@ -522,7 +648,7 @@ class Distribution:
             raise PackageNotFoundError(name)
 
     @classmethod
-    def discover(cls, **kwargs):
+    def discover(cls, **kwargs: Any) -> Iterator['PathDistribution']:
         """Return an iterable of Distribution objects for all packages.
 
         Pass a ``context`` or pass keyword arguments for constructing
@@ -531,7 +657,7 @@ class Distribution:
         :context: A ``DistributionFinder.Context`` object.
         :return: Iterable of Distribution objects for all packages.
         """
-        context = kwargs.pop('context', None)
+        context: Optional[DistributionFinder.Context] = kwargs.pop('context', None)
         if context and kwargs:
             raise ValueError("cannot accept context and kwargs")
         context = context or DistributionFinder.Context(**kwargs)
@@ -540,7 +666,7 @@ class Distribution:
         )
 
     @staticmethod
-    def at(path):
+    def at(path: Union[str, 'os.PathLike[str]']) -> 'PathDistribution':
         """Return a Distribution for the indicated metadata path
 
         :param path: a string or path-like object
@@ -549,7 +675,9 @@ class Distribution:
         return PathDistribution(pathlib.Path(path))
 
     @staticmethod
-    def _discover_resolvers():
+    def _discover_resolvers() -> Iterator[
+        Callable[['DistributionFinder.Context'], Iterator['PathDistribution']]
+    ]:
         """Search the meta_path for resolvers."""
         declared = (
             getattr(finder, 'find_distributions', None) for finder in sys.meta_path
@@ -557,7 +685,7 @@ class Distribution:
         return filter(None, declared)
 
     @classmethod
-    def _local(cls, root='.'):
+    def _local(cls, root: str = '.') -> 'PathDistribution':
         from pep517 import build, meta
 
         system = build.compat_system(root)
@@ -582,30 +710,33 @@ class Distribution:
             # effect is to just end up using the PathDistribution's self._path
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
+            or ''
         )
         return _adapters.Message(email.message_from_string(text))
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
         return self.metadata['Name']
 
     @property
-    def _normalized_name(self):
+    def _normalized_name(self) -> str:
         """Return a normalized version of the name."""
         return Prepared.normalize(self.name)
 
     @property
-    def version(self):
+    def version(self) -> str:
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
 
     @property
-    def entry_points(self):
-        return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
+    def entry_points(self) -> EntryPoints:
+        return EntryPoints._from_text_for(
+            self.read_text('entry_points.txt') or '', self
+        )
 
     @property
-    def files(self):
+    def files(self) -> Optional[List[PackagePath]]:
         """Files in this distribution.
 
         :return: List of PackagePath for this distribution or None
@@ -617,23 +748,29 @@ class Distribution:
         """
         file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
-        def make_file(name, hash=None, size_str=None):
+        def make_file(
+            name: str, hash: Optional[str] = None, size_str: Optional[str] = None
+        ) -> PackagePath:
             result = PackagePath(name)
             result.hash = FileHash(hash) if hash else None
             result.size = int(size_str) if size_str else None
             result.dist = self
             return result
 
-        return file_lines and list(starmap(make_file, csv.reader(file_lines)))
+        return (
+            None
+            if file_lines is None
+            else list(starmap(make_file, csv.reader(file_lines)))
+        )
 
-    def _read_files_distinfo(self):
+    def _read_files_distinfo(self) -> Optional[Iterable[str]]:
         """
         Read the lines of RECORD
         """
         text = self.read_text('RECORD')
         return text and text.splitlines()
 
-    def _read_files_egginfo(self):
+    def _read_files_egginfo(self) -> Optional[Iterable[str]]:
         """
         SOURCES.txt might contain literal commas, so wrap each line
         in quotes.
@@ -642,24 +779,26 @@ class Distribution:
         return text and map('"{}"'.format, text.splitlines())
 
     @property
-    def requires(self):
+    def requires(self) -> Optional[List[str]]:
         """Generated requirements specified for this Distribution"""
         reqs = self._read_dist_info_reqs() or self._read_egg_info_reqs()
-        return reqs and list(reqs)
+        return None if reqs is None else list(reqs)
 
-    def _read_dist_info_reqs(self):
+    def _read_dist_info_reqs(self) -> List[str]:
         return self.metadata.get_all('Requires-Dist')
 
-    def _read_egg_info_reqs(self):
+    def _read_egg_info_reqs(self) -> Optional[Iterable[str]]:
         source = self.read_text('requires.txt')
         return source and self._deps_from_requires_text(source)
 
     @classmethod
-    def _deps_from_requires_text(cls, source):
+    def _deps_from_requires_text(cls, source: str) -> Iterator[str]:
         return cls._convert_egg_info_reqs_to_simple_reqs(Sectioned.read(source))
 
     @staticmethod
-    def _convert_egg_info_reqs_to_simple_reqs(sections):
+    def _convert_egg_info_reqs_to_simple_reqs(
+        sections: Iterator[Pair],
+    ) -> Iterator[str]:
         """
         Historically, setuptools would solicit and store 'extra'
         requirements, including those with environment markers,
@@ -670,10 +809,10 @@ class Distribution:
         latter. See _test_deps_from_requires_text for an example.
         """
 
-        def make_condition(name):
+        def make_condition(name: str) -> str:
             return name and f'extra == "{name}"'
 
-        def parse_condition(section):
+        def parse_condition(section: Optional[str]) -> str:
             section = section or ''
             extra, sep, markers = section.partition(':')
             if extra and markers:
@@ -702,17 +841,17 @@ class DistributionFinder(MetaPathFinder):
         parameters defined below when appropriate.
         """
 
-        name = None
+        name: Optional[str] = None
         """
         Specific name for which a distribution finder should match.
         A name of ``None`` matches all distributions.
         """
 
-        def __init__(self, **kwargs):
+        def __init__(self, **kwargs: object) -> None:
             vars(self).update(kwargs)
 
         @property
-        def path(self):
+        def path(self) -> str:
             """
             The sequence of directory path that a distribution finder
             should search.
@@ -723,7 +862,9 @@ class DistributionFinder(MetaPathFinder):
             return vars(self).get('path', sys.path)
 
     @abc.abstractmethod
-    def find_distributions(self, context=Context()):
+    def find_distributions(
+        self, context: Context = Context()
+    ) -> Iterable['PathDistribution']:
         """
         Find distributions.
 
@@ -739,50 +880,51 @@ class FastPath:
     children.
     """
 
-    @functools.lru_cache()  # type: ignore
-    def __new__(cls, root):
-        return super().__new__(cls)
+    @functools.lru_cache()  # type: ignore[misc]
+    def __new__(cls, root: Union[str, 'os.PathLike[str]']) -> 'FastPath':
+        return super().__new__(cls)  # type: ignore[no-any-return]
 
-    def __init__(self, root):
+    def __init__(self, root: Union[str, 'os.PathLike[str]']) -> None:
         self.root = str(root)
 
-    def joinpath(self, child):
+    def joinpath(self, child: Union[str, 'os.PathLike[str]']) -> pathlib.Path:
         return pathlib.Path(self.root, child)
 
-    def children(self):
+    def children(self) -> Iterable[str]:
         with suppress(Exception):
             return os.listdir(self.root or '')
         with suppress(Exception):
             return self.zip_children()
         return []
 
-    def zip_children(self):
+    def zip_children(self) -> Dict[str, None]:
         zip_path = zipp.Path(self.root)
         names = zip_path.root.namelist()
-        self.joinpath = zip_path.joinpath
+        self.joinpath = zip_path.joinpath  # type: ignore[assignment]
 
         return dict.fromkeys(child.split(posixpath.sep, 1)[0] for child in names)
 
-    def search(self, name):
+    def search(self, name: 'Prepared') -> Iterator[pathlib.Path]:
         return self.lookup(self.mtime).search(name)
 
     @property
-    def mtime(self):
+    def mtime(self) -> Optional[float]:
         with suppress(OSError):
             return os.stat(self.root).st_mtime
-        self.lookup.cache_clear()
+        self.lookup.cache_clear()  # type: ignore[attr-defined]
+        return None
 
     @method_cache
-    def lookup(self, mtime):
+    def lookup(self, mtime: Optional[float]) -> 'Lookup':
         return Lookup(self)
 
 
 class Lookup:
-    def __init__(self, path: FastPath):
+    def __init__(self, path: FastPath) -> None:
         base = os.path.basename(path.root).lower()
         base_is_egg = base.endswith(".egg")
-        self.infos = FreezableDefaultDict(list)
-        self.eggs = FreezableDefaultDict(list)
+        self.infos = FreezableDefaultDict[Optional[str], List[pathlib.Path]](list)
+        self.eggs = FreezableDefaultDict[Optional[str], List[pathlib.Path]](list)
 
         for child in path.children():
             low = child.lower()
@@ -799,7 +941,7 @@ class Lookup:
         self.infos.freeze()
         self.eggs.freeze()
 
-    def search(self, prepared):
+    def search(self, prepared: 'Prepared') -> Iterator[pathlib.Path]:
         infos = (
             self.infos[prepared.normalized]
             if prepared
@@ -818,10 +960,10 @@ class Prepared:
     A prepared search for metadata on a possibly-named package.
     """
 
-    normalized = None
-    legacy_normalized = None
+    normalized: Optional[str] = None
+    legacy_normalized: Optional[str] = None
 
-    def __init__(self, name):
+    def __init__(self, name: Optional[str]) -> None:
         self.name = name
         if name is None:
             return
@@ -829,21 +971,21 @@ class Prepared:
         self.legacy_normalized = self.legacy_normalize(name)
 
     @staticmethod
-    def normalize(name):
+    def normalize(name: str) -> str:
         """
         PEP 503 normalization plus dashes as underscores.
         """
         return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
 
     @staticmethod
-    def legacy_normalize(name):
+    def legacy_normalize(name: str) -> str:
         """
         Normalize the package name as found in the convention in
         older packaging tools versions and specs.
         """
         return name.lower().replace('-', '_')
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.name)
 
 
@@ -855,7 +997,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     of Python that do not have a PathFinder find_distributions().
     """
 
-    def find_distributions(self, context=DistributionFinder.Context()):
+    def find_distributions(
+        self, context: DistributionFinder.Context = DistributionFinder.Context()
+    ) -> Iterator['PathDistribution']:
         """
         Find distributions.
 
@@ -868,26 +1012,28 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         return map(PathDistribution, found)
 
     @classmethod
-    def _search_paths(cls, name, paths):
+    def _search_paths(
+        cls, name: Optional[str], paths: Iterable[Union[str, 'os.PathLike[str]']]
+    ) -> Iterator[pathlib.Path]:
         """Find metadata directories in paths heuristically."""
         prepared = Prepared(name)
         return itertools.chain.from_iterable(
             path.search(prepared) for path in map(FastPath, paths)
         )
 
-    def invalidate_caches(cls):
+    def invalidate_caches(cls) -> None:
         FastPath.__new__.cache_clear()
 
 
 class PathDistribution(Distribution):
-    def __init__(self, path: SimplePath):
+    def __init__(self, path: SimplePath) -> None:
         """Construct a distribution.
 
         :param path: SimplePath indicating the metadata directory.
         """
         self._path = path
 
-    def read_text(self, filename):
+    def read_text(self, filename: Union[str, 'os.PathLike[str]']) -> Optional[str]:
         with suppress(
             FileNotFoundError,
             IsADirectoryError,
@@ -896,14 +1042,15 @@ class PathDistribution(Distribution):
             PermissionError,
         ):
             return self._path.joinpath(filename).read_text(encoding='utf-8')
+        return None
 
     read_text.__doc__ = Distribution.read_text.__doc__
 
-    def locate_file(self, path):
+    def locate_file(self, path: Union[str, 'os.PathLike[str]']) -> SimplePath:
         return self._path.parent / path
 
     @property
-    def _normalized_name(self):
+    def _normalized_name(self) -> str:
         """
         Performance optimization: where possible, resolve the
         normalized name from the file system path.
@@ -911,15 +1058,15 @@ class PathDistribution(Distribution):
         stem = os.path.basename(str(self._path))
         return self._name_from_stem(stem) or super()._normalized_name
 
-    def _name_from_stem(self, stem):
+    def _name_from_stem(self, stem: str) -> Optional[str]:
         name, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
-            return
+            return None
         name, sep, rest = stem.partition('-')
         return name
 
 
-def distribution(distribution_name):
+def distribution(distribution_name: str) -> Distribution:
     """Get the ``Distribution`` instance for the named package.
 
     :param distribution_name: The name of the distribution package as a string.
@@ -928,7 +1075,7 @@ def distribution(distribution_name):
     return Distribution.from_name(distribution_name)
 
 
-def distributions(**kwargs):
+def distributions(**kwargs: Any) -> Iterator[PathDistribution]:
     """Get all ``Distribution`` instances in the current environment.
 
     :return: An iterable of ``Distribution`` instances.
@@ -936,7 +1083,7 @@ def distributions(**kwargs):
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name) -> _meta.PackageMetadata:
+def metadata(distribution_name: str) -> _meta.PackageMetadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -945,7 +1092,7 @@ def metadata(distribution_name) -> _meta.PackageMetadata:
     return Distribution.from_name(distribution_name).metadata
 
 
-def version(distribution_name):
+def version(distribution_name: str) -> str:
     """Get the version string for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -955,7 +1102,37 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
+@overload
+def entry_points() -> SelectableGroups:
+    ...  # pragma: no cover
+
+
+@overload
+def entry_points(*, name: str, **params: str) -> EntryPoints:
+    ...  # pragma: no cover
+
+
+@overload
+def entry_points(*, value: str, **params: str) -> EntryPoints:
+    ...  # pragma: no cover
+
+
+@overload
+def entry_points(*, group: str, **params: str) -> EntryPoints:
+    ...  # pragma: no cover
+
+
+@overload
+def entry_points(*, module: str, **params: str) -> EntryPoints:
+    ...  # pragma: no cover
+
+
+@overload
+def entry_points(*, attr: str, **params: str) -> EntryPoints:
+    ...  # pragma: no cover
+
+
+def entry_points(**params: str) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
     Pass selection parameters (group or name) to filter the
@@ -979,7 +1156,7 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     return SelectableGroups.load(eps).select(**params)
 
 
-def files(distribution_name):
+def files(distribution_name: str) -> Optional[List[PackagePath]]:
     """Return a list of files for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -988,7 +1165,7 @@ def files(distribution_name):
     return distribution(distribution_name).files
 
 
-def requires(distribution_name):
+def requires(distribution_name: str) -> Optional[List[str]]:
     """
     Return a list of requirements for the named package.
 
@@ -1015,11 +1192,11 @@ def packages_distributions() -> Mapping[str, List[str]]:
     return dict(pkg_to_dist)
 
 
-def _top_level_declared(dist):
+def _top_level_declared(dist: Distribution) -> List[str]:
     return (dist.read_text('top_level.txt') or '').split()
 
 
-def _top_level_inferred(dist):
+def _top_level_inferred(dist: Distribution) -> Set[str]:
     return {
         f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name
         for f in dist.files or []

@@ -1,9 +1,19 @@
 import types
 import functools
 
+from typing import Callable, TypeVar
+
+
+CallableT = TypeVar("CallableT", bound=Callable[..., object])
+
 
 # from jaraco.functools 3.3
-def method_cache(method, cache_wrapper=None):
+def method_cache(
+    method: CallableT,
+    cache_wrapper: Callable[
+        [CallableT], CallableT
+    ] = functools.lru_cache(),  # type: ignore[assignment]
+) -> CallableT:
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -70,16 +80,17 @@ def method_cache(method, cache_wrapper=None):
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    cache_wrapper = cache_wrapper or functools.lru_cache()
 
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: object, *args: object, **kwargs: object) -> object:
         # it's the first call, replace the method with a cached, bound method
-        bound_method = types.MethodType(method, self)
+        bound_method: CallableT = types.MethodType(  # type: ignore[assignment]
+            method, self
+        )
         cached_method = cache_wrapper(bound_method)
         setattr(self, method.__name__, cached_method)
         return cached_method(*args, **kwargs)
 
     # Support cache clear even before cache has been created.
-    wrapper.cache_clear = lambda: None
+    wrapper.cache_clear = lambda: None  # type: ignore[attr-defined]
 
-    return wrapper
+    return wrapper  # type: ignore[return-value]

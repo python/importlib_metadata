@@ -1,6 +1,8 @@
 import sys
 import platform
 
+from typing import TypeVar
+
 
 __all__ = ['install', 'NullFinder', 'PyPy_repr', 'Protocol', 'SupportsIndex']
 
@@ -11,7 +13,10 @@ else:
     from typing_extensions import Protocol, SupportsIndex
 
 
-def install(cls):
+TypeT = TypeVar('TypeT', bound=type)
+
+
+def install(cls: TypeT) -> TypeT:
     """
     Class decorator for installation on sys.meta_path.
 
@@ -24,7 +29,7 @@ def install(cls):
     return cls
 
 
-def disable_stdlib_finder():
+def disable_stdlib_finder() -> None:
     """
     Give the backport primacy for discovering path-based distributions
     by monkey-patching the stdlib O_O.
@@ -33,13 +38,13 @@ def disable_stdlib_finder():
     behavior.
     """
 
-    def matches(finder):
+    def matches(finder: object) -> bool:
         return getattr(
             finder, '__module__', None
         ) == '_frozen_importlib_external' and hasattr(finder, 'find_distributions')
 
     for finder in filter(matches, sys.meta_path):  # pragma: nocover
-        del finder.find_distributions
+        del finder.find_distributions  # type: ignore[attr-defined]
 
 
 class NullFinder:
@@ -49,7 +54,7 @@ class NullFinder:
     """
 
     @staticmethod
-    def find_spec(*args, **kwargs):
+    def find_spec(*args: object, **kwargs: object) -> None:
         return None
 
     # In Python 2, the import system requires finders
@@ -69,12 +74,12 @@ class PyPy_repr:
 
     affected = hasattr(sys, 'pypy_version_info')
 
-    def __compat_repr__(self):  # pragma: nocover
-        def make_param(name):
+    def __compat_repr__(self) -> str:  # pragma: nocover
+        def make_param(name: str) -> str:
             value = getattr(self, name)
             return f'{name}={value!r}'
 
-        params = ', '.join(map(make_param, self._fields))
+        params = ', '.join(map(make_param, self._fields))  # type: ignore[attr-defined]
         return f'EntryPoint({params})'
 
     if affected:  # pragma: nocover
@@ -82,7 +87,7 @@ class PyPy_repr:
     del affected
 
 
-def pypy_partial(val):
+def pypy_partial(val: int) -> int:
     """
     Adjust for variable stacklevel on partial under PyPy.
 

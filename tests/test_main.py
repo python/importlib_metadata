@@ -1,6 +1,7 @@
 import re
 import json
 import pickle
+import pathlib
 import textwrap
 import unittest
 import warnings
@@ -25,16 +26,16 @@ from importlib_metadata import (
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     version_pattern = r'\d+\.\d+(\.\d)?'
 
-    def test_retrieves_version_of_self(self):
+    def test_retrieves_version_of_self(self) -> None:
         dist = Distribution.from_name('distinfo-pkg')
         assert isinstance(dist.version, str)
         assert re.match(self.version_pattern, dist.version)
 
-    def test_for_name_does_not_exist(self):
+    def test_for_name_does_not_exist(self) -> None:
         with self.assertRaises(PackageNotFoundError):
             Distribution.from_name('does-not-exist')
 
-    def test_package_not_found_mentions_metadata(self):
+    def test_package_not_found_mentions_metadata(self) -> None:
         """
         When a package is not found, that could indicate that the
         packgae is not installed or that it is installed without
@@ -46,27 +47,27 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 
         assert "metadata" in str(ctx.exception)
 
-    def test_new_style_classes(self):
+    def test_new_style_classes(self) -> None:
         self.assertIsInstance(Distribution, type)
         self.assertIsInstance(MetadataPathFinder, type)
 
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
-    def test_import_nonexistent_module(self):
+    def test_import_nonexistent_module(self) -> None:
         # Ensure that the MetadataPathFinder does not crash an import of a
         # non-existent module.
         with self.assertRaises(ImportError):
             importlib.import_module('does_not_exist')
 
-    def test_resolve(self):
+    def test_resolve(self) -> None:
         ep = entry_points(group='entries')['main']
         self.assertEqual(ep.load().__name__, "main")
 
-    def test_entrypoint_with_colon_in_name(self):
+    def test_entrypoint_with_colon_in_name(self) -> None:
         ep = entry_points(group='entries')['ns:sub']
         self.assertEqual(ep.value, 'mod:main')
 
-    def test_resolve_without_attr(self):
+    def test_resolve_without_attr(self) -> None:
         ep = EntryPoint(
             name='ep',
             value='importlib_metadata',
@@ -77,7 +78,7 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
-    def pkg_with_dashes(site_dir):
+    def pkg_with_dashes(site_dir: pathlib.Path) -> str:
         """
         Create minimal metadata for a package with dashes
         in the name (and thus underscores in the filename).
@@ -89,7 +90,7 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
             strm.write('Version: 1.0\n')
         return 'my-pkg'
 
-    def test_dashes_in_dist_name_found_as_underscores(self):
+    def test_dashes_in_dist_name_found_as_underscores(self) -> None:
         """
         For a package with a dash in the name, the dist-info metadata
         uses underscores in the name. Ensure the metadata loads.
@@ -98,7 +99,7 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         assert version(pkg_name) == '1.0'
 
     @staticmethod
-    def pkg_with_mixed_case(site_dir):
+    def pkg_with_mixed_case(site_dir: pathlib.Path) -> str:
         """
         Create minimal metadata for a package with mixed case
         in the name.
@@ -110,7 +111,7 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
             strm.write('Version: 1.0\n')
         return 'CherryPy'
 
-    def test_dist_name_found_as_any_case(self):
+    def test_dist_name_found_as_any_case(self) -> None:
         """
         Ensure the metadata loads when queried with any case.
         """
@@ -122,7 +123,7 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
-    def pkg_with_non_ascii_description(site_dir):
+    def pkg_with_non_ascii_description(site_dir: pathlib.Path) -> str:
         """
         Create minimal metadata for a package with non-ASCII in
         the description.
@@ -135,7 +136,7 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         return 'portend'
 
     @staticmethod
-    def pkg_with_non_ascii_description_egg_info(site_dir):
+    def pkg_with_non_ascii_description_egg_info(site_dir: pathlib.Path) -> str:
         """
         Create minimal metadata for an egg-info package with
         non-ASCII in the description.
@@ -155,38 +156,38 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
             )
         return 'portend'
 
-    def test_metadata_loads(self):
+    def test_metadata_loads(self) -> None:
         pkg_name = self.pkg_with_non_ascii_description(self.site_dir)
         meta = metadata(pkg_name)
         assert meta['Description'] == 'pôrˈtend'
 
-    def test_metadata_loads_egg_info(self):
+    def test_metadata_loads_egg_info(self) -> None:
         pkg_name = self.pkg_with_non_ascii_description_egg_info(self.site_dir)
         meta = metadata(pkg_name)
         assert meta['Description'] == 'pôrˈtend'
 
 
 class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
-    def test_package_discovery(self):
+    def test_package_discovery(self) -> None:
         dists = list(distributions())
         assert all(isinstance(dist, Distribution) for dist in dists)
         assert any(dist.metadata['Name'] == 'egginfo-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
 
-    def test_invalid_usage(self):
+    def test_invalid_usage(self) -> None:
         with self.assertRaises(ValueError):
             list(distributions(context='something', name='else'))
 
 
 class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
-    def test_egg_info(self):
+    def test_egg_info(self) -> None:
         # make an `EGG-INFO` directory that's unrelated
         self.site_dir.joinpath('EGG-INFO').mkdir()
         # used to crash with `IsADirectoryError`
         with self.assertRaises(PackageNotFoundError):
             version('unknown-package')
 
-    def test_egg(self):
+    def test_egg(self) -> None:
         egg = self.site_dir.joinpath('foo-3.6.egg')
         egg.mkdir()
         with self.add_sys_path(egg):
@@ -195,9 +196,9 @@ class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
 
 
 class MissingSysPath(fixtures.OnSysPath, unittest.TestCase):
-    site_dir = '/does-not-exist'
+    site_dir = pathlib.Path('/does-not-exist')
 
-    def test_discovery(self):
+    def test_discovery(self) -> None:
         """
         Discovering distributions should succeed even if
         there is an invalid path on sys.path.
@@ -205,15 +206,15 @@ class MissingSysPath(fixtures.OnSysPath, unittest.TestCase):
         importlib_metadata.distributions()
 
 
-class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
-    site_dir = '/access-denied'
+class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):  # type: ignore[misc]
+    site_dir = pathlib.Path('/access-denied')
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(self.site_dir, perm_bits=000)
 
-    def test_discovery(self):
+    def test_discovery(self) -> None:
         """
         Discovering distributions should succeed even if
         there is an invalid path on sys.path.
@@ -222,28 +223,28 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
 
 
 class TestEntryPoints(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
 
-    def test_entry_point_pickleable(self):
+    def test_entry_point_pickleable(self) -> None:
         revived = pickle.loads(pickle.dumps(self.ep))
         assert revived == self.ep
 
-    def test_immutable(self):
+    def test_immutable(self) -> None:
         """EntryPoints should be immutable"""
         with self.assertRaises(AttributeError):
-            self.ep.name = 'badactor'
+            self.ep.name = 'badactor'  # type: ignore[misc]
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         assert 'EntryPoint' in repr(self.ep)
         assert 'name=' in repr(self.ep)
         assert "'name'" in repr(self.ep)
 
-    def test_hashable(self):
+    def test_hashable(self) -> None:
         """EntryPoints should be hashable"""
         hash(self.ep)
 
-    def test_json_dump(self):
+    def test_json_dump(self) -> None:
         """
         json should not expect to be able to dump an EntryPoint
         """
@@ -251,13 +252,13 @@ class TestEntryPoints(unittest.TestCase):
             with warnings.catch_warnings(record=True):
                 json.dumps(self.ep)
 
-    def test_module(self):
+    def test_module(self) -> None:
         assert self.ep.module == 'value'
 
-    def test_attr(self):
+    def test_attr(self) -> None:
         assert self.ep.attr is None
 
-    def test_sortable(self):
+    def test_sortable(self) -> None:
         """
         EntryPoint objects are sortable, but result is undefined.
         """
@@ -272,7 +273,7 @@ class TestEntryPoints(unittest.TestCase):
 class FileSystem(
     fixtures.OnSysPath, fixtures.SiteDir, fixtures.FileBuilder, unittest.TestCase
 ):
-    def test_unicode_dir_on_sys_path(self):
+    def test_unicode_dir_on_sys_path(self) -> None:
         """
         Ensure a Unicode subdirectory of a directory on sys.path
         does not crash.
@@ -285,11 +286,11 @@ class FileSystem(
 
 
 class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase):
-    def test_packages_distributions_example(self):
+    def test_packages_distributions_example(self) -> None:
         self._fixture_on_path('example-21.12-py3-none-any.whl')
         assert packages_distributions()['example'] == ['example']
 
-    def test_packages_distributions_example2(self):
+    def test_packages_distributions_example2(self) -> None:
         """
         Test packages_distributions on a wheel built
         by trampolim.
@@ -301,7 +302,7 @@ class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase)
 class PackagesDistributionsTest(
     fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
 ):
-    def test_packages_distributions_neither_toplevel_nor_files(self):
+    def test_packages_distributions_neither_toplevel_nor_files(self) -> None:
         """
         Test a package built without 'top-level.txt' or a file list.
         """

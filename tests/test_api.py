@@ -1,4 +1,5 @@
 import re
+import pathlib
 import textwrap
 import unittest
 import warnings
@@ -6,9 +7,12 @@ import importlib
 import contextlib
 
 from . import fixtures
+from .fixtures import not_none
 from importlib_metadata import (
     Distribution,
+    EntryPoint,
     PackageNotFoundError,
+    PackagePath,
     distribution,
     entry_points,
     files,
@@ -16,10 +20,11 @@ from importlib_metadata import (
     requires,
     version,
 )
+from typing import Dict, Iterator, List
 
 
 @contextlib.contextmanager
-def suppress_known_deprecation():
+def suppress_known_deprecation() -> Iterator[List[warnings.WarningMessage]]:
     with warnings.catch_warnings(record=True) as ctx:
         warnings.simplefilter('default', category=DeprecationWarning)
         yield ctx
@@ -35,45 +40,48 @@ class APITests(
 
     version_pattern = r'\d+\.\d+(\.\d)?'
 
-    def test_retrieves_version_of_self(self):
+    def test_retrieves_version_of_self(self) -> None:
         pkg_version = version('egginfo-pkg')
         assert isinstance(pkg_version, str)
         assert re.match(self.version_pattern, pkg_version)
 
-    def test_retrieves_version_of_distinfo_pkg(self):
+    def test_retrieves_version_of_distinfo_pkg(self) -> None:
         pkg_version = version('distinfo-pkg')
         assert isinstance(pkg_version, str)
         assert re.match(self.version_pattern, pkg_version)
 
-    def test_for_name_does_not_exist(self):
+    def test_for_name_does_not_exist(self) -> None:
         with self.assertRaises(PackageNotFoundError):
             distribution('does-not-exist')
 
-    def test_name_normalization(self):
+    def test_name_normalization(self) -> None:
         names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
         for name in names:
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
 
-    def test_prefix_not_matched(self):
+    def test_prefix_not_matched(self) -> None:
         prefixes = 'p', 'pkg', 'pkg.'
         for prefix in prefixes:
             with self.subTest(prefix):
                 with self.assertRaises(PackageNotFoundError):
                     distribution(prefix)
 
-    def test_for_top_level(self):
+    def test_for_top_level(self) -> None:
         self.assertEqual(
-            distribution('egginfo-pkg').read_text('top_level.txt').strip(), 'mod'
+            not_none(distribution('egginfo-pkg').read_text('top_level.txt')).strip(),
+            'mod',
         )
 
-    def test_read_text(self):
+    def test_read_text(self) -> None:
         top_level = [
-            path for path in files('egginfo-pkg') if path.name == 'top_level.txt'
+            path
+            for path in not_none(files('egginfo-pkg'))
+            if path.name == 'top_level.txt'
         ][0]
         self.assertEqual(top_level.read_text(), 'mod\n')
 
-    def test_entry_points(self):
+    def test_entry_points(self) -> None:
         eps = entry_points()
         assert 'entries' in eps.groups
         entries = eps.select(group='entries')
@@ -82,21 +90,21 @@ class APITests(
         self.assertEqual(ep.value, 'mod:main')
         self.assertEqual(ep.extras, [])
 
-    def test_entry_points_distribution(self):
+    def test_entry_points_distribution(self) -> None:
         entries = entry_points(group='entries')
         for entry in ("main", "ns:sub"):
             ep = entries[entry]
             self.assertIn(ep.dist.name, ('distinfo-pkg', 'egginfo-pkg'))
             self.assertEqual(ep.dist.version, "1.0.0")
 
-    def test_entry_points_unique_packages(self):
+    def test_entry_points_unique_packages(self) -> None:
         """
         Entry points should only be exposed for the first package
         on sys.path with a given name.
         """
         alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
         self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
-        alt_pkg = {
+        alt_pkg: fixtures.FilesDef = {
             "distinfo_pkg-1.1.0.dist-info": {
                 "METADATA": """
                 Name: distinfo-pkg
@@ -117,21 +125,23 @@ class APITests(
         # ns:sub doesn't exist in alt_pkg
         assert 'ns:sub' not in entries.names
 
-    def test_entry_points_missing_name(self):
+    def test_entry_points_missing_name(self) -> None:
         with self.assertRaises(KeyError):
             entry_points(group='entries')['missing']
 
-    def test_entry_points_missing_group(self):
+    def test_entry_points_missing_group(self) -> None:
         assert entry_points(group='missing') == ()
 
-    def test_entry_points_dict_construction(self):
+    def test_entry_points_dict_construction(self) -> None:
         """
         Prior versions of entry_points() returned simple lists and
         allowed casting those lists into maps by name using ``dict()``.
         Capture this now deprecated use-case.
         """
         with suppress_known_deprecation() as caught:
-            eps = dict(entry_points(group='entries'))
+            eps: Dict[str, EntryPoint] = dict(
+                entry_points(group='entries')  # type: ignore[arg-type]
+            )
 
         assert 'main' in eps
         assert eps['main'] == entry_points(group='entries')['main']
@@ -141,7 +151,7 @@ class APITests(
         assert expected.category is DeprecationWarning
         assert "Construction of dict of EntryPoints is deprecated" in str(expected)
 
-    def test_entry_points_by_index(self):
+    def test_entry_points_by_index(self) -> None:
         """
         Prior versions of Distribution.entry_points would return a
         tuple that allowed access by index.
@@ -157,7 +167,7 @@ class APITests(
         assert expected.category is DeprecationWarning
         assert "Accessing entry points by index is deprecated" in str(expected)
 
-    def test_entry_points_groups_getitem(self):
+    def test_entry_points_groups_getitem(self) -> None:
         """
         Prior versions of entry_points() returned a dict. Ensure
         that callers using '.__getitem__()' are supported but warned to
@@ -169,7 +179,7 @@ class APITests(
             with self.assertRaises(KeyError):
                 entry_points()['missing']
 
-    def test_entry_points_groups_get(self):
+    def test_entry_points_groups_get(self) -> None:
         """
         Prior versions of entry_points() returned a dict. Ensure
         that callers using '.get()' are supported but warned to
@@ -180,7 +190,7 @@ class APITests(
             entry_points().get('entries', 'default') == entry_points()['entries']
             entry_points().get('missing', ()) == ()
 
-    def test_metadata_for_this_package(self):
+    def test_metadata_for_this_package(self) -> None:
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
         assert md['LICENSE'] == 'Unknown'
@@ -188,53 +198,54 @@ class APITests(
         classifiers = md.get_all('Classifier')
         assert 'Topic :: Software Development :: Libraries' in classifiers
 
-    def test_importlib_metadata_version(self):
+    def test_importlib_metadata_version(self) -> None:
         resolved = version('importlib-metadata')
         assert re.match(self.version_pattern, resolved)
 
     @staticmethod
-    def _test_files(files):
+    def _test_files(files: List[PackagePath]) -> None:
         root = files[0].root
         for file in files:
             assert file.root == root
             assert not file.hash or file.hash.value
             assert not file.hash or file.hash.mode == 'sha256'
             assert not file.size or file.size >= 0
-            assert file.locate().exists()
+            path = file.locate()
+            assert isinstance(path, pathlib.Path) and path.exists()
             assert isinstance(file.read_binary(), bytes)
             if file.name.endswith('.py'):
                 file.read_text()
 
-    def test_file_hash_repr(self):
-        util = [p for p in files('distinfo-pkg') if p.name == 'mod.py'][0]
+    def test_file_hash_repr(self) -> None:
+        util = [p for p in not_none(files('distinfo-pkg')) if p.name == 'mod.py'][0]
         self.assertRegex(repr(util.hash), '<FileHash mode: sha256 value: .*>')
 
-    def test_files_dist_info(self):
-        self._test_files(files('distinfo-pkg'))
+    def test_files_dist_info(self) -> None:
+        self._test_files(not_none(files('distinfo-pkg')))
 
-    def test_files_egg_info(self):
-        self._test_files(files('egginfo-pkg'))
+    def test_files_egg_info(self) -> None:
+        self._test_files(not_none(files('egginfo-pkg')))
 
-    def test_version_egg_info_file(self):
+    def test_version_egg_info_file(self) -> None:
         self.assertEqual(version('egginfo-file'), '0.1')
 
-    def test_requires_egg_info_file(self):
+    def test_requires_egg_info_file(self) -> None:
         requirements = requires('egginfo-file')
         self.assertIsNone(requirements)
 
-    def test_requires_egg_info(self):
-        deps = requires('egginfo-pkg')
+    def test_requires_egg_info(self) -> None:
+        deps = not_none(requires('egginfo-pkg'))
         assert len(deps) == 2
         assert any(dep == 'wheel >= 1.0; python_version >= "2.7"' for dep in deps)
 
-    def test_requires_dist_info(self):
-        deps = requires('distinfo-pkg')
+    def test_requires_dist_info(self) -> None:
+        deps = not_none(requires('distinfo-pkg'))
         assert len(deps) == 2
         assert all(deps)
         assert 'wheel >= 1.0' in deps
         assert "pytest; extra == 'test'" in deps
 
-    def test_more_complex_deps_requires_text(self):
+    def test_more_complex_deps_requires_text(self) -> None:
         requires = textwrap.dedent(
             """
             dep1
@@ -264,23 +275,25 @@ class APITests(
 
         assert deps == expected
 
-    def test_as_json(self):
+    def test_as_json(self) -> None:
         md = metadata('distinfo-pkg').json
         assert 'name' in md
         assert md['keywords'] == ['sample', 'package']
         desc = md['description']
+        assert isinstance(desc, str)
         assert desc.startswith('Once upon a time\nThere was')
         assert len(md['requires_dist']) == 2
 
-    def test_as_json_egg_info(self):
+    def test_as_json_egg_info(self) -> None:
         md = metadata('egginfo-pkg').json
         assert 'name' in md
         assert md['keywords'] == ['sample', 'package']
         desc = md['description']
+        assert isinstance(desc, str)
         assert desc.startswith('Once upon a time\nThere was')
         assert len(md['classifier']) == 2
 
-    def test_as_json_odd_case(self):
+    def test_as_json_odd_case(self) -> None:
         self.make_uppercase()
         md = metadata('distinfo-pkg').json
         assert 'name' in md
@@ -289,13 +302,13 @@ class APITests(
 
 
 class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
-    def test_name_normalization(self):
+    def test_name_normalization(self) -> None:
         names = 'pkg.dot', 'pkg_dot', 'pkg-dot', 'pkg..dot', 'Pkg.Dot'
         for name in names:
             with self.subTest(name):
                 assert distribution(name).metadata['Name'] == 'pkg.dot'
 
-    def test_name_normalization_versionless_egg_info(self):
+    def test_name_normalization_versionless_egg_info(self) -> None:
         names = 'pkg.lot', 'pkg_lot', 'pkg-lot', 'pkg..lot', 'Pkg.Lot'
         for name in names:
             with self.subTest(name):
@@ -303,23 +316,23 @@ class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
 
 
 class OffSysPathTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
-    def test_find_distributions_specified_path(self):
+    def test_find_distributions_specified_path(self) -> None:
         dists = Distribution.discover(path=[str(self.site_dir)])
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
 
-    def test_distribution_at_pathlib(self):
+    def test_distribution_at_pathlib(self) -> None:
         """Demonstrate how to load metadata direct from a directory."""
         dist_info_path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info'
         dist = Distribution.at(dist_info_path)
         assert dist.version == '1.0.0'
 
-    def test_distribution_at_str(self):
+    def test_distribution_at_str(self) -> None:
         dist_info_path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info'
         dist = Distribution.at(str(dist_info_path))
         assert dist.version == '1.0.0'
 
 
 class InvalidateCache(unittest.TestCase):
-    def test_invalidate_cache(self):
+    def test_invalidate_cache(self) -> None:
         # No externally observable behavior, but ensures test coverage...
         importlib.invalidate_caches()
