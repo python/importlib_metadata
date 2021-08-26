@@ -222,8 +222,7 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
 
 
 class TestEntryPoints(unittest.TestCase):
-    def __init__(self, *args):
-        super().__init__(*args)
+    def setUp(self):
         self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
 
     def test_entry_point_pickleable(self):
