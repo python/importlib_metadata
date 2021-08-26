@@ -1,3 +1,9 @@
+v4.7.1
+======
+
+* #344: Fixed regression in ``packages_distributions`` when
+  neither top-level.txt nor a files manifest is present.
+
 v4.7.0
 ======
 
