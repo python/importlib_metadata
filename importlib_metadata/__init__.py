@@ -31,7 +31,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Union
+from typing import List, Mapping, Union
 
 
 __all__ = [
@@ -158,7 +158,7 @@ class EntryPoint(
     following the attr, and following any extras.
     """
 
-    dist: Optional['Distribution'] = None
+    dist: 'Distribution'
 
     def load(self):
         """Load the entry point from its definition. If only a module
