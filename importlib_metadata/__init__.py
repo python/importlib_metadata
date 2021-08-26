@@ -23,7 +23,7 @@ from ._compat import (
     pypy_partial,
 )
 from ._functools import method_cache
-from ._itertools import unique_everseen
+from ._itertools import always_iterable, unique_everseen
 from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
@@ -1025,6 +1025,6 @@ def _top_level_declared(dist):
 def _top_level_inferred(dist):
     return {
         f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name
-        for f in dist.files
+        for f in always_iterable(dist.files)
         if f.suffix == ".py"
     }
