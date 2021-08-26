@@ -282,7 +282,9 @@ def build_files(file_defs, prefix=pathlib.Path()):
 
 class FileBuilder:
     def unicode_filename(self):
-        return FS_NONASCII or self.skip("File system does not support non-ascii.")
+        if not FS_NONASCII:
+            self.skipTest("File system does not support non-ascii.")
+        return FS_NONASCII
 
 
 def DALS(str):
