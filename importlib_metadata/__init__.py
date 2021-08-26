@@ -973,9 +973,8 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     :return: EntryPoints or SelectableGroups for all installed packages.
     """
     norm_name = operator.attrgetter('_normalized_name')
-    unique = functools.partial(unique_everseen, key=norm_name)
     eps = itertools.chain.from_iterable(
-        dist.entry_points for dist in unique(distributions())
+        dist.entry_points for dist in unique_everseen(distributions(), key=norm_name)
     )
     return SelectableGroups.load(eps).select(**params)
 
