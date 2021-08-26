@@ -285,7 +285,7 @@ class FileSystem(
         list(distributions())
 
 
-class PackagesDistributionsTest(fixtures.ZipFixtures, unittest.TestCase):
+class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase):
     def test_packages_distributions_example(self):
         self._fixture_on_path('example-21.12-py3-none-any.whl')
         assert packages_distributions()['example'] == ['example']
@@ -297,3 +297,24 @@ class PackagesDistributionsTest(fixtures.ZipFixtures, unittest.TestCase):
         """
         self._fixture_on_path('example2-1.0.0-py3-none-any.whl')
         assert packages_distributions()['example2'] == ['example2']
+
+
+class PackagesDistributionsTest(
+    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
+):
+    def test_packages_distributions_neither_toplevel_nor_files(self):
+        """
+        Test a package built without 'top-level.txt' or a file list.
+        """
+        fixtures.build_files(
+            {
+                'trim_example-1.0.0.dist-info': {
+                    'METADATA': """
+                Name: trim_example
+                Version: 1.0.0
+                """,
+                }
+            },
+            prefix=self.site_dir,
+        )
+        packages_distributions()
