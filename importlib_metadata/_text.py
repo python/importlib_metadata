@@ -26,6 +26,9 @@ class FoldedCase(str):
     >>> s.split('O')
     ['hell', ' w', 'rld']
 
+    >>> s.split()
+    ['hello', 'world']
+
     >>> sorted(map(FoldedCase, ['GAMMA', 'alpha', 'Beta']))
     ['alpha', 'Beta', 'GAMMA']
 
@@ -94,6 +97,8 @@ class FoldedCase(str):
     def index(self, sub):
         return self.lower().index(sub.lower())
 
-    def split(self, splitter=' ', maxsplit=0):
+    def split(self, splitter=None, maxsplit=0):
+        if splitter is None:
+            return super().split()
         pattern = re.compile(re.escape(splitter), re.I)
         return pattern.split(self, maxsplit)
