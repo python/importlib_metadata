@@ -208,7 +208,7 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
     site_dir = '/access-denied'
 
     def setUp(self):
-        super(InaccessibleSysPath, self).setUp()
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(self.site_dir, perm_bits=000)
 
@@ -222,7 +222,7 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
 
 class TestEntryPoints(unittest.TestCase):
     def __init__(self, *args):
-        super(TestEntryPoints, self).__init__(*args)
+        super().__init__(*args)
         self.ep = importlib_metadata.EntryPoint('name', 'value', 'group')
 
     def test_entry_point_pickleable(self):
