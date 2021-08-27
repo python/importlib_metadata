@@ -15,7 +15,7 @@ import posixpath
 import collections
 
 from . import _adapters, _meta
-from ._collections import FreezableDefaultDict, Pair
+from ._collections import Pair
 from ._compat import (
     NullFinder,
     PyPy_repr,
@@ -30,7 +30,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Union
+from typing import Dict, List, Mapping, Optional, Union
 
 
 __all__ = [
@@ -783,8 +783,8 @@ class Lookup:
     def __init__(self, path: FastPath):
         base = os.path.basename(path.root).lower()
         base_is_egg = base.endswith(".egg")
-        self.infos = FreezableDefaultDict(list)
-        self.eggs = FreezableDefaultDict(list)
+        self.infos: Dict[Optional[str], List[pathlib.Path]] = {}
+        self.eggs: Dict[Optional[str], List[pathlib.Path]] = {}
 
         for child in path.children():
             low = child.lower()
@@ -792,23 +792,20 @@ class Lookup:
                 # rpartition is faster than splitext and suitable for this purpose.
                 name = low.rpartition(".")[0].partition("-")[0]
                 normalized = Prepared.normalize(name)
-                self.infos[normalized].append(path.joinpath(child))
+                self.infos.setdefault(normalized, []).append(path.joinpath(child))
             elif base_is_egg and low == "egg-info":
                 name = base.rpartition(".")[0].partition("-")[0]
                 legacy_normalized = Prepared.legacy_normalize(name)
-                self.eggs[legacy_normalized].append(path.joinpath(child))
-
-        self.infos.freeze()
-        self.eggs.freeze()
+                self.eggs.setdefault(legacy_normalized, []).append(path.joinpath(child))
 
     def search(self, prepared):
         infos = (
-            self.infos[prepared.normalized]
+            self.infos.get(prepared.normalized, [])
             if prepared
             else itertools.chain.from_iterable(self.infos.values())
         )
         eggs = (
-            self.eggs[prepared.legacy_normalized]
+            self.eggs.get(prepared.legacy_normalized, [])
             if prepared
             else itertools.chain.from_iterable(self.eggs.values())
         )
