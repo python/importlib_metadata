@@ -23,14 +23,14 @@ from ._compat import (
     pypy_partial,
 )
 from ._functools import method_cache
-from ._itertools import always_iterable, unique_everseen
+from ._itertools import always_iterable
 from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Union
+from typing import Iterator, List, Mapping, Optional, Set, Union
 
 
 __all__ = [
@@ -957,6 +957,16 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
+def _entry_points_iter() -> Iterator[EntryPoint]:
+    seen: Set[Optional[str]] = set()
+    seen_add = seen.add
+    for dist in distributions():
+        k = dist._normalized_name
+        if k not in seen:
+            seen_add(k)
+            yield from dist.entry_points
+
+
 def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
@@ -974,12 +984,7 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
 
     :return: EntryPoints or SelectableGroups for all installed packages.
     """
-    norm_name = operator.attrgetter('_normalized_name')
-    unique = functools.partial(unique_everseen, key=norm_name)
-    eps = itertools.chain.from_iterable(
-        dist.entry_points for dist in unique(distributions())
-    )
-    return SelectableGroups.load(eps).select(**params)
+    return SelectableGroups.load(_entry_points_iter()).select(**params)
 
 
 def files(distribution_name):
