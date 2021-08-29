@@ -17,6 +17,7 @@ from importlib_metadata import (
     distributions,
     entry_points,
     metadata,
+    packages_distributions,
     version,
 )
 
@@ -208,7 +209,7 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
     site_dir = '/access-denied'
 
     def setUp(self):
-        super(InaccessibleSysPath, self).setUp()
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(self.site_dir, perm_bits=000)
 
@@ -222,7 +223,7 @@ class InaccessibleSysPath(fixtures.OnSysPath, ffs.TestCase):
 
 class TestEntryPoints(unittest.TestCase):
     def __init__(self, *args):
-        super(TestEntryPoints, self).__init__(*args)
+        super().__init__(*args)
         self.ep = importlib_metadata.EntryPoint(
             name='name', value='value', group='group'
         )
@@ -284,3 +285,38 @@ class FileSystem(
             prefix=self.site_dir,
         )
         list(distributions())
+
+
+class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase):
+    def test_packages_distributions_example(self):
+        self._fixture_on_path('example-21.12-py3-none-any.whl')
+        assert packages_distributions()['example'] == ['example']
+
+    def test_packages_distributions_example2(self):
+        """
+        Test packages_distributions on a wheel built
+        by trampolim.
+        """
+        self._fixture_on_path('example2-1.0.0-py3-none-any.whl')
+        assert packages_distributions()['example2'] == ['example2']
+
+
+class PackagesDistributionsTest(
+    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
+):
+    def test_packages_distributions_neither_toplevel_nor_files(self):
+        """
+        Test a package built without 'top-level.txt' or a file list.
+        """
+        fixtures.build_files(
+            {
+                'trim_example-1.0.0.dist-info': {
+                    'METADATA': """
+                Name: trim_example
+                Version: 1.0.0
+                """,
+                }
+            },
+            prefix=self.site_dir,
+        )
+        packages_distributions()

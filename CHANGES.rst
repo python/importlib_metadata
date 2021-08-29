@@ -1,3 +1,16 @@
+v4.7.1
+======
+
+* #344: Fixed regression in ``packages_distributions`` when
+  neither top-level.txt nor a files manifest is present.
+
+v4.7.0
+======
+
+* #330: In ``packages_distributions``, now infer top-level
+  names from ``.files()`` when a ``top-level.txt``
+  (Setuptools-specific metadata) is not present.
+
 v4.6.4
 ======
 

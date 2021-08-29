@@ -22,7 +22,7 @@ from ._compat import (
     pypy_partial,
 )
 from ._functools import method_cache
-from ._itertools import unique_everseen
+from ._itertools import always_iterable, unique_everseen
 from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
@@ -354,7 +354,7 @@ class EntryPoints(DeprecatedList):
         """
         Return the set of all names of all entry points.
         """
-        return set(ep.name for ep in self)
+        return {ep.name for ep in self}
 
     @property
     def groups(self):
@@ -365,7 +365,7 @@ class EntryPoints(DeprecatedList):
         >>> EntryPoints().groups
         set()
         """
-        return set(ep.group for ep in self)
+        return {ep.group for ep in self}
 
     @classmethod
     def _from_text_for(cls, text, dist):
@@ -1024,6 +1024,18 @@ def packages_distributions() -> Mapping[str, List[str]]:
     """
     pkg_to_dist = collections.defaultdict(list)
     for dist in distributions():
-        for pkg in (dist.read_text('top_level.txt') or '').split():
+        for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
             pkg_to_dist[pkg].append(dist.metadata['Name'])
     return dict(pkg_to_dist)
+
+
+def _top_level_declared(dist):
+    return (dist.read_text('top_level.txt') or '').split()
+
+
+def _top_level_inferred(dist):
+    return {
+        f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name
+        for f in always_iterable(dist.files)
+        if f.suffix == ".py"
+    }

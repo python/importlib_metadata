@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-from contextlib import ExitStack
+from . import fixtures
 from importlib_metadata import (
     PackageNotFoundError,
     distribution,
@@ -11,30 +11,10 @@ from importlib_metadata import (
     version,
 )
 
-try:
-    from importlib import resources
 
-    getattr(resources, 'files')
-    getattr(resources, 'as_file')
-except (ImportError, AttributeError):
-    import importlib_resources as resources  # type: ignore
-
-
-class TestZip(unittest.TestCase):
-    root = 'tests.data'
-
-    def _fixture_on_path(self, filename):
-        pkg_file = resources.files(self.root).joinpath(filename)
-        file = self.resources.enter_context(resources.as_file(pkg_file))
-        assert file.name.startswith('example-'), file.name
-        sys.path.insert(0, str(file))
-        self.resources.callback(sys.path.pop, 0)
-
+class TestZip(fixtures.ZipFixtures, unittest.TestCase):
     def setUp(self):
-        # Find the path to the example-*.whl so we can add it to the front of
-        # sys.path, where we'll then try to find the metadata thereof.
-        self.resources = ExitStack()
-        self.addCleanup(self.resources.close)
+        super().setUp()
         self._fixture_on_path('example-21.12-py3-none-any.whl')
 
     def test_zip_version(self):
@@ -69,10 +49,7 @@ class TestZip(unittest.TestCase):
 
 class TestEgg(TestZip):
     def setUp(self):
-        # Find the path to the example-*.egg so we can add it to the front of
-        # sys.path, where we'll then try to find the metadata thereof.
-        self.resources = ExitStack()
-        self.addCleanup(self.resources.close)
+        super().setUp()
         self._fixture_on_path('example-21.12-py3.6.egg')
 
     def test_files(self):
