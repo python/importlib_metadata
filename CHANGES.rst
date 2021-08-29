@@ -1,3 +1,11 @@
+v4.8.0
+======
+
+* #337: Rewrote ``EntryPoint`` as a simple class, still
+  immutable and still with the attributes, but without any
+  expectation for ``namedtuple`` functionality such as
+  ``_asdict``.
+
 v4.7.1
 ======
 

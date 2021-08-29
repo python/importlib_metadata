@@ -2,7 +2,7 @@ import sys
 import platform
 
 
-__all__ = ['install', 'NullFinder', 'PyPy_repr', 'Protocol']
+__all__ = ['install', 'NullFinder', 'Protocol']
 
 
 try:
@@ -64,27 +64,6 @@ class NullFinder:
     # on sys.meta_path but having no other import
     # system functionality), the two methods are identical.
     find_module = find_spec
-
-
-class PyPy_repr:
-    """
-    Override repr for EntryPoint objects on PyPy to avoid __iter__ access.
-    Ref #97, #102.
-    """
-
-    affected = hasattr(sys, 'pypy_version_info')
-
-    def __compat_repr__(self):  # pragma: nocover
-        def make_param(name):
-            value = getattr(self, name)
-            return f'{name}={value!r}'
-
-        params = ', '.join(map(make_param, self._fields))
-        return f'EntryPoint({params})'
-
-    if affected:  # pragma: nocover
-        __repr__ = __compat_repr__
-    del affected
 
 
 def pypy_partial(val):
