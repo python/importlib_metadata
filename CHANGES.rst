@@ -1,3 +1,15 @@
+v4.8.1
+======
+
+* #348: Restored support for ``EntryPoint`` access by item,
+  deprecating support in the process. Users are advised
+  to use direct member access instead of item-based access::
+
+  - ep[0] -> ep.name
+  - ep[1] -> ep.value
+  - ep[2] -> ep.group
+  - ep[:] -> ep.name, ep.value, ep.group
+
 v4.8.0
 ======
 
