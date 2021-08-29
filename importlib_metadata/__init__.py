@@ -21,7 +21,7 @@ from ._compat import (
     install,
     pypy_partial,
 )
-from ._functools import method_cache
+from ._functools import method_cache, pass_none
 from ._itertools import always_iterable, unique_everseen
 from ._meta import PackageMetadata, SimplePath
 
@@ -635,7 +635,6 @@ class Distribution:
         missing.
         Result may be empty if the metadata exists but is empty.
         """
-        file_lines = self._read_files_distinfo() or self._read_files_egginfo()
 
         def make_file(name, hash=None, size_str=None):
             result = PackagePath(name)
@@ -644,7 +643,11 @@ class Distribution:
             result.dist = self
             return result
 
-        return file_lines and list(starmap(make_file, csv.reader(file_lines)))
+        @pass_none
+        def make_files(lines):
+            return list(starmap(make_file, csv.reader(lines)))
+
+        return make_files(self._read_files_distinfo() or self._read_files_egginfo())
 
     def _read_files_distinfo(self):
         """
