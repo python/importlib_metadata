@@ -156,7 +156,7 @@ class EntryPoint:
 
     dist: Optional['Distribution'] = None
 
-    def __init__(self, *, name, value, group):
+    def __init__(self, name, value, group):
         vars(self).update(name=name, value=value, group=group)
 
     def load(self):

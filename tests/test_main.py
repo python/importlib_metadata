@@ -232,6 +232,12 @@ class TestEntryPoints(unittest.TestCase):
         revived = pickle.loads(pickle.dumps(self.ep))
         assert revived == self.ep
 
+    def test_positional_args(self):
+        """
+        Capture legacy (namedtuple) construction, discouraged.
+        """
+        EntryPoint('name', 'value', 'group')
+
     def test_immutable(self):
         """EntryPoints should be immutable"""
         with self.assertRaises(AttributeError):
