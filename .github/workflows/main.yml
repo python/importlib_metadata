@@ -17,6 +17,11 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          # fetch all branches and tags (to get tags for versioning)
+          # ref actions/checkout#448
+          fetch-depth: 0
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
