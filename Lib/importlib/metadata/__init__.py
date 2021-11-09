@@ -15,7 +15,6 @@ import posixpath
 import collections
 
 from . import _adapters, _meta
-from ._meta import PackageMetadata
 from ._collections import FreezableDefaultDict, Pair
 from ._functools import method_cache
 from ._itertools import unique_everseen
