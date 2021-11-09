@@ -760,6 +760,9 @@ class FastPath:
     """
     Micro-optimized class for searching a path for
     children.
+
+    >>> FastPath('').children()
+    ['...']
     """
 
     @functools.lru_cache()  # type: ignore
