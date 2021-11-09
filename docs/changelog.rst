@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v2.1.2
+======
+
+* #353: Fixed discovery of distributions when path is empty.
+
 v2.1.1
 ======
 
