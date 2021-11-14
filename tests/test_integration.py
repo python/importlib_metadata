@@ -4,7 +4,6 @@ import packaging.version
 
 from . import fixtures
 from importlib_metadata import (
-    Distribution,
     MetadataPathFinder,
     _compat,
     distributions,
