@@ -702,7 +702,7 @@ class Distribution:
             if extra and markers:
                 markers = f'({markers})'
             conditions = list(filter(None, [markers, make_condition(extra)]))
-            return '; ' + ' and '.join(conditions) if conditions else ''
+            return ' ; ' + ' and '.join(conditions) if conditions else ''
 
         for section in sections:
             yield section.value + parse_condition(section.name)
