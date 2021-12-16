@@ -12,7 +12,7 @@ from test.support import requires_zlib
 from typing import Dict, Union
 
 try:
-    from importlib import resources
+    from importlib import resources  # type: ignore
 
     getattr(resources, 'files')
     getattr(resources, 'as_file')
