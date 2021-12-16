@@ -1,3 +1,9 @@
+v4.8.3
+======
+
+* #357: Fixed requirement generation from egg-info when a
+  URL requirement is given.
+
 v4.8.2
 ======
 
