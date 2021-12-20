@@ -1,5 +1,5 @@
-v4.9.0
-======
+v4.10.0
+=======
 
 * #354: Removed ``Distribution._local`` factory. This
   functionality was created as a demonstration of the
@@ -7,6 +7,25 @@ v4.9.0
   `pep517 <https://pypi.org/project/pep517>`_ package
   provides this functionality directly through
   `pep517.meta.load <https://github.com/pypa/pep517/blob/a942316305395f8f757f210e2b16f738af73f8b8/pep517/meta.py#L63-L73>`_.
+
+v4.9.0
+======
+
+* Require Python 3.7 or later.
+
+v4.8.3
+======
+
+* #357: Fixed requirement generation from egg-info when a
+  URL requirement is given.
+
+v4.8.2
+======
+
+v2.1.2
+======
+
+* #353: Fixed discovery of distributions when path is empty.
 
 v4.8.1
 ======

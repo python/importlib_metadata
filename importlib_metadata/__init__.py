@@ -684,7 +684,7 @@ class Distribution:
         def make_condition(name):
             return name and f'extra == "{name}"'
 
-        def parse_condition(section):
+        def quoted_marker(section):
             section = section or ''
             extra, sep, markers = section.partition(':')
             if extra and markers:
@@ -692,8 +692,17 @@ class Distribution:
             conditions = list(filter(None, [markers, make_condition(extra)]))
             return '; ' + ' and '.join(conditions) if conditions else ''
 
+        def url_req_space(req):
+            """
+            PEP 508 requires a space between the url_spec and the quoted_marker.
+            Ref python/importlib_metadata#357.
+            """
+            # '@' is uniquely indicative of a url_req.
+            return ' ' * ('@' in req)
+
         for section in sections:
-            yield section.value + parse_condition(section.name)
+            space = url_req_space(section.value)
+            yield section.value + space + quoted_marker(section.name)
 
 
 class DistributionFinder(MetaPathFinder):
@@ -748,6 +757,9 @@ class FastPath:
     """
     Micro-optimized class for searching a path for
     children.
+
+    >>> FastPath('').children()
+    ['...']
     """
 
     @functools.lru_cache()  # type: ignore
@@ -762,7 +774,7 @@ class FastPath:
 
     def children(self):
         with suppress(Exception):
-            return os.listdir(self.root or '')
+            return os.listdir(self.root or '.')
         with suppress(Exception):
             return self.zip_children()
         return []
