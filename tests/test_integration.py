@@ -4,7 +4,6 @@ import packaging.version
 
 from . import fixtures
 from importlib_metadata import (
-    Distribution,
     MetadataPathFinder,
     _compat,
     distributions,
@@ -42,13 +41,6 @@ class FinderTests(fixtures.Fixtures, unittest.TestCase):
 
         self.fixtures.enter_context(fixtures.install_finder(ModuleFreeFinder()))
         _compat.disable_stdlib_finder()
-
-
-class LocalProjectTests(fixtures.LocalPackage, unittest.TestCase):
-    def test_find_local(self):
-        dist = Distribution._local()
-        assert dist.metadata['Name'] == 'local-pkg'
-        assert dist.version == '2.0.1'
 
 
 class DistSearch(unittest.TestCase):

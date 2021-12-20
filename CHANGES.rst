@@ -1,3 +1,13 @@
+v4.10.0
+=======
+
+* #354: Removed ``Distribution._local`` factory. This
+  functionality was created as a demonstration of the
+  possible implementation. Now, the
+  `pep517 <https://pypi.org/project/pep517>`_ package
+  provides this functionality directly through
+  `pep517.meta.load <https://github.com/pypa/pep517/blob/a942316305395f8f757f210e2b16f738af73f8b8/pep517/meta.py#L63-L73>`_.
+
 v4.9.0
 ======
 
