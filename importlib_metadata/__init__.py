@@ -856,7 +856,7 @@ class Prepared:
         """
         PEP 503 normalization plus dashes as underscores.
         """
-        return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
+        return re.sub(r"[-_.]+", "-", str(name)).lower().replace('-', '_')
 
     @staticmethod
     def legacy_normalize(name):
