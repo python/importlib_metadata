@@ -2,6 +2,11 @@
  importlib_metadata NEWS
 =========================
 
+v2.1.3
+=======
+
+* #361: Avoid potential REDoS in ``EntryPoint.pattern``.
+
 v2.1.2
 ======
 
