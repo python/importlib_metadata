@@ -34,3 +34,12 @@ def uncached_distribution_perf():
     # end warmup
     importlib.invalidate_caches()
     importlib_metadata.distribution('ipython')
+
+
+def entrypoint_regexp_perf():
+    import importlib_metadata
+    import re
+
+    input = '0' + ' ' * 2 ** 10 + '0'  # end warmup
+
+    re.match(importlib_metadata.EntryPoint.pattern, input)
