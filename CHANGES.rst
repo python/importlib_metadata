@@ -1,6 +1,9 @@
 v4.10.1
 =======
 
+v2.1.3
+=======
+
 * #361: Avoid potential REDoS in ``EntryPoint.pattern``.
 
 v4.10.0
