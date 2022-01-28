@@ -1,3 +1,9 @@
+v4.10.2
+=======
+
+* #365 and bpo-46546: Avoid leaking ``method_name`` in
+  ``DeprecatedList``.
+
 v4.10.1
 =======
 
