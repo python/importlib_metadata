@@ -1,3 +1,8 @@
+v4.11.0
+=======
+
+* bpo-46246: Added ``__slots__`` to ``EntryPoints``.
+
 v4.10.2
 =======
 
