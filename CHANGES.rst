@@ -1,3 +1,9 @@
+v4.11.1
+=======
+
+* #367: In ``Distribution.requires`` for egg-info, if ``requires.txt``
+  is empty, return an empty list.
+
 v4.11.0
 =======
 
