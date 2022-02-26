@@ -153,7 +153,7 @@ class DeprecatedTuple:
 
 class Deps(set):
     """
-    A set of requirements as strings.
+    A set of packaging.requirement.Requirements.
     """
     @property
     def missing(self):
@@ -162,9 +162,7 @@ class Deps(set):
         current environment. Requires 'packaging' to be
         installed.
         """
-        from packaging.requirements import Requirement
-
-        return itertools.filterfalse(self._is_installed, map(Requirement, self))
+        return itertools.filterfalse(self._is_installed, self)
 
     @staticmethod
     def _is_installed(req):
@@ -174,7 +172,7 @@ class Deps(set):
             dist = distribution(req.name)
         except PackageNotFoundError:
             return False
-        found_ver = Version(dist.version())
+        found_ver = Version(dist.version)
         return found_ver in req.specifier
 
 
@@ -249,14 +247,15 @@ class EntryPoint(DeprecatedTuple):
     @property
     def deps(self):
         """
-        Return an iterable of requirements for any extras associated
+        Return an iterable of Requirements for any extras associated
         with this entry point. Requires self.dist to be defined.
         """
+        from packaging.requirements import Requirement
         return Deps(
             req
-            for req in always_iterable(self.dist.requires)
+            for req in map(Requirement, always_iterable(self.dist.requires))
             for extra in self.extras
-            if extra in req.extras
+            if req.marker.evaluate(dict(extra=extra))
         )
 
     def _for(self, dist):
