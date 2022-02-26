@@ -185,6 +185,11 @@ class APITests(
         with self.assertRaises(AttributeError):
             ep.foo = 4
 
+    def test_entry_points_deps(self):
+        ep = next(iter(entry_points().select(group='entries', name='main')))
+        assert list(ep.deps) == []
+        assert list(ep.deps.missing) == []
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
