@@ -16,6 +16,7 @@ from importlib_metadata import (
     requires,
     version,
 )
+from .py39compat import import_module
 
 
 @contextlib.contextmanager
@@ -186,11 +187,13 @@ class APITests(
             ep.foo = 4
 
     def test_entry_points_deps_basic(self):
+        import_module('packaging')
         ep = next(iter(entry_points().select(group='entries', name='main')))
         assert list(ep.deps) == []
         assert list(ep.deps.missing) == []
 
     def test_entry_points_deps(self):
+        import_module('packaging')
         alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
         self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
         eps_pkg = {
