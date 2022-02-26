@@ -155,6 +155,7 @@ class Deps(set):
     """
     A set of packaging.requirement.Requirements.
     """
+
     @property
     def missing(self):
         """
@@ -251,6 +252,7 @@ class EntryPoint(DeprecatedTuple):
         with this entry point. Requires self.dist to be defined.
         """
         from packaging.requirements import Requirement
+
         return Deps(
             req
             for req in map(Requirement, always_iterable(self.dist.requires))
