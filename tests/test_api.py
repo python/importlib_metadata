@@ -185,6 +185,34 @@ class APITests(
         with self.assertRaises(AttributeError):
             ep.foo = 4
 
+    def test_entry_points_deps_basic(self):
+        ep = next(iter(entry_points().select(group='entries', name='main')))
+        assert list(ep.deps) == []
+        assert list(ep.deps.missing) == []
+
+    def test_entry_points_deps(self):
+        alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
+        self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
+        eps_pkg = {
+            "package_with_eps-1.1.0.dist-info": {
+                "METADATA": """
+                Name: package-with-eps
+                Version: 1.1.0
+                Requires-Dist: pytest; extra == 'test'
+                Requires-Dist: does-not-exist; extra == 'other'
+                """,
+                "entry_points.txt": """
+                [entries]
+                tester = mod:altmain [test, other]
+                """,
+            },
+        }
+        fixtures.build_files(eps_pkg, alt_site_dir)
+        (ep,) = entry_points().select(group='entries', name='tester')
+        expected_deps = ['pytest; extra == "test"', 'does-not-exist; extra == "other"']
+        assert list(map(str, ep.deps)) == expected_deps
+        assert list(map(str, ep.deps.missing)) == ['does-not-exist; extra == "other"']
+
     def test_metadata_for_this_package(self):
         md = metadata('egginfo-pkg')
         assert md['author'] == 'Steven Ma'
