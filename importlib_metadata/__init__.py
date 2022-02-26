@@ -151,6 +151,33 @@ class DeprecatedTuple:
         return self._key()[item]
 
 
+class Deps(set):
+    """
+    A set of requirements as strings.
+    """
+    @property
+    def missing(self):
+        """
+        Resolve which requirements are missing from the
+        current environment. Requires 'packaging' to be
+        installed.
+        """
+        from packaging.requirements import Requirement
+
+        return itertools.filterfalse(self._is_installed, map(Requirement, self))
+
+    @staticmethod
+    def _is_installed(req):
+        from packaging.version import Version
+
+        try:
+            dist = distribution(req.name)
+        except PackageNotFoundError:
+            return False
+        found_ver = Version(dist.version())
+        return found_ver in req.specifier
+
+
 class EntryPoint(DeprecatedTuple):
     """An entry point as defined by Python packaging conventions.
 
@@ -218,6 +245,19 @@ class EntryPoint(DeprecatedTuple):
     def extras(self):
         match = self.pattern.match(self.value)
         return re.findall(r'\w+', match.group('extras') or '')
+
+    @property
+    def deps(self):
+        """
+        Return an iterable of requirements for any extras associated
+        with this entry point. Requires self.dist to be defined.
+        """
+        return Deps(
+            req
+            for req in always_iterable(self.dist.requires)
+            for extra in self.extras
+            if extra in req.extras
+        )
 
     def _for(self, dist):
         vars(self).update(dist=dist)
