@@ -25,6 +25,7 @@ The documentation here includes a general :ref:`usage <using>` guide.
 
    using
    api
+   migration
    history
 
 

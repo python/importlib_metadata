@@ -243,6 +243,7 @@ Python packages or modules::
     >>> packages_distributions()
     {'importlib_metadata': ['importlib-metadata'], 'yaml': ['PyYAML'], 'jaraco': ['jaraco.classes', 'jaraco.functools'], ...}
 
+.. _distributions:
 
 Distributions
 =============
