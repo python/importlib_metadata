@@ -217,7 +217,7 @@ class EntryPoint(DeprecatedTuple):
     @property
     def extras(self):
         match = self.pattern.match(self.value)
-        return list(re.finditer(r'\w+', match.group('extras') or ''))
+        return re.findall(r'\w+', match.group('extras') or '')
 
     def _for(self, dist):
         vars(self).update(dist=dist)

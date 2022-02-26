@@ -1,3 +1,9 @@
+v4.11.2
+=======
+
+* #369: Fixed bug where ``EntryPoint.extras`` was returning
+  match objects and not the extras strings.
+
 v4.11.1
 =======
 
