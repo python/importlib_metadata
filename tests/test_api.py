@@ -208,7 +208,7 @@ class APITests(
             },
         }
         fixtures.build_files(eps_pkg, alt_site_dir)
-        ep, = entry_points().select(group='entries', name='tester')
+        (ep,) = entry_points().select(group='entries', name='tester')
         expected_deps = ['pytest; extra == "test"', 'does-not-exist; extra == "other"']
         assert list(map(str, ep.deps)) == expected_deps
         assert list(map(str, ep.deps.missing)) == ['does-not-exist; extra == "other"']
