@@ -157,6 +157,15 @@ class EntryPoint(DeprecatedTuple):
     See `the packaging docs on entry points
     <https://packaging.python.org/specifications/entry-points/>`_
     for more information.
+
+    >>> ep = EntryPoint(
+    ...     name=None, group=None, value='package.module:attr [extra1, extra2]')
+    >>> ep.module
+    'package.module'
+    >>> ep.attr
+    'attr'
+    >>> ep.extras
+    ['extra1', 'extra2']
     """
 
     pattern = re.compile(
