@@ -193,6 +193,17 @@ class APITests(
         assert list(ep.deps.missing) == []
 
     def test_entry_points_deps(self):
+        """
+        Capture several expectations around dependencies.
+
+        Consider splitting these into separate unit tests.
+
+        1. Multiple extras will be checked.
+        2. Satisfied extras will be excluded from 'missing' (pytest).
+        3. Missing dependencies will be reported (does-not-exist).
+        4. Dependencies not listing extras (tempora) will not
+           break the check.
+        """
         import_module('packaging')
         alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
         self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
@@ -203,6 +214,7 @@ class APITests(
                 Version: 1.1.0
                 Requires-Dist: pytest; extra == 'test'
                 Requires-Dist: does-not-exist; extra == 'other'
+                Requires-Dist: tempora
                 """,
                 "entry_points.txt": """
                 [entries]

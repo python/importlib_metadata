@@ -189,7 +189,7 @@ class Deps(set):
             req
             for req in map(Requirement, always_iterable(ep.dist.requires))
             for extra in ep.extras
-            if req.marker.evaluate(dict(extra=extra))
+            if req.marker and req.marker.evaluate(dict(extra=extra))
         )
 
 
