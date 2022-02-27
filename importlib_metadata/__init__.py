@@ -184,6 +184,7 @@ class Deps(set):
         Requires ep.dist to be defined.
         """
         from packaging.requirements import Requirement
+
         return cls(
             req
             for req in map(Requirement, always_iterable(ep.dist.requires))
