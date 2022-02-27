@@ -153,7 +153,7 @@ class DeprecatedTuple:
 
 class Deps(set):
     """
-    A set of packaging.requirement.Requirements.
+    An iterable of packaging.requirement.Requirements.
     """
 
     @property
@@ -175,6 +175,21 @@ class Deps(set):
             return False
         found_ver = Version(dist.version)
         return found_ver in req.specifier
+
+    @classmethod
+    def for_entry_point(cls, ep):
+        """
+        Return Deps for any extras associated with the entry point.
+
+        Requires ep.dist to be defined.
+        """
+        from packaging.requirements import Requirement
+        return cls(
+            req
+            for req in map(Requirement, always_iterable(ep.dist.requires))
+            for extra in ep.extras
+            if req.marker.evaluate(dict(extra=extra))
+        )
 
 
 class EntryPoint(DeprecatedTuple):
@@ -247,18 +262,7 @@ class EntryPoint(DeprecatedTuple):
 
     @property
     def deps(self):
-        """
-        Return an iterable of Requirements for any extras associated
-        with this entry point. Requires self.dist to be defined.
-        """
-        from packaging.requirements import Requirement
-
-        return Deps(
-            req
-            for req in map(Requirement, always_iterable(self.dist.requires))
-            for extra in self.extras
-            if req.marker.evaluate(dict(extra=extra))
-        )
+        return Deps.for_entry_point(self)
 
     def _for(self, dist):
         vars(self).update(dist=dist)
