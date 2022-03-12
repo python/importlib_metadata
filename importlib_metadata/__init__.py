@@ -772,7 +772,7 @@ class FastPath:
         return super().__new__(cls)
 
     def __init__(self, root):
-        self.root = str(root)
+        self.root = root
 
     def joinpath(self, child):
         return pathlib.Path(self.root, child)
