@@ -1,3 +1,8 @@
+v4.11.3
+=======
+
+* #372: Removed cast of path items in FastPath, not needed.
+
 v4.11.2
 =======
 
