@@ -235,6 +235,25 @@ class EntryPoint(DeprecatedTuple):
         return iter((self.name, self))
 
     def matches(self, **params):
+        """
+        EntryPoint matches the given parameters.
+
+        >>> ep = EntryPoint(group='foo', name='bar', value='bing:bong [extra1, extra2]')
+        >>> ep.matches(group='foo')
+        True
+        >>> ep.matches(name='bar', value='bing:bong [extra1, extra2]')
+        True
+        >>> ep.matches(group='foo', name='other')
+        False
+        >>> ep.matches()
+        True
+        >>> ep.matches(extras=['extra1', 'extra2'])
+        True
+        >>> ep.matches(module='bing')
+        True
+        >>> ep.matches(attr='bong')
+        True
+        """
         attrs = (getattr(self, param) for param in params)
         return all(map(operator.eq, params.values(), attrs))
 
