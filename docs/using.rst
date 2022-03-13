@@ -42,9 +42,9 @@ You can get the version string for ``wheel`` by running the following::
     >>> version('wheel')
     '0.32.3'
 
-You can also get the set of entry points keyed by group, such as
+You can also get a collection of entry points selectable by properties of the EntryPoint (typically 'group' or 'name'), such as
 ``console_scripts``, ``distutils.commands`` and others.  Each group contains a
-sequence of :ref:`EntryPoint <entry-points>` objects.
+collection of :ref:`EntryPoint <entry-points>` objects.
 
 You can get the :ref:`metadata for a distribution <metadata>`::
 
@@ -79,7 +79,7 @@ Query all entry points::
     >>> eps = entry_points()
 
 The ``entry_points()`` function returns an ``EntryPoints`` object,
-a sequence of all ``EntryPoint`` objects with ``names`` and ``groups``
+a collection of all ``EntryPoint`` objects with ``names`` and ``groups``
 attributes for convenience::
 
     >>> sorted(eps.groups)
