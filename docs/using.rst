@@ -42,7 +42,7 @@ You can get the version string for ``wheel`` by running the following::
     >>> version('wheel')
     '0.32.3'
 
-You can also get a collection of entry points selectable by group, such as
+You can also get a collection of entry points selectable by properties of the EntryPoint (typically 'group' or 'name'), such as
 ``console_scripts``, ``distutils.commands`` and others.  Each group contains a
 collection of :ref:`EntryPoint <entry-points>` objects.
 
