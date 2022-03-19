@@ -274,6 +274,15 @@ The full set of available metadata is not described here.  See :pep:`566`
 for additional details.
 
 
+Distribution Discovery
+======================
+
+By default, this package provides built-in support for discovery of metadata for file system and zip file packages. This metadata finder search defaults to ``sys.path``, but varies slightly in how it interprets those values from how other import machinery does. In particular:
+
+- ``importlib_metadata`` does not honor :type:`bytes` objects on ``sys.path``.
+- ``importlib_metadata`` will incidentally honor :py:class:`pathlib.Path` objects on ``sys.path`` even though such values will be ignored for imports.
+
+
 Extending the search algorithm
 ==============================
 
