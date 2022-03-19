@@ -39,6 +39,20 @@ class Message(email.message.Message):
     def __iter__(self):
         return super().__iter__()
 
+    def __getitem__(self, item):
+        """
+        Prefer dict-like behavior for __getitem__ when keys are missing.
+        >>> msg = Message(email.message.Message())
+        >>> msg['thing']
+        Traceback (most recent call last):
+        ...
+        KeyError: 'thing'
+        """
+        res = super().__getitem__(item)
+        if res is None:
+            raise KeyError(item)
+        return res
+
     def _repair_headers(self):
         def redent(value):
             "Correct for RFC822 indentation"

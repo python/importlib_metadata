@@ -141,7 +141,6 @@ class APITests(
         resolved = version('importlib-metadata')
         assert re.match(self.version_pattern, resolved)
 
-    @__import__('pytest').mark.xfail(reason="not implemented #371")
     def test_missing_key(self):
         """
         Attempting to request missing metadata raises KeyError.
