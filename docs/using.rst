@@ -172,9 +172,10 @@ all the metadata in a JSON-compatible form per PEP 566::
 .. note::
 
     The actual type of the object returned by ``metadata()`` is an
-    implementation detail, it should be accessed only through the interface
-    described by the ``PackageMetadata`` protocol documented here and at
-    https://importlib-metadata.readthedocs.io/en/latest/api.html#importlib_metadata.PackageMetadata
+    implementation detail and should be accessed only through the interface
+    described by the
+    `PackageMetadata protocol <https://importlib-metadata.readthedocs.io/en/latest/api.html#importlib_metadata.PackageMetadata>`.
+
 
 .. _version:
 
