@@ -23,6 +23,13 @@ By default, package metadata can live on the file system or in zip archives on
 anywhere.
 
 
+.. seealso::
+
+   https://importlib-metadata.readthedocs.io/
+      The documentation for ``importlib_metadata``, which supplies a
+      backport of ``importlib.metadata``.
+
+
 Overview
 ========
 
