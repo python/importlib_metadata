@@ -14,6 +14,7 @@ from importlib_metadata import (
     EntryPoint,
     MetadataPathFinder,
     PackageNotFoundError,
+    distribution,
     distributions,
     entry_points,
     metadata,
@@ -87,15 +88,17 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         metadata = metadata_dir / 'METADATA'
         with metadata.open('w', encoding='utf-8') as strm:
             strm.write('Version: 1.0\n')
-        return 'my-pkg'
+        return 'my-pkg', 'my_pkg'
 
     def test_dashes_in_dist_name_found_as_underscores(self):
         """
         For a package with a dash in the name, the dist-info metadata
         uses underscores in the name. Ensure the metadata loads.
         """
-        pkg_name = self.pkg_with_dashes(self.site_dir)
-        assert version(pkg_name) == '1.0'
+        pkg_name, norm_pkg_name = self.pkg_with_dashes(self.site_dir)
+        dist = distribution(pkg_name)
+        assert dist._normalized_name == norm_pkg_name
+        assert dist.version == '1.0'
 
     @staticmethod
     def pkg_with_mixed_case(site_dir):
@@ -108,16 +111,40 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         metadata = metadata_dir / 'METADATA'
         with metadata.open('w', encoding='utf-8') as strm:
             strm.write('Version: 1.0\n')
-        return 'CherryPy'
+        return 'CheRRypY', 'cherrypy'
 
     def test_dist_name_found_as_any_case(self):
         """
         Ensure the metadata loads when queried with any case.
         """
-        pkg_name = self.pkg_with_mixed_case(self.site_dir)
-        assert version(pkg_name) == '1.0'
-        assert version(pkg_name.lower()) == '1.0'
-        assert version(pkg_name.upper()) == '1.0'
+        pkg_name, norm_pkg_name = self.pkg_with_mixed_case(self.site_dir)
+        for name_variant in (pkg_name, pkg_name.lower(), pkg_name.upper()):
+            dist = distribution(name_variant)
+            assert dist._normalized_name == norm_pkg_name
+            assert dist.version == '1.0'
+
+    @staticmethod
+    def pkg_with_replaced_chars(site_dir):
+        """
+        Create minimal metadata for a package with some
+        characters replaced by PEP 503 normalization
+        in the name.
+        """
+        metadata_dir = site_dir / 'zope..inter_face-4.2.dist-info'
+        metadata_dir.mkdir()
+        metadata = metadata_dir / 'METADATA'
+        with metadata.open('w', encoding='utf-8') as strm:
+            strm.write('Version: 4.2\n')
+        return 'zope-inter._FACE', 'zope_inter_face'
+
+    def test_dist_name_pep503_normalization(self):
+        """
+        Ensure the distribution name is properly normalized.
+        """
+        pkg_name, norm_pkg_name = self.pkg_with_replaced_chars(self.site_dir)
+        dist = distribution(pkg_name)
+        assert dist._normalized_name == norm_pkg_name
+        assert dist.version == '4.2'
 
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):

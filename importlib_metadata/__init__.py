@@ -956,7 +956,10 @@ class PathDistribution(Distribution):
         normalized name from the file system path.
         """
         stem = os.path.basename(str(self._path))
-        return self._name_from_stem(stem) or super()._normalized_name
+        return (
+            pass_none(Prepared.normalize)(self._name_from_stem(stem))
+            or super()._normalized_name
+        )
 
     @staticmethod
     def _name_from_stem(stem):
