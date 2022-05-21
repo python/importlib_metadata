@@ -958,8 +958,9 @@ class PathDistribution(Distribution):
         stem = os.path.basename(str(self._path))
         return self._name_from_stem(stem) or super()._normalized_name
 
-    def _name_from_stem(self, stem):
-        name, ext = os.path.splitext(stem)
+    @staticmethod
+    def _name_from_stem(stem):
+        _, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
             return
         name, sep, rest = stem.partition('-')
