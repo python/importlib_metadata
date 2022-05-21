@@ -967,6 +967,7 @@ class PathDistribution(Distribution):
         'CherryPy'
         >>> PathDistribution._name_from_stem('face.egg-info')
         'face'
+        >>> PathDistribution._name_from_stem('foo.bar')
         """
         filename, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
