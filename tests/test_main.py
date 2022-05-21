@@ -13,6 +13,7 @@ from importlib_metadata import (
     EntryPoint,
     MetadataPathFinder,
     PackageNotFoundError,
+    _unique,
     distributions,
     entry_points,
     metadata,
@@ -104,6 +105,21 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         assert version(pkg_name) == '1.0'
         assert version(pkg_name.lower()) == '1.0'
         assert version(pkg_name.upper()) == '1.0'
+
+    def test_unique_distributions(self):
+        """
+        Two distributions varying only by non-normalized name on
+        the file system should resolve as the same.
+        """
+        fixtures.build_files(self.make_pkg('abc'), self.site_dir)
+        before = list(_unique(distributions()))
+
+        alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
+        self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
+        fixtures.build_files(self.make_pkg('ABC'), alt_site_dir)
+        after = list(_unique(distributions()))
+
+        assert len(after) == len(before)
 
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
