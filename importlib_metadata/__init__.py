@@ -968,10 +968,10 @@ class PathDistribution(Distribution):
         >>> PathDistribution._name_from_stem('face.egg-info')
         'face'
         """
-        _, ext = os.path.splitext(stem)
+        filename, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
             return
-        name, sep, rest = stem.partition('-')
+        name, sep, rest = filename.partition('-')
         return name
 
 
