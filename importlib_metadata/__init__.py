@@ -960,6 +960,14 @@ class PathDistribution(Distribution):
 
     @staticmethod
     def _name_from_stem(stem):
+        """
+        >>> PathDistribution._name_from_stem('foo-3.0.egg-info')
+        'foo'
+        >>> PathDistribution._name_from_stem('CherryPy-3.0.dist-info')
+        'CherryPy'
+        >>> PathDistribution._name_from_stem('face.egg-info')
+        'face'
+        """
         _, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
             return
