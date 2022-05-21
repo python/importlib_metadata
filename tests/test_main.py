@@ -1,7 +1,6 @@
 import re
 import json
 import pickle
-import textwrap
 import unittest
 import warnings
 import importlib
@@ -82,11 +81,12 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         Create minimal metadata for a package with dashes
         in the name (and thus underscores in the filename).
         """
-        metadata_dir = site_dir / 'my_pkg.dist-info'
-        metadata_dir.mkdir()
-        metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as strm:
-            strm.write('Version: 1.0\n')
+        contents = {
+            'my_pkg.dist-info': {
+                'METADATA': 'VERSION: 1.0\n',
+            },
+        }
+        fixtures.build_files(contents, site_dir)
         return 'my-pkg'
 
     def test_dashes_in_dist_name_found_as_underscores(self):
@@ -103,11 +103,12 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         Create minimal metadata for a package with mixed case
         in the name.
         """
-        metadata_dir = site_dir / 'CherryPy.dist-info'
-        metadata_dir.mkdir()
-        metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as strm:
-            strm.write('Version: 1.0\n')
+        contents = {
+            'CherryPy.dist-info': {
+                'METADATA': 'VERSION: 1.0\n',
+            },
+        }
+        fixtures.build_files(contents, site_dir)
         return 'CherryPy'
 
     def test_dist_name_found_as_any_case(self):
@@ -127,11 +128,12 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         Create minimal metadata for a package with non-ASCII in
         the description.
         """
-        metadata_dir = site_dir / 'portend.dist-info'
-        metadata_dir.mkdir()
-        metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as fp:
-            fp.write('Description: pôrˈtend')
+        contents = {
+            'portend.dist-info': {
+                'METADATA': 'Description: pôrˈtend',
+            },
+        }
+        fixtures.build_files(contents, site_dir)
         return 'portend'
 
     @staticmethod
@@ -140,19 +142,15 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         Create minimal metadata for an egg-info package with
         non-ASCII in the description.
         """
-        metadata_dir = site_dir / 'portend.dist-info'
-        metadata_dir.mkdir()
-        metadata = metadata_dir / 'METADATA'
-        with metadata.open('w', encoding='utf-8') as fp:
-            fp.write(
-                textwrap.dedent(
-                    """
+        contents = {
+            'portend.dist-info': {
+                'METADATA': """
                 Name: portend
 
-                pôrˈtend
-                """
-                ).strip()
-            )
+                pôrˈtend""",
+            },
+        }
+        fixtures.build_files(contents, site_dir)
         return 'portend'
 
     def test_metadata_loads(self):
