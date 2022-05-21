@@ -940,11 +940,20 @@ class PathDistribution(Distribution):
         stem = os.path.basename(str(self._path))
         return self._name_from_stem(stem) or super()._normalized_name
 
-    def _name_from_stem(self, stem):
-        name, ext = os.path.splitext(stem)
+    @staticmethod
+    def _name_from_stem(stem):
+        """
+        >>> PathDistribution._name_from_stem('foo-3.0.egg-info')
+        'foo'
+        >>> PathDistribution._name_from_stem('CherryPy-3.0.dist-info')
+        'CherryPy'
+        >>> PathDistribution._name_from_stem('face.egg-info')
+        'face'
+        """
+        filename, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
             return
-        name, sep, rest = stem.partition('-')
+        name, sep, rest = filename.partition('-')
         return name
 
 
