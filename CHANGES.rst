@@ -1,3 +1,9 @@
+v4.11.4
+=======
+
+* #377: In ``PathDistribution._name_from_stem``, avoid including
+  parts of the extension in the result.
+
 v4.11.3
 =======
 
