@@ -1015,6 +1015,15 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
+_unique = functools.partial(
+    unique_everseen,
+    key=operator.attrgetter('_normalized_name'),
+)
+"""
+Wrapper for ``distributions`` to return unique distributions by name.
+"""
+
+
 def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
     """Return EntryPoint objects for all installed packages.
 
@@ -1032,10 +1041,8 @@ def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:
 
     :return: EntryPoints or SelectableGroups for all installed packages.
     """
-    norm_name = operator.attrgetter('_normalized_name')
-    unique = functools.partial(unique_everseen, key=norm_name)
     eps = itertools.chain.from_iterable(
-        dist.entry_points for dist in unique(distributions())
+        dist.entry_points for dist in _unique(distributions())
     )
     return SelectableGroups.load(eps).select(**params)
 
