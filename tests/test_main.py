@@ -76,46 +76,31 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
-    def pkg_with_dashes(site_dir):
+    def make_pkg(name):
         """
-        Create minimal metadata for a package with dashes
-        in the name (and thus underscores in the filename).
+        Create minimal metadata for a dist-info package with
+        the indicated name on the file system.
         """
-        contents = {
-            'my_pkg.dist-info': {
+        return {
+            f'{name}.dist-info': {
                 'METADATA': 'VERSION: 1.0\n',
             },
         }
-        fixtures.build_files(contents, site_dir)
-        return 'my-pkg'
 
     def test_dashes_in_dist_name_found_as_underscores(self):
         """
         For a package with a dash in the name, the dist-info metadata
         uses underscores in the name. Ensure the metadata loads.
         """
-        pkg_name = self.pkg_with_dashes(self.site_dir)
-        assert version(pkg_name) == '1.0'
-
-    @staticmethod
-    def pkg_with_mixed_case(site_dir):
-        """
-        Create minimal metadata for a package with mixed case
-        in the name.
-        """
-        contents = {
-            'CherryPy.dist-info': {
-                'METADATA': 'VERSION: 1.0\n',
-            },
-        }
-        fixtures.build_files(contents, site_dir)
-        return 'CherryPy'
+        fixtures.build_files(self.make_pkg('my_pkg'), self.site_dir)
+        assert version('my-pkg') == '1.0'
 
     def test_dist_name_found_as_any_case(self):
         """
         Ensure the metadata loads when queried with any case.
         """
-        pkg_name = self.pkg_with_mixed_case(self.site_dir)
+        pkg_name = 'CherryPy'
+        fixtures.build_files(self.make_pkg(pkg_name), self.site_dir)
         assert version(pkg_name) == '1.0'
         assert version(pkg_name.lower()) == '1.0'
         assert version(pkg_name.upper()) == '1.0'
