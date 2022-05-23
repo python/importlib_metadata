@@ -3,7 +3,7 @@ v4.11.4
 
 * #379: In ``PathDistribution._name_from_stem``, avoid including
   parts of the extension in the result.
-# #381: In ``PathDistribution._normalized_name``, ensure names
+* #381: In ``PathDistribution._normalized_name``, ensure names
   loaded from the stem of the filename are also normalized, ensuring
   duplicate entry points by packages varying only by non-normalized
   name are hidden.
