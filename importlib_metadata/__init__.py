@@ -832,6 +832,12 @@ class Lookup:
         self.eggs = FreezableDefaultDict(list)
 
         for child in sorted(path.children()):
+            # Empty directories aren't interesting
+            childpath = path.joinpath(child)
+            with suppress(PermissionError):
+                if childpath.is_dir() and not any(childpath.iterdir()):
+                    continue
+
             low = child.lower()
             if low.endswith((".dist-info", ".egg-info")):
                 # rpartition is faster than splitext and suitable for this purpose.
