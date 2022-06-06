@@ -831,7 +831,7 @@ class Lookup:
         self.infos = FreezableDefaultDict(list)
         self.eggs = FreezableDefaultDict(list)
 
-        for child in path.children():
+        for child in sorted(path.children()):
             low = child.lower()
             if low.endswith((".dist-info", ".egg-info")):
                 # rpartition is faster than splitext and suitable for this purpose.
