@@ -29,6 +29,8 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
+from pydantic import Field, validate_arguments
+from pydantic.typing import Annotated
 from typing import List, Mapping, Optional, Union
 
 
@@ -548,7 +550,8 @@ class Distribution:
         """
 
     @classmethod
-    def from_name(cls, name):
+    @validate_arguments
+    def from_name(cls, name: Annotated[str, Field(min_length=1)]):
         """Return the Distribution for the given package name.
 
         :param name: The name of the distribution package to search for.
