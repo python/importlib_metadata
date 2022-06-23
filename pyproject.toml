@@ -1,5 +1,11 @@
 [build-system]
-requires = ["setuptools>=56", "setuptools_scm[toml]>=3.4.1"]
+requires = [
+	"setuptools>=56",
+	"setuptools_scm[toml]>=3.4.1",
+	# temporary workaround for dependency race in setuptools_scm
+	# https://github.com/python/importlib_metadata/pull/389#issuecomment-1164912426
+	'pydantic; python_version < "3.8"',
+]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
