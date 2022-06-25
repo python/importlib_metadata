@@ -13,14 +13,13 @@
 
 **Source code:** :source:`Lib/importlib/metadata/__init__.py`
 
-``importlib.metadata`` is a library that provides for access to installed
-package metadata.  Built in part on Python's import system, this library
+``importlib.metadata`` is a library that provides access to installed
+package metadata, such as its entry points or its
+top-level name.  Built in part on Python's import system, this library
 intends to replace similar functionality in the `entry point
 API`_ and `metadata API`_ of ``pkg_resources``.  Along with
-:mod:`importlib.resources` (with new features backported to
-:doc:`importlib_resources <importlib_resources:index>`),
-this package can eliminate the need to use the older
-and less efficient
+:mod:`importlib.resources`,
+this package can eliminate the need to use the older and less efficient
 ``pkg_resources`` package.
 
 By "installed package" we generally mean a third-party package installed into
