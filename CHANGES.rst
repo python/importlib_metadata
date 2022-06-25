@@ -1,3 +1,10 @@
+v4.12.0
+=======
+
+* py-93259: Now raise ``ValueError`` when ``None`` or an empty
+  string are passed to ``Distribution.from_name`` (and other
+  callers).
+
 v4.11.4
 =======
 

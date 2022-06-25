@@ -20,6 +20,10 @@ link_files = {
                 pattern=r'PEP[- ](?P<pep_number>\d+)',
                 url='https://peps.python.org/pep-{pep_number:0>4}/',
             ),
+            dict(
+                pattern=r'(Python #|py-)(?P<python>\d+)',
+                url='https://github.com/python/cpython/issues/{python}',
+            ),
         ],
     )
 }
