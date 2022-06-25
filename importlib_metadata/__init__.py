@@ -560,12 +560,9 @@ class Distribution:
         """
         if not name:
             raise ValueError("A distribution name is required.")
-        for resolver in cls._discover_resolvers():
-            dists = resolver(DistributionFinder.Context(name=name))
-            dist = next(iter(dists), None)
-            if dist is not None:
-                return dist
-        else:
+        try:
+            return next(cls.discover(name=name))
+        except StopIteration:
             raise PackageNotFoundError(name)
 
     @classmethod
