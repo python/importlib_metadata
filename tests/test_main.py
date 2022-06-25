@@ -50,6 +50,14 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
         self.assertIsInstance(Distribution, type)
         self.assertIsInstance(MetadataPathFinder, type)
 
+    @fixtures.parameterize(
+        dict(name=None),
+        dict(name=''),
+    )
+    def test_invalid_inputs_to_from_name(self, name):
+        with self.assertRaises(Exception):
+            Distribution.from_name(name)
+
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_import_nonexistent_module(self):

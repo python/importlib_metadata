@@ -548,7 +548,7 @@ class Distribution:
         """
 
     @classmethod
-    def from_name(cls, name):
+    def from_name(cls, name: str):
         """Return the Distribution for the given package name.
 
         :param name: The name of the distribution package to search for.
@@ -556,7 +556,10 @@ class Distribution:
             package, if found.
         :raises PackageNotFoundError: When the named package's distribution
             metadata cannot be found.
+        :raises ValueError: When an invalid value is supplied for name.
         """
+        if not name:
+            raise ValueError("A distribution name is required.")
         try:
             return next(cls.discover(name=name))
         except StopIteration:
