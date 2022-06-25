@@ -51,7 +51,7 @@ something into it:
 
     $ python3 -m venv example
     $ source example/bin/activate
-    (example) $ pip install wheel
+    (example) $ python -m pip install wheel
 
 You can get the version string for ``wheel`` by running the following:
 
@@ -144,7 +144,7 @@ Inspect the resolved entry point::
 The ``group`` and ``name`` are arbitrary values defined by the package author
 and usually a client will wish to resolve all entry points for a particular
 group.  Read `the setuptools docs
-<https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
+<https://setuptools.pypa.io/en/latest/userguide/entry_point.html>`_
 for more information on entry points, their definition, and usage.
 
 *Compatibility Note*
