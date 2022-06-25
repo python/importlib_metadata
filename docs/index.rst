@@ -9,8 +9,7 @@ and newer (backported as :doc:`importlib_resources <importlib_resources:index>`)
 this package can eliminate the need to use the older and less
 efficient ``pkg_resources`` package.
 
-``importlib_metadata`` supplies a backport of
-:doc:`importlib.metadata <library/importlib.metadata>`,
+``importlib_metadata`` supplies a backport of :mod:`importlib.metadata`,
 enabling early access to features of future Python versions and making
 functionality available for older Python versions. Users are encouraged to
 use the Python standard library where suitable and fall back to
