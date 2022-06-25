@@ -1,7 +1,6 @@
 import re
 import json
 import pickle
-import pytest
 import unittest
 import warnings
 import importlib
@@ -51,7 +50,6 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
         self.assertIsInstance(Distribution, type)
         self.assertIsInstance(MetadataPathFinder, type)
 
-    @pytest.mark.xfail(reason="Not implemented")
     @fixtures.parameterize(
         dict(name=None),
         dict(name=''),
