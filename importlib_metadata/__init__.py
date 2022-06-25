@@ -557,12 +557,8 @@ class Distribution:
         :raises PackageNotFoundError: When the named package's distribution
             metadata cannot be found.
         """
-        dists = itertools.chain.from_iterable(
-            resolver(DistributionFinder.Context(name=name))
-            for resolver in cls._discover_resolvers()
-        )
         try:
-            return next(dists)
+            return next(cls.discover(name=name))
         except StopIteration:
             raise PackageNotFoundError(name)
 
