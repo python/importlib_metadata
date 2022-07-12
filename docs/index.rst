@@ -19,6 +19,8 @@ The documentation here includes a general :ref:`usage <using>` guide.
    migration
    history
 
+.. tidelift-referral-banner::
+
 
 Project details
 ===============

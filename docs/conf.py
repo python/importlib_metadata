@@ -51,3 +51,5 @@ nitpick_ignore = [
     ('py:class', 'importlib_metadata.SelectableGroups'),
     ('py:class', 'importlib_metadata._meta._T'),
 ]
+
+extensions += ['jaraco.tidelift']
