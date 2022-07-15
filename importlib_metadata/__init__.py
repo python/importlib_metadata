@@ -1015,9 +1015,18 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
+def _compat_normalized_name(dist: Distribution) -> Optional[str]:
+    """
+    Compatibility layer that honor name normalization for distributions
+    that don't provide ``_normalized_name``
+    (as in ``importlib.metadata`` for Python 3.8/3.9).
+    """
+    return getattr(dist, '_normalized_name', None) or Prepared.normalize(dist.name)
+
+
 _unique = functools.partial(
     unique_everseen,
-    key=operator.attrgetter('_normalized_name'),
+    key=_compat_normalized_name,
 )
 """
 Wrapper for ``distributions`` to return unique distributions by name.
