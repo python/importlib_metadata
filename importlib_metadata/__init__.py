@@ -29,7 +29,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Tuple, Union, cast
+from typing import List, Mapping, Optional, Tuple, Union
 
 
 __all__ = [
@@ -1038,12 +1038,7 @@ def _compat_normalized_name(dist: Distribution) -> Optional[str]:
     try:
         return dist._normalized_name
     except AttributeError:
-        if "PathDistribution" in dist.__class__.__name__:
-            dist_ = cast(PathDistribution, dist)  # old implementation
-            return PathDistribution(dist_._path)._normalized_name
-        elif hasattr(dist, "name"):
-            return Prepared.normalize(dist.name)
-        raise
+        return Prepared.normalize(getattr(dist, "name", dist.metadata['Name']))
 
 
 _unique = functools.partial(
