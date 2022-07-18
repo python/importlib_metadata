@@ -56,10 +56,25 @@ class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
         super().setUp()
 
     def _meta_path_finder(self):
-        from importlib.metadata import DistributionFinder, PathDistribution
+        from importlib.metadata import (
+            Distribution,
+            DistributionFinder,
+            PathDistribution,
+        )
         from importlib.util import spec_from_file_location
 
         path = pathlib.Path(self.site_dir)
+
+        class CustomDistribution(Distribution):
+            def __init__(self, name, path):
+                self.name = name
+                self._path_distribution = PathDistribution(path)
+
+            def read_text(self, filename):
+                return self._path_distribution.read_text(filename)
+
+            def locate_file(self, path):
+                return self._path_distribution.locate_file(path)
 
         class CustomFinder:
             @classmethod
@@ -72,6 +87,8 @@ class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
             def find_distributions(self, context=DistributionFinder.Context()):
                 for dist_info in path.glob("*.dist-info"):
                     yield PathDistribution(dist_info)
+                    name, _, _ = str(dist_info).partition("-")
+                    yield CustomDistribution(name + "_custom", dist_info)
 
         return CustomFinder
 
@@ -85,8 +102,11 @@ class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
 
         assert list(distributions())
         assert distribution("distinfo_pkg")
+        assert distribution("distinfo_pkg_custom")
         assert version("distinfo_pkg") > "0"
+        assert version("distinfo_pkg_custom") > "0"
         assert list(metadata("distinfo_pkg"))
+        assert list(metadata("distinfo_pkg_custom"))
         assert list(entry_points(group="entries"))
 
 

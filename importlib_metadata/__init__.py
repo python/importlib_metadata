@@ -29,7 +29,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import List, Mapping, Optional, Tuple, Union, cast
 
 
 __all__ = [
@@ -1031,12 +1031,19 @@ def version(distribution_name):
 
 def _compat_normalized_name(dist: Distribution) -> Optional[str]:
     """
-    Compatibility layer that honor name normalization for distributions
+    Compatibility shim to honor name normalization for distributions
     that don't provide ``_normalized_name``
     (as in ``importlib.metadata`` for Python 3.8/3.9).
     """
-    normalized = getattr(dist, '_normalized_name', None)
-    return normalized or Prepared.normalize(getattr(dist, "name", ""))
+    try:
+        return dist._normalized_name
+    except AttributeError:
+        if "PathDistribution" in dist.__class__.__name__:
+            dist_ = cast(PathDistribution, dist)  # old implementation
+            return PathDistribution(dist_._path)._normalized_name
+        elif hasattr(dist, "name"):
+            return Prepared.normalize(dist.name)
+        raise
 
 
 _unique = functools.partial(
