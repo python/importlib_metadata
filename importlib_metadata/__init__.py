@@ -29,7 +29,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Union
+from typing import List, Mapping, Optional, Tuple, Union
 
 
 __all__ = [
@@ -378,7 +378,8 @@ class EntryPoints(DeprecatedList):
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        return EntryPoints(ep for ep in self if ep.matches(**params))
+        candidates = (_ep_matches(ep, **params) for ep in self)
+        return EntryPoints(ep for ep, ep_matches in candidates if ep_matches)
 
     @property
     def names(self):
@@ -408,6 +409,15 @@ class EntryPoints(DeprecatedList):
             EntryPoint(name=item.value.name, value=item.value.value, group=item.name)
             for item in Sectioned.section_pairs(text or '')
         )
+
+
+def _ep_matches(ep: EntryPoint, **params) -> Tuple[EntryPoint, bool]:
+    """Compatibility layer for EntryPoint objects in Python 3.8/3.9 stdlib."""
+    try:
+        return ep, ep.matches(**params)
+    except AttributeError:
+        _ep = EntryPoint(ep.name, ep.value, ep.group)
+        return _ep, _ep.matches(**params)
 
 
 class Deprecated:
@@ -1021,7 +1031,8 @@ def _compat_normalized_name(dist: Distribution) -> Optional[str]:
     that don't provide ``_normalized_name``
     (as in ``importlib.metadata`` for Python 3.8/3.9).
     """
-    return getattr(dist, '_normalized_name', None) or Prepared.normalize(dist.name)
+    normalized = getattr(dist, '_normalized_name', None)
+    return normalized or Prepared.normalize(getattr(dist, "name", ""))
 
 
 _unique = functools.partial(
