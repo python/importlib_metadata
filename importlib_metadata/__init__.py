@@ -1038,7 +1038,7 @@ def _compat_normalized_name(dist: Distribution) -> Optional[str]:
     try:
         return dist._normalized_name
     except AttributeError:
-        return Prepared.normalize(getattr(dist, "name", dist.metadata['Name']))
+        return Prepared.normalize(getattr(dist, "name", None) or dist.metadata['Name'])
 
 
 _unique = functools.partial(
