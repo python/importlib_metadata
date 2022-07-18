@@ -189,6 +189,10 @@ class EntryPoint(DeprecatedTuple):
     following the attr, and following any extras.
     """
 
+    name: str
+    value: str
+    group: str
+
     dist: Optional['Distribution'] = None
 
     def __init__(self, name, value, group):
