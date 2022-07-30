@@ -5,8 +5,9 @@
 =================================
 
 ``importlib_metadata`` is a library that provides access to
-the metadata of an installed distribution package, such as its entry points
-or its top-level import package name.
+the metadata of an installed :term:`packaging:Distribution Package`,
+such as its entry points
+or its top-level :term:`packaging:Import Package` name.
 Built in part on Python's import system, this library
 intends to replace similar functionality in the `entry point
 API`_ and `metadata API`_ of ``pkg_resources``.  Along with
@@ -36,7 +37,7 @@ Overview
 ========
 
 Let's say you wanted to get the version string for a
-distribution package you've installed
+:term:`packaging:Distribution Package` you've installed
 using ``pip``.  We start by creating a virtual environment and installing
 something into it::
 
@@ -154,7 +155,7 @@ interface to retrieve entry points by group.
 Distribution metadata
 ---------------------
 
-Every distribution package includes some metadata,
+Every :term:`packaging:Distribution Package` includes some metadata,
 which you can extract using the
 ``metadata()`` function::
 
@@ -187,7 +188,7 @@ Distribution versions
 ---------------------
 
 The ``version()`` function is the quickest way to get a
-distribution package's version
+:term:`packaging:Distribution Package`'s version
 number, as a string::
 
     >>> version('wheel')
@@ -200,7 +201,7 @@ Distribution files
 ------------------
 
 You can also get the full set of files contained within a distribution.  The
-``files()`` function takes a distribution package name
+``files()`` function takes a :term:`packaging:Distribution Package` name
 and returns all of the
 files installed by this distribution.  Each file object returned is a
 ``PackagePath``, a :class:`pathlib.PurePath` derived object with additional ``dist``,
@@ -246,7 +247,7 @@ distribution is not known to have the metadata present.
 Distribution requirements
 -------------------------
 
-To get the full set of requirements for a distribution package,
+To get the full set of requirements for a :term:`packaging:Distribution Package`,
 use the ``requires()``
 function::
 
@@ -260,10 +261,10 @@ function::
 Mapping import to distribution packages
 ---------------------------------------
 
-A convenience method to resolve the distribution package
+A convenience method to resolve the :term:`packaging:Distribution Package`
 name (or names, in the case of a namespace package)
 that provide each importable top-level
-Python module or import package::
+Python module or :term:`packaging:Import Package`::
 
     >>> packages_distributions()
     {'importlib_metadata': ['importlib-metadata'], 'yaml': ['PyYAML'], 'jaraco': ['jaraco.classes', 'jaraco.functools'], ...}
@@ -276,7 +277,7 @@ Distributions
 While the above API is the most common and convenient usage, you can get all
 of that information from the ``Distribution`` class.  A ``Distribution`` is an
 abstract object that represents the metadata for
-a Python distribution package.  You can
+a Python :term:`packaging:Distribution Package`.  You can
 get the ``Distribution`` instance::
 
     >>> from importlib_metadata import distribution
@@ -304,7 +305,7 @@ Distribution Discovery
 ======================
 
 By default, this package provides built-in support for discovery of metadata
-for file system and zip file distribution packages.
+for file system and zip file :term:`packaging:Distribution Package`\s.
 This metadata finder search defaults to ``sys.path``, but varies slightly in how it interprets those values from how other import machinery does. In particular:
 
 - ``importlib_metadata`` does not honor :class:`bytes` objects on ``sys.path``.
@@ -314,7 +315,7 @@ This metadata finder search defaults to ``sys.path``, but varies slightly in how
 Extending the search algorithm
 ==============================
 
-Because distribution package metadata
+Because :term:`packaging:Distribution Package` metadata
 is not available through :data:`sys.path` searches, or
 package loaders directly,
 the metadata for a distribution is found through import
