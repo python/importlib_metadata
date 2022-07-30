@@ -15,11 +15,26 @@ API`_ and `metadata API`_ of ``pkg_resources``.  Along with
 this package can eliminate the need to use the older and less efficient
 ``pkg_resources`` package.
 
-By "installed package", we generally mean a third-party distribution package
-installed into Python's ``site-packages`` directory via tools such as `pip
-<https://pypi.org/project/pip/>`_.  Specifically,
-it means a distribution with either a discoverable ``dist-info`` or ``egg-info``
-directory, and metadata defined by :pep:`566` or its older specifications.
+``importlib_metadata`` operates on third-party *distribution packages*
+installed into Python's ``site-packages`` directory via tools such as
+`pip <https://pypi.org/project/pip/>`_.
+Specifically, it works with distributions with discoverable
+``dist-info`` or ``egg-info`` directories,
+and metadata defined by :pep:`566` or its older specifications.
+
+.. important::
+
+   These are *not* necessarily equivalent to or correspond 1:1 with
+   the top-level *import package* names
+   that can be imported inside Python code.
+   One *distribution package* can contain multiple *import packages*
+   (and single modules),
+   and one top-level *import package*
+   may map to multiple *distribution packages*
+   if it is a namespace package.
+   You can use :ref:`package_distributions() <package-distributions>`
+   to get a mapping between them.
+
 By default, distribution metadata can live on the file system
 or in zip archives on
 :data:`sys.path`.  Through an extension mechanism, the metadata can live almost
