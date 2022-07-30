@@ -4,21 +4,23 @@
  Using :mod:`!importlib_metadata`
 =================================
 
-``importlib_metadata`` is a library that provides access to installed
-package metadata, such as its entry points or its
-top-level name.  Built in part on Python's import system, this library
+``importlib_metadata`` is a library that provides access to
+the metadata of an installed distribution package, such as its entry points
+or its top-level import package name.
+Built in part on Python's import system, this library
 intends to replace similar functionality in the `entry point
 API`_ and `metadata API`_ of ``pkg_resources``.  Along with
 :mod:`importlib.resources`,
 this package can eliminate the need to use the older and less efficient
 ``pkg_resources`` package.
 
-By "installed package" we generally mean a third-party package installed into
-Python's ``site-packages`` directory via tools such as `pip
+By "installed package", we generally mean a third-party distribution package
+installed into Python's ``site-packages`` directory via tools such as `pip
 <https://pypi.org/project/pip/>`_.  Specifically,
-it means a package with either a discoverable ``dist-info`` or ``egg-info``
+it means a distribution with either a discoverable ``dist-info`` or ``egg-info``
 directory, and metadata defined by :pep:`566` or its older specifications.
-By default, package metadata can live on the file system or in zip archives on
+By default, distribution metadata can live on the file system
+or in zip archives on
 :data:`sys.path`.  Through an extension mechanism, the metadata can live almost
 anywhere.
 
@@ -33,7 +35,8 @@ anywhere.
 Overview
 ========
 
-Let's say you wanted to get the version string for a package you've installed
+Let's say you wanted to get the version string for a
+distribution package you've installed
 using ``pip``.  We start by creating a virtual environment and installing
 something into it::
 
@@ -151,7 +154,8 @@ interface to retrieve entry points by group.
 Distribution metadata
 ---------------------
 
-Every distribution includes some metadata, which you can extract using the
+Every distribution package includes some metadata,
+which you can extract using the
 ``metadata()`` function::
 
     >>> wheel_metadata = metadata('wheel')
@@ -182,7 +186,8 @@ all the metadata in a JSON-compatible form per PEP 566::
 Distribution versions
 ---------------------
 
-The ``version()`` function is the quickest way to get a distribution's version
+The ``version()`` function is the quickest way to get a
+distribution package's version
 number, as a string::
 
     >>> version('wheel')
@@ -195,7 +200,8 @@ Distribution files
 ------------------
 
 You can also get the full set of files contained within a distribution.  The
-``files()`` function takes a distribution package name and returns all of the
+``files()`` function takes a distribution package name
+and returns all of the
 files installed by this distribution.  Each file object returned is a
 ``PackagePath``, a :class:`pathlib.PurePath` derived object with additional ``dist``,
 ``size``, and ``hash`` properties as indicated by the metadata.  For example::
@@ -240,19 +246,24 @@ distribution is not known to have the metadata present.
 Distribution requirements
 -------------------------
 
-To get the full set of requirements for a distribution, use the ``requires()``
+To get the full set of requirements for a distribution package,
+use the ``requires()``
 function::
 
     >>> requires('wheel')
     ["pytest (>=3.0.0) ; extra == 'test'", "pytest-cov ; extra == 'test'"]
 
 
-Package distributions
----------------------
+.. _package-distributions:
+.. _import-distribution-package-mapping:
 
-A convenience method to resolve the distribution or
-distributions (in the case of a namespace package) for top-level
-Python packages or modules::
+Mapping import to distribution packages
+---------------------------------------
+
+A convenience method to resolve the distribution package
+name (or names, in the case of a namespace package)
+that provide each importable top-level
+Python module or import package::
 
     >>> packages_distributions()
     {'importlib_metadata': ['importlib-metadata'], 'yaml': ['PyYAML'], 'jaraco': ['jaraco.classes', 'jaraco.functools'], ...}
@@ -264,7 +275,8 @@ Distributions
 
 While the above API is the most common and convenient usage, you can get all
 of that information from the ``Distribution`` class.  A ``Distribution`` is an
-abstract object that represents the metadata for a Python package.  You can
+abstract object that represents the metadata for
+a Python distribution package.  You can
 get the ``Distribution`` instance::
 
     >>> from importlib_metadata import distribution
@@ -291,7 +303,9 @@ for additional details.
 Distribution Discovery
 ======================
 
-By default, this package provides built-in support for discovery of metadata for file system and zip file packages. This metadata finder search defaults to ``sys.path``, but varies slightly in how it interprets those values from how other import machinery does. In particular:
+By default, this package provides built-in support for discovery of metadata
+for file system and zip file distribution packages.
+This metadata finder search defaults to ``sys.path``, but varies slightly in how it interprets those values from how other import machinery does. In particular:
 
 - ``importlib_metadata`` does not honor :class:`bytes` objects on ``sys.path``.
 - ``importlib_metadata`` will incidentally honor :py:class:`pathlib.Path` objects on ``sys.path`` even though such values will be ignored for imports.
@@ -300,15 +314,18 @@ By default, this package provides built-in support for discovery of metadata for
 Extending the search algorithm
 ==============================
 
-Because package metadata is not available through :data:`sys.path` searches, or
-package loaders directly, the metadata for a package is found through import
+Because distribution package metadata
+is not available through :data:`sys.path` searches, or
+package loaders directly,
+the metadata for a distribution is found through import
 system `finders`_.  To find a distribution package's metadata,
 ``importlib.metadata`` queries the list of :term:`meta path finders <meta path finder>` on
 :data:`sys.meta_path`.
 
 By default ``importlib_metadata`` installs a finder for distribution packages
-found on the file system.  This finder doesn't actually find any *packages*,
-but it can find the packages' metadata.
+found on the file system.
+This finder doesn't actually find any *distributions*,
+but it can find their metadata.
 
 The abstract class :py:class:`importlib.abc.MetaPathFinder` defines the
 interface expected of finders by Python's import system.
