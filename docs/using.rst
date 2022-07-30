@@ -20,7 +20,7 @@ installed into Python's ``site-packages`` directory via tools such as
 `pip <https://pypi.org/project/pip/>`_.
 Specifically, it works with distributions with discoverable
 ``dist-info`` or ``egg-info`` directories,
-and metadata defined by :pep:`566` or its older specifications.
+and metadata defined by the :ref:`packaging:core-metadata`.
 
 .. important::
 
@@ -312,8 +312,8 @@ instance::
     >>> dist.metadata['License']
     'MIT'
 
-The full set of available metadata is not described here.  See :pep:`566`
-for additional details.
+The full set of available metadata is not described here.
+See the :ref:`packaging:core-metadata` for additional details.
 
 
 Distribution Discovery
