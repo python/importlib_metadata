@@ -14,7 +14,7 @@ import itertools
 import posixpath
 import collections
 
-from . import _adapters, _meta
+from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -29,7 +29,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import List, Mapping, Optional, Union
 
 
 __all__ = [
@@ -382,8 +382,8 @@ class EntryPoints(DeprecatedList):
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        candidates = (_ep_matches(ep, **params) for ep in self)
-        return EntryPoints(ep for ep, ep_matches in candidates if ep_matches)
+        candidates = (_py39compat.ep_matches(ep, **params) for ep in self)
+        return EntryPoints(ep for ep, predicate in candidates if predicate)
 
     @property
     def names(self):
@@ -413,15 +413,6 @@ class EntryPoints(DeprecatedList):
             EntryPoint(name=item.value.name, value=item.value.value, group=item.name)
             for item in Sectioned.section_pairs(text or '')
         )
-
-
-def _ep_matches(ep: EntryPoint, **params) -> Tuple[EntryPoint, bool]:
-    """Compatibility layer for EntryPoint objects in Python 3.8/3.9 stdlib."""
-    try:
-        return ep, ep.matches(**params)
-    except AttributeError:
-        _ep = EntryPoint(ep.name, ep.value, ep.group)
-        return _ep, _ep.matches(**params)
 
 
 class Deprecated:
@@ -1029,21 +1020,9 @@ def version(distribution_name):
     return distribution(distribution_name).version
 
 
-def _compat_normalized_name(dist: Distribution) -> Optional[str]:
-    """
-    Compatibility shim to honor name normalization for distributions
-    that don't provide ``_normalized_name``
-    (as in ``importlib.metadata`` for Python 3.8/3.9).
-    """
-    try:
-        return dist._normalized_name
-    except AttributeError:
-        return Prepared.normalize(getattr(dist, "name", None) or dist.metadata['Name'])
-
-
 _unique = functools.partial(
     unique_everseen,
-    key=_compat_normalized_name,
+    key=_py39compat.normalized_name,
 )
 """
 Wrapper for ``distributions`` to return unique distributions by name.
