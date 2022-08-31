@@ -1,6 +1,6 @@
 import sys
-import unittest
 import pathlib
+import unittest
 
 from . import fixtures
 from importlib_metadata import (

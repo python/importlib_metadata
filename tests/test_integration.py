@@ -1,5 +1,3 @@
-import sys
-import pathlib
 import unittest
 import packaging.requirements
 import packaging.version
