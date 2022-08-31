@@ -3,8 +3,7 @@ Compatibility layer with Python 3.8/3.9
 """
 from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # -> prevent circular imports on runtime.
     from . import Distribution, EntryPoint
 else:
     Distribution = EntryPoint = Any
@@ -17,7 +16,7 @@ def normalized_name(dist: Distribution) -> Optional[str]:
     try:
         return dist._normalized_name
     except AttributeError:
-        from . import Prepared
+        from . import Prepared  # -> delay to prevent circular imports.
 
         return Prepared.normalize(getattr(dist, "name", None) or dist.metadata['Name'])
 
@@ -41,7 +40,7 @@ def ep_matches(ep: EntryPoint, **params) -> Tuple[EntryPoint, bool]:
     try:
         return ep, ep.matches(**params)
     except AttributeError:
-        from . import EntryPoint
+        from . import EntryPoint  # -> delay to prevent circular imports.
 
         # Reconstruct the EntryPoint object to make sure it is compatible.
         _ep = EntryPoint(ep.name, ep.value, ep.group)
