@@ -3,7 +3,8 @@ Compatibility layer with Python 3.8/3.9
 """
 from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-if TYPE_CHECKING:  # -> prevent circular imports on runtime.
+if TYPE_CHECKING:  # pragma: no cover
+    # Prevent circular imports on runtime.
     from . import Distribution, EntryPoint
 else:
     Distribution = EntryPoint = Any
