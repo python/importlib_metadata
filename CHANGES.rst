@@ -1,3 +1,9 @@
+v4.13.0
+=======
+
+* #396: Added compatibility for ``PathDistributions`` originating
+  from Python 3.8 and 3.9.
+
 v4.12.0
 =======
 
