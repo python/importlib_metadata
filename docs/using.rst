@@ -46,6 +46,12 @@ anywhere.
    https://importlib-metadata.readthedocs.io/
       The documentation for ``importlib_metadata``, which supplies a
       backport of ``importlib.metadata``.
+      This includes an `API reference
+      <https://importlib-metadata.readthedocs.io/en/latest/api.html>`__
+      for this module's classes and functions,
+      as well as a `migration guide
+      <https://importlib-metadata.readthedocs.io/en/latest/migration.html>`__
+      for existing users of ``pkg_resources``.
 
 
 Overview
