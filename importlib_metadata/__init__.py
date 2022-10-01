@@ -8,7 +8,6 @@ import email
 import pathlib
 import operator
 import textwrap
-import warnings
 import functools
 import itertools
 import posixpath
@@ -186,17 +185,6 @@ class EntryPoint(
     def _for(self, dist):
         self.dist = dist
         return self
-
-    def __iter__(self):
-        """
-        Supply iter so one may construct dicts of EntryPoints by name.
-        """
-        msg = (
-            "Construction of dict of EntryPoints is deprecated in "
-            "favor of EntryPoints."
-        )
-        warnings.warn(msg, DeprecationWarning)
-        return iter((self.name, self))
 
     def __reduce__(self):
         return (
