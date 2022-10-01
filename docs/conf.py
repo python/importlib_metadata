@@ -56,6 +56,13 @@ intersphinx_mapping.update(
     ),
 )
 
+intersphinx_mapping.update(
+    packaging=(
+        'https://packaging.python.org/en/latest/',
+        None,
+    ),
+)
+
 # Workaround for #316
 nitpick_ignore = [
     ('py:class', 'importlib_metadata.EntryPoints'),
