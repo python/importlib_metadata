@@ -220,14 +220,6 @@ class EntryPoints(tuple):
         """
         Get the EntryPoint in self matching name.
         """
-        if isinstance(name, int):
-            warnings.warn(
-                "Accessing entry points by index is deprecated. "
-                "Cast to tuple if needed.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            return super().__getitem__(name)
         try:
             return next(iter(self.select(name=name)))
         except StopIteration:
