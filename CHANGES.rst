@@ -1,3 +1,9 @@
+v5.0.0
+======
+
+* #97, #284, #300: Removed compatibility shims for deprecated entry
+  point interfaces.
+
 v4.13.0
 =======
 
