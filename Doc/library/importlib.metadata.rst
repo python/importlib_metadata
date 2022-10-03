@@ -176,11 +176,10 @@ for more information on entry points, their definition, and usage.
 The "selectable" entry points were introduced in ``importlib_metadata``
 3.6 and Python 3.10. Prior to those changes, ``entry_points`` accepted
 no parameters and always returned a dictionary of entry points, keyed
-by group. For compatibility, if no parameters are passed to entry_points,
-a ``SelectableGroups`` object is returned, implementing that dict
-interface. In the future, calling ``entry_points`` with no parameters
-will return an ``EntryPoints`` object. Users should rely on the selection
-interface to retrieve entry points by group.
+by group. With ``importlib_metadata`` 5.0 and Python 3.12,
+``entry_points`` always returns an ``EntryPoints`` object. See
+`backports.entry_points_selectable <https://pypi.org/project/backports.entry_points_selectable>`_
+for compatibility options.
 
 
 .. _metadata:
