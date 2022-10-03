@@ -382,8 +382,7 @@ class EntryPoints(DeprecatedList):
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        candidates = (_py39compat.ep_matches(ep, **params) for ep in self)
-        return EntryPoints(ep for ep, predicate in candidates if predicate)
+        return EntryPoints(ep for ep in self if _py39compat.ep_matches(ep, **params))
 
     @property
     def names(self):
