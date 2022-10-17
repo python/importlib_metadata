@@ -42,6 +42,8 @@ were contributed to different versions in the standard library:
 
    * - importlib_metadata
      - stdlib
+   * - 5.0
+     - 3.12
    * - 4.8
      - 3.11
    * - 4.4
