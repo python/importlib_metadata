@@ -44,7 +44,7 @@ were contributed to different versions in the standard library:
      - stdlib
    * - 5.0
      - 3.12
-   * - 4.8
+   * - 4.13
      - 3.11
    * - 4.4
      - 3.10
