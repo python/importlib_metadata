@@ -1,3 +1,8 @@
+v5.1.0
+======
+
+* #415: Instrument ``SimplePath`` with generic support.
+
 v5.0.0
 ======
 
