@@ -141,6 +141,15 @@ class APITests(
         resolved = version('importlib-metadata')
         assert re.match(self.version_pattern, resolved)
 
+    @__import__('pytest').mark.xfail(reason="not implemented #371")
+    def test_missing_key(self):
+        """
+        Attempting to request missing metadata raises KeyError.
+        """
+        md = metadata('distinfo-pkg')
+        with self.assertRaises(KeyError):
+            md['does-not-exist']
+
     @staticmethod
     def _test_files(files):
         root = files[0].root
