@@ -1,3 +1,18 @@
+v6.0.0
+======
+
+* #371: When a key is missing from metadata, raise a ``KeyError``
+  instead of returning ``None``, matching the usual expectation for
+  mapping objects and also the protocol definition.
+
+  Projects should update to expect the ``KeyError`` or wrap the call
+  to replace a ``KeyError`` with a ``None`` return, e.g.::
+
+      try:
+          value = metadata(pkg)['Name']
+      except KeyError:
+          value = None
+
 v5.1.0
 ======
 
