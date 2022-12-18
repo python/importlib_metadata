@@ -1,3 +1,10 @@
+v5.2.0
+======
+
+* #371: Deprecated expectation that ``PackageMetadata.__getitem__``
+  will return ``None`` for missing keys. In the future, it will raise a
+  ``KeyError``.
+
 v5.1.0
 ======
 
