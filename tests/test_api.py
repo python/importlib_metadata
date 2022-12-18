@@ -141,6 +141,14 @@ class APITests(
         resolved = version('importlib-metadata')
         assert re.match(self.version_pattern, resolved)
 
+    def test_missing_key_legacy(self):
+        """
+        Requesting a missing key will still return None, but warn.
+        """
+        md = metadata('distinfo-pkg')
+        with suppress_known_deprecation():
+            assert md['does-not-exist'] is None
+
     @staticmethod
     def _test_files(files):
         root = files[0].root
