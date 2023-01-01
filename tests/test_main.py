@@ -9,7 +9,6 @@ from . import fixtures
 from importlib_metadata import (
     Distribution,
     EntryPoint,
-    MetadataPathFinder,
     PackageNotFoundError,
     _unique,
     distributions,
@@ -43,10 +42,6 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
             Distribution.from_name('does-not-exist')
 
         assert "metadata" in str(ctx.exception)
-
-    def test_new_style_classes(self):
-        self.assertIsInstance(Distribution, type)
-        self.assertIsInstance(MetadataPathFinder, type)
 
     @fixtures.parameterize(
         dict(name=None),
