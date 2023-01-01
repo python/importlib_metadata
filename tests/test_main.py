@@ -43,6 +43,10 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 
         assert "metadata" in str(ctx.exception)
 
+    def test_abc_enforced(self):
+        with self.assertRaises(TypeError):
+            type('DistributionSubclass', (Distribution,), {})()
+
     @fixtures.parameterize(
         dict(name=None),
         dict(name=''),
