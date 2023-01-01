@@ -1,3 +1,15 @@
+v6.0.0
+======
+
+* #419: Declared ``Distribution`` as an abstract class, enforcing
+  definition of abstract methods in instantiated subclasses. It's no
+  longer possible to instantiate a ``Distribution`` or any subclasses
+  unless they define the abstract methods.
+
+  Please comment in the issue if this change breaks any projects.
+  This change will likely be rolled back if it causes significant
+  disruption.
+
 v5.2.0
 ======
 
