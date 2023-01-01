@@ -34,7 +34,7 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_package_not_found_mentions_metadata(self):
         """
         When a package is not found, that could indicate that the
-        packgae is not installed or that it is installed without
+        package is not installed or that it is installed without
         metadata. Ensure the exception mentions metadata to help
         guide users toward the cause. See #124.
         """
