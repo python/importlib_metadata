@@ -522,16 +522,16 @@ class Distribution(metaclass=abc.ABCMeta):
         latter. See _test_deps_from_requires_text for an example.
         """
 
-        def make_condition(name):
-            return name and f'extra == "{name}"'
-
         def quoted_marker(section):
             section = section or ''
             extra, sep, markers = section.partition(':')
-            if extra and markers:
-                markers = f'({markers})'
-            conditions = list(filter(None, [markers, make_condition(extra)]))
-            return '; ' + ' and '.join(conditions) if conditions else ''
+            extras_txt = ''
+            if extra:
+                extras_txt = '[' + extra + ']'
+            markers_txt = ''
+            if markers:
+                markers_txt = '; ' + markers
+            return extras_txt + markers_txt
 
         def url_req_space(req):
             """
@@ -539,7 +539,7 @@ class Distribution(metaclass=abc.ABCMeta):
             Ref python/importlib_metadata#357.
             """
             # '@' is uniquely indicative of a url_req.
-            return ' ' * ('@' in req)
+            return ' ' if '@' in req else ''
 
         for section in sections:
             space = url_req_space(section.value)
