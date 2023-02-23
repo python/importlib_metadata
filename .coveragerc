@@ -8,6 +8,8 @@ omit =
 	*/_itertools.py
 	exercises.py
 	*/pip-run-*
+disable_warnings =
+	couldnt-parse
 
 [report]
 show_missing = True
