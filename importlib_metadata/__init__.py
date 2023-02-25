@@ -13,6 +13,7 @@ import functools
 import itertools
 import posixpath
 import collections
+import json
 
 from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
@@ -29,7 +30,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 
 __all__ = [
@@ -544,6 +545,51 @@ class Distribution(metaclass=abc.ABCMeta):
         for section in sections:
             space = url_req_space(section.value)
             yield section.value + space + quoted_marker(section.name)
+
+    class VCSInfo:
+        def __init__(self, data: Dict[str, Any]) -> None:
+            self.vcs: str = data["vcs"]
+            self.requested_revision: Optional[str] = data.get("requested_revision")
+            self.commit_id: str = data["commit_id"]
+            self.resolved_revision: Optional[str] = data.get("resolved_revision")
+            self.resolved_revision_type: Optional[str] = data.get(
+                "resolved_revision_type"
+            )
+            self.hash: Optional[str] = data.get("hash")
+
+    class ArchiveInfo:
+        def __init__(self, data: Dict[str, Any]) -> None:
+            self.hash: Optional[str] = data["hash"]
+
+    class DirInfo:
+        def __init__(self, data: Dict[str, Any]) -> None:
+            self.editable: bool = data.get("editable", False)
+
+    class Origin:
+        def __init__(self, direct_url: str) -> None:
+            parsed: Dict = json.loads(direct_url)
+            self.url: str = parsed["url"]
+            self.subdirectory: Optional[str] = parsed.get("subdirectory")
+            self.vcs_info = (
+                Distribution.VCSInfo(parsed["vcs_info"])
+                if "vcs_info" in parsed
+                else None
+            )
+            self.archive_info = (
+                Distribution.ArchiveInfo(parsed["archive_info"])
+                if "archive_info" in parsed
+                else None
+            )
+            self.dir_info = (
+                Distribution.DirInfo(parsed["dir_info"])
+                if "dir_info" in parsed
+                else None
+            )
+
+    @property
+    def origin(self) -> Optional[Origin]:
+        direct_url = self.read_text("direct_url.json")
+        return Distribution.Origin(direct_url) if direct_url else None
 
 
 class DistributionFinder(MetaPathFinder):
