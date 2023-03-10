@@ -474,7 +474,12 @@ class Distribution(metaclass=abc.ABCMeta):
 
         @pass_none
         def make_files(lines):
-            return list(starmap(make_file, csv.reader(lines)))
+            return list(
+                filter(
+                    lambda package_path: package_path.locate().exists(),
+                    list(starmap(make_file, csv.reader(lines))),
+                )
+            )
 
         return make_files(
             self._read_files_distinfo()
