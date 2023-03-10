@@ -460,8 +460,8 @@ class Distribution(metaclass=abc.ABCMeta):
         :return: List of PackagePath for this distribution or None
 
         Result is `None` if the metadata file that enumerates files
-        (i.e. RECORD for dist-info or SOURCES.txt for egg-info) is
-        missing.
+        (i.e. RECORD for dist-info, or installed-files.txt or
+        SOURCES.txt for egg-info) is missing.
         Result may be empty if the metadata exists but is empty.
         """
 
@@ -476,7 +476,11 @@ class Distribution(metaclass=abc.ABCMeta):
         def make_files(lines):
             return list(starmap(make_file, csv.reader(lines)))
 
-        return make_files(self._read_files_distinfo() or self._read_files_egginfo())
+        return make_files(
+            self._read_files_distinfo()
+            or self._read_files_egginfo_installed()
+            or self._read_files_egginfo_sources()
+        )
 
     def _read_files_distinfo(self):
         """
@@ -485,10 +489,35 @@ class Distribution(metaclass=abc.ABCMeta):
         text = self.read_text('RECORD')
         return text and text.splitlines()
 
-    def _read_files_egginfo(self):
+    def _read_files_egginfo_installed(self):
+        """
+        installed-files.txt might contain literal commas, so wrap
+        each line in quotes. Also, the entries in installed-files.txt
+        are relative to the .egg-info/ subdir (not relative to the
+        parent site-packages directory that make_file() expects).
+
+        This file is written when the package is installed by pip,
+        but it might not be written for other installation methods.
+        Hence, even if we can assume that this file is accurate
+        when it exists, we cannot assume that it always exists.
+        """
+        text = self.read_text('installed-files.txt')
+        # We need to prepend the .egg-info/ subdir to the lines in this file.
+        # But this subdir is only available in the PathDistribution's self._path
+        # which is not easily accessible from this base class...
+        subdir = getattr(self, '_path', None)
+        return text and subdir and [f'"{subdir}/{line}"' for line in text.splitlines()]
+
+    def _read_files_egginfo_sources(self):
         """
         SOURCES.txt might contain literal commas, so wrap each line
         in quotes.
+
+        Note that SOURCES.txt is not a reliable source for what
+        files are installed by a package. This file is generated
+        for a source archive, and the files that are present
+        there (e.g. setup.py) may not correctly reflect the files
+        that are present after the package has been installed.
         """
         text = self.read_text('SOURCES.txt')
         return text and map('"{}"'.format, text.splitlines())
