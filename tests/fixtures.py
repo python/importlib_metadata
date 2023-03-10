@@ -83,8 +83,10 @@ class OnSysPath(Fixtures):
 
 
 # Except for python/mypy#731, prefer to define
-# FilesDef = Dict[str, Union['FilesDef', str]]
-FilesDef = Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str]]
+# FilesDef = Dict[str, Union['FilesDef', str, bytes]]
+FilesDef = Dict[
+    str, Union[Dict[str, Union[Dict[str, Union[str, bytes]], str, bytes]], str, bytes]
+]
 
 
 class DistInfoPkg(OnSysPath, SiteDir):
