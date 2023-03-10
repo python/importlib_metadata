@@ -1,5 +1,5 @@
 from ._compat import Protocol
-from typing import Any, Dict, Iterator, List, TypeVar, Union
+from typing import Any, Dict, Iterator, List, Optional, TypeVar, Union, overload
 
 
 _T = TypeVar("_T")
@@ -18,7 +18,12 @@ class PackageMetadata(Protocol):
     def __iter__(self) -> Iterator[str]:
         ...  # pragma: no cover
 
-    def get_all(self, name: str, failobj: _T = ...) -> Union[List[Any], _T]:
+    @overload
+    def get_all(self, name: str, failobj: None = None) -> Optional[List[Any]]:
+        ...
+
+    @overload
+    def get_all(self, name: str, failobj: _T) -> Union[List[Any], _T]:
         """
         Return all values associated with a possibly multi-valued key.
         """
