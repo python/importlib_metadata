@@ -28,6 +28,7 @@ def suppress_known_deprecation():
 class APITests(
     fixtures.EggInfoPkg,
     fixtures.EggInfoPkgPipInstalledNoModules,
+    fixtures.EggInfoPkgSourcesFallback,
     fixtures.DistInfoPkg,
     fixtures.DistInfoPkgWithDot,
     fixtures.EggInfoFile,
@@ -185,6 +186,7 @@ class APITests(
     def test_files_egg_info(self):
         self._test_files(files('egginfo-pkg'))
         self._test_files(files('empty_egg-pkg'))
+        self._test_files(files('starved_egg-pkg'))
 
     def test_version_egg_info_file(self):
         self.assertEqual(version('egginfo-file'), '0.1')

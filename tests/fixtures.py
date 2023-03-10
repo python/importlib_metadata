@@ -243,6 +243,32 @@ class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
         build_files(EggInfoPkgPipInstalledNoModules.files, prefix=self.site_dir)
 
 
+class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
+    files: FilesDef = {
+        "starved_egg_pkg.egg-info": {
+            "PKG-INFO": "Name: starved_egg-pkg",
+            # SOURCES.txt is made from the source archive, and contains files
+            # (setup.py) that are not present after installation.
+            "SOURCES.txt": """
+                starved_egg_pkg.py
+                setup.py
+                starved_egg_pkg.egg-info/PKG-INFO
+                starved_egg_pkg.egg-info/SOURCES.txt
+            """,
+            # missing installed-files.txt (i.e. not installed by pip)
+            # missing top_level.txt
+        },
+        "starved_egg_pkg.py": """
+            def main():
+                print("hello world")
+            """,
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(EggInfoPkgSourcesFallback.files, prefix=self.site_dir)
+
+
 class EggInfoFile(OnSysPath, SiteDir):
     files: FilesDef = {
         "egginfo_file.egg-info": """
