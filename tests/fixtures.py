@@ -213,6 +213,36 @@ class EggInfoPkg(OnSysPath, SiteDir):
         build_files(EggInfoPkg.files, prefix=self.site_dir)
 
 
+class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
+    files: FilesDef = {
+        "empty_egg_pkg.egg-info": {
+            "PKG-INFO": "Name: empty_egg-pkg",
+            # SOURCES.txt is made from the source archive, and contains files
+            # (setup.py) that are not present after installation.
+            "SOURCES.txt": """
+                setup.py
+                empty_egg_pkg.egg-info/PKG-INFO
+                empty_egg_pkg.egg-info/SOURCES.txt
+                empty_egg_pkg.egg-info/top_level.txt
+            """,
+            # installed-files.txt is written by pip, and is a strictly more
+            # accurate source than SOURCES.txt as to the installed contents of
+            # the package.
+            "installed-files.txt": """
+                PKG-INFO
+                SOURCES.txt
+                top_level.txt
+            """,
+            # top_level.txt correctly reflects that no modules are installed
+            "top_level.txt": b"\n",
+        },
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(EggInfoPkgPipInstalledNoModules.files, prefix=self.site_dir)
+
+
 class EggInfoFile(OnSysPath, SiteDir):
     files: FilesDef = {
         "egginfo_file.egg-info": """

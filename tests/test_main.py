@@ -170,11 +170,17 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
         assert meta['Description'] == 'pôrˈtend'
 
 
-class DiscoveryTests(fixtures.EggInfoPkg, fixtures.DistInfoPkg, unittest.TestCase):
+class DiscoveryTests(
+    fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoModules,
+    fixtures.DistInfoPkg,
+    unittest.TestCase,
+):
     def test_package_discovery(self):
         dists = list(distributions())
         assert all(isinstance(dist, Distribution) for dist in dists)
         assert any(dist.metadata['Name'] == 'egginfo-pkg' for dist in dists)
+        assert any(dist.metadata['Name'] == 'empty_egg-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
 
     def test_invalid_usage(self):
@@ -304,7 +310,11 @@ class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase)
 
 
 class PackagesDistributionsTest(
-    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
+    fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoModules,
+    fixtures.OnSysPath,
+    fixtures.SiteDir,
+    unittest.TestCase,
 ):
     def test_packages_distributions_neither_toplevel_nor_files(self):
         """
@@ -322,3 +332,24 @@ class PackagesDistributionsTest(
             prefix=self.site_dir,
         )
         packages_distributions()
+
+    def test_packages_distributions_on_eggs(self):
+        """
+        Test old-style egg packages with a variation of 'top_level.txt',
+        'SOURCES.txt', and 'installed-files.txt', available.
+        """
+        distributions = packages_distributions()
+
+        def import_names_from_package(package_name):
+            return {
+                import_name
+                for import_name, package_names in distributions.items()
+                if package_name in package_names
+            }
+
+        # egginfo-pkg declares one import ('mod') via top_level.txt
+        assert import_names_from_package('egginfo-pkg') == {'mod'}
+
+        # empty_egg-pkg should not be associated with any import names
+        # (top_level.txt is empty, and installed-files.txt has no .py files)
+        assert import_names_from_package('empty_egg-pkg') == set()

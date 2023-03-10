@@ -27,12 +27,12 @@ def suppress_known_deprecation():
 
 class APITests(
     fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoModules,
     fixtures.DistInfoPkg,
     fixtures.DistInfoPkgWithDot,
     fixtures.EggInfoFile,
     unittest.TestCase,
 ):
-
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
@@ -63,15 +63,28 @@ class APITests(
                     distribution(prefix)
 
     def test_for_top_level(self):
-        self.assertEqual(
-            distribution('egginfo-pkg').read_text('top_level.txt').strip(), 'mod'
-        )
+        tests = [
+            ('egginfo-pkg', 'mod'),
+            ('empty_egg-pkg', ''),
+        ]
+        for pkg_name, expect_content in tests:
+            with self.subTest(pkg_name):
+                self.assertEqual(
+                    distribution(pkg_name).read_text('top_level.txt').strip(),
+                    expect_content,
+                )
 
     def test_read_text(self):
-        top_level = [
-            path for path in files('egginfo-pkg') if path.name == 'top_level.txt'
-        ][0]
-        self.assertEqual(top_level.read_text(), 'mod\n')
+        tests = [
+            ('egginfo-pkg', 'mod\n'),
+            ('empty_egg-pkg', '\n'),
+        ]
+        for pkg_name, expect_content in tests:
+            with self.subTest(pkg_name):
+                top_level = [
+                    path for path in files(pkg_name) if path.name == 'top_level.txt'
+                ][0]
+                self.assertEqual(top_level.read_text(), expect_content)
 
     def test_entry_points(self):
         eps = entry_points()
@@ -171,6 +184,7 @@ class APITests(
 
     def test_files_egg_info(self):
         self._test_files(files('egginfo-pkg'))
+        self._test_files(files('empty_egg-pkg'))
 
     def test_version_egg_info_file(self):
         self.assertEqual(version('egginfo-file'), '0.1')
