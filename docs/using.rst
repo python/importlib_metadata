@@ -62,7 +62,7 @@ Let's say you wanted to get the version string for a
 using ``pip``.  We start by creating a virtual environment and installing
 something into it::
 
-    $ python3 -m venv example
+    $ python -m venv example
     $ source example/bin/activate
     (example) $ python -m pip install importlib_metadata
     (example) $ python -m pip install wheel
