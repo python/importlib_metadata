@@ -13,6 +13,7 @@ import functools
 import itertools
 import posixpath
 import collections
+import inspect
 
 from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
@@ -897,8 +898,8 @@ def _top_level_declared(dist):
 
 
 def _top_level_inferred(dist):
-    return {
-        f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name
+    opt_names = {
+        f.parts[0] if len(f.parts) > 1 else inspect.getmodulename(f)
         for f in always_iterable(dist.files)
-        if f.suffix == ".py"
     }
+    return filter(None, opt_names)

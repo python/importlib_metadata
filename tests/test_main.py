@@ -322,3 +322,34 @@ class PackagesDistributionsTest(
             prefix=self.site_dir,
         )
         packages_distributions()
+
+    def test_packages_distributions_all_module_types(self):
+        """
+        Test top-level modules detected on a package without 'top-level.txt'.
+        """
+        suffixes = importlib.machinery.all_suffixes()
+        fixtures.build_files(
+            {
+                'all_distributions-1.0.0.dist-info': {
+                    'METADATA': """
+                        Name: all_distributions
+                        Version: 1.0.0
+                    """,
+                    'RECORD': ''.join(
+                        f'{i}-top-level{suffix},,\n'
+                        f'{i}-in-namespace/mod{suffix},,\n'
+                        f'{i}-in-package/__init__.py,,\n'
+                        f'{i}-in-package/mod{suffix},,\n'
+                        for i, suffix in enumerate(suffixes)
+                    ),
+                },
+            },
+            prefix=self.site_dir,
+        )
+
+        distributions = packages_distributions()
+
+        for i in range(len(suffixes)):
+            assert distributions[f'{i}-top-level'] == ['all_distributions']
+            assert distributions[f'{i}-in-namespace'] == ['all_distributions']
+            assert distributions[f'{i}-in-package'] == ['all_distributions']
