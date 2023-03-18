@@ -898,10 +898,8 @@ def _top_level_declared(dist):
 
 
 def _top_level_inferred(dist):
-    return filter(
-        None,
-        {
-            inspect.getmodulename(f) if len(f.parts) == 1 else f.parts[0]
-            for f in always_iterable(dist.files)
-        },
-    )
+    opt_names = {
+        inspect.getmodulename(f) if len(f.parts) == 1 else f.parts[0]
+        for f in always_iterable(dist.files)
+    }
+    return filter(None, opt_names)
