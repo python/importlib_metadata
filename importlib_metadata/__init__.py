@@ -901,7 +901,6 @@ def _top_level_inferred(dist):
     return filter(
         None,
         {
-            # this logic relies on the assumption that dist.files only contains files (not directories)
             inspect.getmodulename(f) if len(f.parts) == 1 else f.parts[0]
             for f in always_iterable(dist.files)
         },
