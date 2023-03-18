@@ -1,3 +1,10 @@
+v6.1.0
+======
+
+* #428: ``packages_distributions`` now honors packages and modules
+  with Python modules that not ``.py`` sources (e.g. ``.pyc``,
+  ``.so``).
+
 v6.0.1
 ======
 
