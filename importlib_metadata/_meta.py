@@ -18,6 +18,7 @@ class PackageMetadata(Protocol):
     def __iter__(self) -> Iterator[str]:
         ...  # pragma: no cover
 
+    # overload per python/importlib_metadata#435
     @overload
     def get_all(self, name: str, failobj: None = None) -> Optional[List[Any]]:
         ...
