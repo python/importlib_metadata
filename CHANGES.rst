@@ -1,3 +1,10 @@
+v6.0.1
+======
+
+* #434: Expand protocol for ``PackageMetadata.get_all`` to match
+  the upstream implementation of ``email.message.Message.get_all``
+  in python/typeshed#9620.
+
 v6.0.0
 ======
 
