@@ -475,17 +475,18 @@ class Distribution(metaclass=abc.ABCMeta):
 
         @pass_none
         def make_files(lines):
-            return list(
-                filter(
-                    lambda package_path: package_path.locate().exists(),
-                    starmap(make_file, csv.reader(lines)),
-                )
-            )
+            return starmap(make_file, csv.reader(lines))
 
-        return make_files(
-            self._read_files_distinfo()
-            or self._read_files_egginfo_installed()
-            or self._read_files_egginfo_sources()
+        @pass_none
+        def skip_missing_files(package_paths):
+            return list(filter(lambda path: path.locate().exists(), package_paths))
+
+        return skip_missing_files(
+            make_files(
+                self._read_files_distinfo()
+                or self._read_files_egginfo_installed()
+                or self._read_files_egginfo_sources()
+            )
         )
 
     def _read_files_distinfo(self):
