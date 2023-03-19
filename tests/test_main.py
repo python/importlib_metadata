@@ -312,12 +312,7 @@ class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase)
 
 
 class PackagesDistributionsTest(
-    fixtures.EggInfoPkg,
-    fixtures.EggInfoPkgPipInstalledNoModules,
-    fixtures.EggInfoPkgSourcesFallback,
-    fixtures.OnSysPath,
-    fixtures.SiteDir,
-    unittest.TestCase,
+    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
 ):
     def test_packages_distributions_neither_toplevel_nor_files(self):
         """
@@ -367,6 +362,13 @@ class PackagesDistributionsTest(
             assert distributions[f'{i}-in-namespace'] == ['all_distributions']
             assert distributions[f'{i}-in-package'] == ['all_distributions']
 
+
+class PackagesDistributionsEggTest(
+    fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoModules,
+    fixtures.EggInfoPkgSourcesFallback,
+    unittest.TestCase,
+):
     def test_packages_distributions_on_eggs(self):
         """
         Test old-style egg packages with a variation of 'top_level.txt',
