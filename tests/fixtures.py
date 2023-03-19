@@ -280,20 +280,20 @@ class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
 
 class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
     files: FilesDef = {
-        "starved_egg_pkg.egg-info": {
-            "PKG-INFO": "Name: starved_egg-pkg",
+        "sources_fallback_pkg.egg-info": {
+            "PKG-INFO": "Name: sources_fallback-pkg",
             # SOURCES.txt is made from the source archive, and contains files
             # (setup.py) that are not present after installation.
             "SOURCES.txt": """
-                starved_egg_pkg.py
+                sources_fallback.py
                 setup.py
-                starved_egg_pkg.egg-info/PKG-INFO
-                starved_egg_pkg.egg-info/SOURCES.txt
+                sources_fallback_pkg.egg-info/PKG-INFO
+                sources_fallback_pkg.egg-info/SOURCES.txt
             """,
-            # missing installed-files.txt (i.e. not installed by pip)
-            # missing top_level.txt
+            # missing installed-files.txt (i.e. not installed by pip) and
+            # missing top_level.txt (to trigger fallback to SOURCES.txt)
         },
-        "starved_egg_pkg.py": """
+        "sources_fallback.py": """
             def main():
                 print("hello world")
             """,

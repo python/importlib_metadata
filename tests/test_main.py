@@ -184,7 +184,7 @@ class DiscoveryTests(
         assert any(dist.metadata['Name'] == 'egginfo-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'egg_with_module-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'empty_egg-pkg' for dist in dists)
-        assert any(dist.metadata['Name'] == 'starved_egg-pkg' for dist in dists)
+        assert any(dist.metadata['Name'] == 'sources_fallback-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
 
     def test_invalid_usage(self):
@@ -397,6 +397,6 @@ class PackagesDistributionsEggTest(
         # (top_level.txt is empty, and installed-files.txt has no .py files)
         assert import_names_from_package('empty_egg-pkg') == set()
 
-        # starved_egg-pkg has one import ('starved_egg_pkg') inferred
-        # from SOURCES.txt (top_level.txt is missing)
-        assert import_names_from_package('starved_egg-pkg') == {'starved_egg_pkg'}
+        # sources_fallback-pkg has one import ('sources_fallback') inferred from
+        # SOURCES.txt (top_level.txt and installed-files.txt is missing)
+        assert import_names_from_package('sources_fallback-pkg') == {'sources_fallback'}

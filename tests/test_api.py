@@ -188,7 +188,7 @@ class APITests(
         self._test_files(files('egginfo-pkg'))
         self._test_files(files('egg_with_module-pkg'))
         self._test_files(files('empty_egg-pkg'))
-        self._test_files(files('starved_egg-pkg'))
+        self._test_files(files('sources_fallback-pkg'))
 
     def test_version_egg_info_file(self):
         self.assertEqual(version('egginfo-file'), '0.1')
