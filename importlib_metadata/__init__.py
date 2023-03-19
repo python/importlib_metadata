@@ -478,7 +478,7 @@ class Distribution(metaclass=abc.ABCMeta):
             return list(
                 filter(
                     lambda package_path: package_path.locate().exists(),
-                    list(starmap(make_file, csv.reader(lines))),
+                    starmap(make_file, csv.reader(lines)),
                 )
             )
 
