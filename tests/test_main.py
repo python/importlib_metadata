@@ -172,6 +172,7 @@ class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
 
 class DiscoveryTests(
     fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoToplevel,
     fixtures.EggInfoPkgPipInstalledNoModules,
     fixtures.EggInfoPkgSourcesFallback,
     fixtures.DistInfoPkg,
@@ -181,6 +182,7 @@ class DiscoveryTests(
         dists = list(distributions())
         assert all(isinstance(dist, Distribution) for dist in dists)
         assert any(dist.metadata['Name'] == 'egginfo-pkg' for dist in dists)
+        assert any(dist.metadata['Name'] == 'egg_with_module-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'empty_egg-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'starved_egg-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
@@ -365,6 +367,7 @@ class PackagesDistributionsTest(
 
 class PackagesDistributionsEggTest(
     fixtures.EggInfoPkg,
+    fixtures.EggInfoPkgPipInstalledNoToplevel,
     fixtures.EggInfoPkgPipInstalledNoModules,
     fixtures.EggInfoPkgSourcesFallback,
     unittest.TestCase,
@@ -385,6 +388,10 @@ class PackagesDistributionsEggTest(
 
         # egginfo-pkg declares one import ('mod') via top_level.txt
         assert import_names_from_package('egginfo-pkg') == {'mod'}
+
+        # egg_with_module-pkg has one import ('egg_with_module') inferred from
+        # installed-files.txt (top_level.txt is missing)
+        assert import_names_from_package('egg_with_module-pkg') == {'egg_with_module'}
 
         # empty_egg-pkg should not be associated with any import names
         # (top_level.txt is empty, and installed-files.txt has no .py files)
