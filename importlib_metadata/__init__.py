@@ -512,7 +512,16 @@ class Distribution(metaclass=abc.ABCMeta):
         # But this subdir is only available in the PathDistribution's self._path
         # which is not easily accessible from this base class...
         subdir = getattr(self, '_path', None)
-        return text and subdir and [f'"{subdir}/{line}"' for line in text.splitlines()]
+        try:
+            if text and subdir:
+                ret = [
+                    str((subdir / line).resolve().relative_to(self.locate_file('')))
+                    for line in text.splitlines()
+                ]
+                return map('"{}"'.format, ret)
+        except Exception:
+            pass
+        return None
 
     def _read_files_egginfo_sources(self):
         """
