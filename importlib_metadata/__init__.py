@@ -498,10 +498,10 @@ class Distribution(metaclass=abc.ABCMeta):
 
     def _read_files_egginfo_installed(self):
         """
-        installed-files.txt might contain literal commas, so wrap
-        each line in quotes. Also, the entries in installed-files.txt
-        are relative to the .egg-info/ subdir (not relative to the
-        parent site-packages directory that make_file() expects).
+        Read installed-files.txt and return lines in a similar
+        CSV-parsable format as RECORD: each file must be placed
+        relative to the site-packages directory, and must also be
+        quoted (since file names can contain literal commas).
 
         This file is written when the package is installed by pip,
         but it might not be written for other installation methods.
@@ -526,8 +526,9 @@ class Distribution(metaclass=abc.ABCMeta):
 
     def _read_files_egginfo_sources(self):
         """
-        SOURCES.txt might contain literal commas, so wrap each line
-        in quotes.
+        Read SOURCES.txt and return lines in a similar CSV-parsable
+        format as RECORD: each file name must be quoted (since it
+        might contain literal commas).
 
         Note that SOURCES.txt is not a reliable source for what
         files are installed by a package. This file is generated
