@@ -183,7 +183,7 @@ class DiscoveryTests(
         assert all(isinstance(dist, Distribution) for dist in dists)
         assert any(dist.metadata['Name'] == 'egginfo-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'egg_with_module-pkg' for dist in dists)
-        assert any(dist.metadata['Name'] == 'empty_egg-pkg' for dist in dists)
+        assert any(dist.metadata['Name'] == 'egg_with_no_modules-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'sources_fallback-pkg' for dist in dists)
         assert any(dist.metadata['Name'] == 'distinfo-pkg' for dist in dists)
 
@@ -393,9 +393,9 @@ class PackagesDistributionsEggTest(
         # installed-files.txt (top_level.txt is missing)
         assert import_names_from_package('egg_with_module-pkg') == {'egg_with_module'}
 
-        # empty_egg-pkg should not be associated with any import names
+        # egg_with_no_modules-pkg should not be associated with any import names
         # (top_level.txt is empty, and installed-files.txt has no .py files)
-        assert import_names_from_package('empty_egg-pkg') == set()
+        assert import_names_from_package('egg_with_no_modules-pkg') == set()
 
         # sources_fallback-pkg has one import ('sources_fallback') inferred from
         # SOURCES.txt (top_level.txt and installed-files.txt is missing)

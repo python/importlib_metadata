@@ -67,7 +67,7 @@ class APITests(
     def test_for_top_level(self):
         tests = [
             ('egginfo-pkg', 'mod'),
-            ('empty_egg-pkg', ''),
+            ('egg_with_no_modules-pkg', ''),
         ]
         for pkg_name, expect_content in tests:
             with self.subTest(pkg_name):
@@ -79,7 +79,7 @@ class APITests(
     def test_read_text(self):
         tests = [
             ('egginfo-pkg', 'mod\n'),
-            ('empty_egg-pkg', '\n'),
+            ('egg_with_no_modules-pkg', '\n'),
         ]
         for pkg_name, expect_content in tests:
             with self.subTest(pkg_name):
@@ -187,7 +187,7 @@ class APITests(
     def test_files_egg_info(self):
         self._test_files(files('egginfo-pkg'))
         self._test_files(files('egg_with_module-pkg'))
-        self._test_files(files('empty_egg-pkg'))
+        self._test_files(files('egg_with_no_modules-pkg'))
         self._test_files(files('sources_fallback-pkg'))
 
     def test_version_egg_info_file(self):

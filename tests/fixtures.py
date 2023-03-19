@@ -250,15 +250,15 @@ class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
 
 class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
     files: FilesDef = {
-        "empty_egg_pkg.egg-info": {
-            "PKG-INFO": "Name: empty_egg-pkg",
+        "egg_with_no_modules_pkg.egg-info": {
+            "PKG-INFO": "Name: egg_with_no_modules-pkg",
             # SOURCES.txt is made from the source archive, and contains files
             # (setup.py) that are not present after installation.
             "SOURCES.txt": """
                 setup.py
-                empty_egg_pkg.egg-info/PKG-INFO
-                empty_egg_pkg.egg-info/SOURCES.txt
-                empty_egg_pkg.egg-info/top_level.txt
+                egg_with_no_modules_pkg.egg-info/PKG-INFO
+                egg_with_no_modules_pkg.egg-info/SOURCES.txt
+                egg_with_no_modules_pkg.egg-info/top_level.txt
             """,
             # installed-files.txt is written by pip, and is a strictly more
             # accurate source than SOURCES.txt as to the installed contents of
