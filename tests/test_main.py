@@ -360,5 +360,4 @@ class PackagesDistributionsTest(
         # All keys return from packages_distributions() should be valid
         # import names, which means that they must _at least_ be valid
         # identifiers:
-        for import_name in distributions.keys():
-            assert import_name.isidentifier(), import_name
+        assert all(import_name.isidentifier() for import_name in distributions.keys())
