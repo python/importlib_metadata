@@ -339,10 +339,10 @@ class PackagesDistributionsTest(
                         Version: 1.0.0
                     """,
                     'RECORD': ''.join(
-                        f'{i}-top-level{suffix},,\n'
-                        f'{i}-in-namespace/mod{suffix},,\n'
-                        f'{i}-in-package/__init__.py,,\n'
-                        f'{i}-in-package/mod{suffix},,\n'
+                        f'top_level_{i}{suffix},,\n'
+                        f'in_namespace_{i}/mod{suffix},,\n'
+                        f'in_package_{i}/__init__.py,,\n'
+                        f'in_package_{i}/mod{suffix},,\n'
                         for i, suffix in enumerate(suffixes)
                     ),
                 },
@@ -353,6 +353,11 @@ class PackagesDistributionsTest(
         distributions = packages_distributions()
 
         for i in range(len(suffixes)):
-            assert distributions[f'{i}-top-level'] == ['all_distributions']
-            assert distributions[f'{i}-in-namespace'] == ['all_distributions']
-            assert distributions[f'{i}-in-package'] == ['all_distributions']
+            assert distributions[f'top_level_{i}'] == ['all_distributions']
+            assert distributions[f'in_namespace_{i}'] == ['all_distributions']
+            assert distributions[f'in_package_{i}'] == ['all_distributions']
+
+        # All keys return from packages_distributions() should be valid import
+        # names, which means that they must _at least_ be valid identifiers:
+        for import_name in distributions.keys():
+            assert import_name.isidentifier(), import_name
