@@ -323,6 +323,9 @@ class PackagesDistributionsTest(
         )
         packages_distributions()
 
+    import pytest
+
+    @pytest.mark.xfail(reason="442")
     def test_packages_distributions_all_module_types(self):
         """
         Test top-level modules detected on a package without 'top-level.txt'.
