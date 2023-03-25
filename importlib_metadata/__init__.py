@@ -902,4 +902,9 @@ def _top_level_inferred(dist):
         f.parts[0] if len(f.parts) > 1 else inspect.getmodulename(f)
         for f in always_iterable(dist.files)
     }
-    return filter(None, opt_names)
+
+    @pass_none
+    def valid_module(name):
+        return name.isidentifier()
+
+    return filter(valid_module, opt_names)
