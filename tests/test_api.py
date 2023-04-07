@@ -32,7 +32,6 @@ class APITests(
     fixtures.EggInfoFile,
     unittest.TestCase,
 ):
-
     version_pattern = r'\d+\.\d+(\.\d)?'
 
     def test_retrieves_version_of_self(self):
