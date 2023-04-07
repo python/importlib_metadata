@@ -1,3 +1,10 @@
+v6.2.0
+======
+
+* #384: ``PackageMetadata`` now stipulates an additional ``get``
+  method allowing for easy querying of metadata keys that may not
+  be present.
+
 v6.1.0
 ======
 
