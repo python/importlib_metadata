@@ -335,7 +335,8 @@ class PackagesDistributionsTest(
                         Name: all_distributions
                         Version: 1.0.0
                     """,
-                    'RECORD': ''.join(
+                    'RECORD': 'all_distributions-1.0.0.dist-info/METADATA\n'
+                    + ''.join(
                         f'importable-name {i}{suffix},,\n'
                         f'in_namespace_{i}/mod{suffix},,\n'
                         f'in_package_{i}/__init__.py,,\n'
@@ -354,9 +355,4 @@ class PackagesDistributionsTest(
             assert distributions[f'in_namespace_{i}'] == ['all_distributions']
             assert distributions[f'in_package_{i}'] == ['all_distributions']
 
-        def is_importable(name):
-            return '.' not in name
-
-        # All keys returned from packages_distributions() should be
-        # importable.
-        assert all(map(is_importable, distributions))
+        assert not any(name.endswith('.dist-info') for name in distributions)
