@@ -3,7 +3,6 @@ import pickle
 import unittest
 import importlib
 import importlib_metadata
-import itertools
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
@@ -339,17 +338,6 @@ class PackagesDistributionsTest(
         Test top-level modules detected on a package without 'top-level.txt'.
         """
         suffixes = importlib.machinery.all_suffixes()
-        filenames = list(
-            itertools.chain.from_iterable(
-                [
-                    f'{i}-top-level{suffix}',
-                    f'{i}-in-namespace/mod{suffix}',
-                    f'{i}-in-package/__init__.py',
-                    f'{i}-in-package/mod{suffix}',
-                ]
-                for i, suffix in enumerate(suffixes)
-            )
-        )
         fixtures.build_files(
             {
                 'all_distributions-1.0.0.dist-info': {
@@ -357,12 +345,17 @@ class PackagesDistributionsTest(
                         Name: all_distributions
                         Version: 1.0.0
                     """,
-                    'RECORD': ''.join(f'{fname},,\n' for fname in filenames),
+                    'RECORD': ''.join(
+                        f'{i}-top-level{suffix},,\n'
+                        f'{i}-in-namespace/mod{suffix},,\n'
+                        f'{i}-in-package/__init__.py,,\n'
+                        f'{i}-in-package/mod{suffix},,\n'
+                        for i, suffix in enumerate(suffixes)
+                    ),
                 },
             },
             prefix=self.site_dir,
         )
-        fixtures.build_files({fname: "" for fname in filenames}, prefix=self.site_dir)
 
         distributions = packages_distributions()
 

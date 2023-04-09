@@ -351,7 +351,6 @@ def build_files(file_defs, prefix=pathlib.Path()):
             full_name.mkdir()
             build_files(contents, prefix=full_name)
         else:
-            full_name.parent.mkdir(parents=True, exist_ok=True)
             if isinstance(contents, bytes):
                 with full_name.open('wb') as f:
                     f.write(contents)
