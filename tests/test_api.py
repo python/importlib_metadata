@@ -148,6 +148,20 @@ class APITests(
         with suppress_known_deprecation():
             assert md['does-not-exist'] is None
 
+    def test_get_key(self):
+        """
+        Getting a key gets the key.
+        """
+        md = metadata('egginfo-pkg')
+        assert md.get('Name') == 'egginfo-pkg'
+
+    def test_get_missing_key(self):
+        """
+        Requesting a missing key will return None.
+        """
+        md = metadata('distinfo-pkg')
+        assert md.get('does-not-exist') is None
+
     @staticmethod
     def _test_files(files):
         root = files[0].root

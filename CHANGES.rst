@@ -1,9 +1,16 @@
-v6.1.1
+v6.2.1
 ======
 
 * #442: Fixed issue introduced in v6.1.0 where non-importable
   names (metadata dirs) began appearing in
   ``packages_distributions``.
+
+v6.2.0
+======
+
+* #384: ``PackageMetadata`` now stipulates an additional ``get``
+  method allowing for easy querying of metadata keys that may not
+  be present.
 
 v6.1.0
 ======
