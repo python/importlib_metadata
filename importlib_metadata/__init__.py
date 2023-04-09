@@ -947,4 +947,9 @@ def _top_level_inferred(dist):
         f.parts[0] if len(f.parts) > 1 else inspect.getmodulename(f)
         for f in always_iterable(dist.files)
     }
-    return filter(None, opt_names)
+
+    @pass_none
+    def importable_name(name):
+        return '.' not in name
+
+    return filter(importable_name, opt_names)

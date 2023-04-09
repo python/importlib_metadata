@@ -345,11 +345,12 @@ class PackagesDistributionsTest(
                         Name: all_distributions
                         Version: 1.0.0
                     """,
-                    'RECORD': ''.join(
-                        f'{i}-top-level{suffix},,\n'
-                        f'{i}-in-namespace/mod{suffix},,\n'
-                        f'{i}-in-package/__init__.py,,\n'
-                        f'{i}-in-package/mod{suffix},,\n'
+                    'RECORD': 'all_distributions-1.0.0.dist-info/METADATA\n'
+                    + ''.join(
+                        f'importable-name {i}{suffix},,\n'
+                        f'in_namespace_{i}/mod{suffix},,\n'
+                        f'in_package_{i}/__init__.py,,\n'
+                        f'in_package_{i}/mod{suffix},,\n'
                         for i, suffix in enumerate(suffixes)
                     ),
                 },
@@ -360,9 +361,11 @@ class PackagesDistributionsTest(
         distributions = packages_distributions()
 
         for i in range(len(suffixes)):
-            assert distributions[f'{i}-top-level'] == ['all_distributions']
-            assert distributions[f'{i}-in-namespace'] == ['all_distributions']
-            assert distributions[f'{i}-in-package'] == ['all_distributions']
+            assert distributions[f'importable-name {i}'] == ['all_distributions']
+            assert distributions[f'in_namespace_{i}'] == ['all_distributions']
+            assert distributions[f'in_package_{i}'] == ['all_distributions']
+
+        assert not any(name.endswith('.dist-info') for name in distributions)
 
 
 class PackagesDistributionsEggTest(
