@@ -342,10 +342,10 @@ class PackagesDistributionsTest(
         filenames = list(
             itertools.chain.from_iterable(
                 [
-                    f'top_level_{i}{suffix}',
-                    f'in_namespace_{i}/mod{suffix}',
-                    f'in_package_{i}/__init__.py',
-                    f'in_package_{i}/mod{suffix}',
+                    f'{i}-top-level{suffix}',
+                    f'{i}-in-namespace/mod{suffix}',
+                    f'{i}-in-package/__init__.py',
+                    f'{i}-in-package/mod{suffix}',
                 ]
                 for i, suffix in enumerate(suffixes)
             )
@@ -367,14 +367,9 @@ class PackagesDistributionsTest(
         distributions = packages_distributions()
 
         for i in range(len(suffixes)):
-            assert distributions[f'top_level_{i}'] == ['all_distributions']
-            assert distributions[f'in_namespace_{i}'] == ['all_distributions']
-            assert distributions[f'in_package_{i}'] == ['all_distributions']
-
-        # All keys returned from packages_distributions() should be valid import
-        # names, which means that they must _at least_ be valid identifiers:
-        for import_name in distributions.keys():
-            assert import_name.isidentifier(), import_name
+            assert distributions[f'{i}-top-level'] == ['all_distributions']
+            assert distributions[f'{i}-in-namespace'] == ['all_distributions']
+            assert distributions[f'{i}-in-package'] == ['all_distributions']
 
 
 class PackagesDistributionsEggTest(
