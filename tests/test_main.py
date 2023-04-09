@@ -338,7 +338,8 @@ class PackagesDistributionsTest(
                         Name: all_distributions
                         Version: 1.0.0
                     """,
-                    'RECORD': ''.join(
+                    'RECORD': 'all_distributions-1.0.0.dist-info/METADATA\n'
+                    + ''.join(
                         f'{i}-top-level{suffix},,\n'
                         f'{i}-in-namespace/mod{suffix},,\n'
                         f'{i}-in-package/__init__.py,,\n'
@@ -356,3 +357,5 @@ class PackagesDistributionsTest(
             assert distributions[f'{i}-top-level'] == ['all_distributions']
             assert distributions[f'{i}-in-namespace'] == ['all_distributions']
             assert distributions[f'{i}-in-package'] == ['all_distributions']
+
+        assert not any(name.endswith('.dist-info') for name in distributions)
