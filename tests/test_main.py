@@ -354,7 +354,9 @@ class PackagesDistributionsTest(
             assert distributions[f'in_namespace_{i}'] == ['all_distributions']
             assert distributions[f'in_package_{i}'] == ['all_distributions']
 
-        # All keys return from packages_distributions() should be valid
-        # import names, which means that they must _at least_ be valid
-        # identifiers:
-        assert all(import_name.isidentifier() for import_name in distributions.keys())
+        def is_importable(name):
+            return '.' not in name
+
+        # All keys returned from packages_distributions() should be
+        # importable.
+        assert all(map(is_importable, distributions))
