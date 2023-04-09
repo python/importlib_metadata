@@ -1,3 +1,10 @@
+v6.1.1
+======
+
+* #442: Fixed issue introduced in v6.1.0 where non-importable
+  names (metadata dirs) began appearing in
+  ``packages_distributions``.
+
 v6.1.0
 ======
 
