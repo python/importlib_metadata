@@ -336,7 +336,7 @@ class PackagesDistributionsTest(
                         Version: 1.0.0
                     """,
                     'RECORD': ''.join(
-                        f'top_level_{i}{suffix},,\n'
+                        f'importable-name {i}{suffix},,\n'
                         f'in_namespace_{i}/mod{suffix},,\n'
                         f'in_package_{i}/__init__.py,,\n'
                         f'in_package_{i}/mod{suffix},,\n'
@@ -350,7 +350,7 @@ class PackagesDistributionsTest(
         distributions = packages_distributions()
 
         for i in range(len(suffixes)):
-            assert distributions[f'top_level_{i}'] == ['all_distributions']
+            assert distributions[f'importable-name {i}'] == ['all_distributions']
             assert distributions[f'in_namespace_{i}'] == ['all_distributions']
             assert distributions[f'in_package_{i}'] == ['all_distributions']
 

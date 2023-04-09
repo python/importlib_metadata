@@ -904,7 +904,7 @@ def _top_level_inferred(dist):
     }
 
     @pass_none
-    def valid_module(name):
-        return name.isidentifier()
+    def importable_name(name):
+        return '.' not in name
 
-    return filter(valid_module, opt_names)
+    return filter(importable_name, opt_names)
