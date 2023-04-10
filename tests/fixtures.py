@@ -11,6 +11,9 @@ import contextlib
 from .py39compat import FS_NONASCII
 from typing import Dict, Union
 
+from . import _path
+
+
 try:
     from importlib import resources  # type: ignore
 
@@ -357,6 +360,16 @@ def build_files(file_defs, prefix=pathlib.Path()):
             else:
                 with full_name.open('w', encoding='utf-8') as f:
                     f.write(DALS(contents))
+
+
+def build_record(file_defs):
+    return ''.join(f'{name},,\n' for name in record_names(file_defs))
+
+
+def record_names(file_defs):
+    recording = _path.Recording()
+    _path.build(file_defs, recording)
+    return recording.record
 
 
 class FileBuilder:
