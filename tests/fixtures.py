@@ -86,8 +86,10 @@ class OnSysPath(Fixtures):
 
 
 # Except for python/mypy#731, prefer to define
-# FilesDef = Dict[str, Union['FilesDef', str]]
-FilesDef = Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str]]
+# FilesDef = Dict[str, Union['FilesDef', str, bytes]]
+FilesDef = Dict[
+    str, Union[Dict[str, Union[Dict[str, Union[str, bytes]], str, bytes]], str, bytes]
+]
 
 
 class DistInfoPkg(OnSysPath, SiteDir):
@@ -212,6 +214,97 @@ class EggInfoPkg(OnSysPath, SiteDir):
     def setUp(self):
         super().setUp()
         build_files(EggInfoPkg.files, prefix=self.site_dir)
+
+
+class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
+    files: FilesDef = {
+        "egg_with_module_pkg.egg-info": {
+            "PKG-INFO": "Name: egg_with_module-pkg",
+            # SOURCES.txt is made from the source archive, and contains files
+            # (setup.py) that are not present after installation.
+            "SOURCES.txt": """
+                egg_with_module.py
+                setup.py
+                egg_with_module_pkg.egg-info/PKG-INFO
+                egg_with_module_pkg.egg-info/SOURCES.txt
+                egg_with_module_pkg.egg-info/top_level.txt
+            """,
+            # installed-files.txt is written by pip, and is a strictly more
+            # accurate source than SOURCES.txt as to the installed contents of
+            # the package.
+            "installed-files.txt": """
+                ../egg_with_module.py
+                PKG-INFO
+                SOURCES.txt
+                top_level.txt
+            """,
+            # missing top_level.txt (to trigger fallback to installed-files.txt)
+        },
+        "egg_with_module.py": """
+            def main():
+                print("hello world")
+            """,
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(EggInfoPkgPipInstalledNoToplevel.files, prefix=self.site_dir)
+
+
+class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
+    files: FilesDef = {
+        "egg_with_no_modules_pkg.egg-info": {
+            "PKG-INFO": "Name: egg_with_no_modules-pkg",
+            # SOURCES.txt is made from the source archive, and contains files
+            # (setup.py) that are not present after installation.
+            "SOURCES.txt": """
+                setup.py
+                egg_with_no_modules_pkg.egg-info/PKG-INFO
+                egg_with_no_modules_pkg.egg-info/SOURCES.txt
+                egg_with_no_modules_pkg.egg-info/top_level.txt
+            """,
+            # installed-files.txt is written by pip, and is a strictly more
+            # accurate source than SOURCES.txt as to the installed contents of
+            # the package.
+            "installed-files.txt": """
+                PKG-INFO
+                SOURCES.txt
+                top_level.txt
+            """,
+            # top_level.txt correctly reflects that no modules are installed
+            "top_level.txt": b"\n",
+        },
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(EggInfoPkgPipInstalledNoModules.files, prefix=self.site_dir)
+
+
+class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
+    files: FilesDef = {
+        "sources_fallback_pkg.egg-info": {
+            "PKG-INFO": "Name: sources_fallback-pkg",
+            # SOURCES.txt is made from the source archive, and contains files
+            # (setup.py) that are not present after installation.
+            "SOURCES.txt": """
+                sources_fallback.py
+                setup.py
+                sources_fallback_pkg.egg-info/PKG-INFO
+                sources_fallback_pkg.egg-info/SOURCES.txt
+            """,
+            # missing installed-files.txt (i.e. not installed by pip) and
+            # missing top_level.txt (to trigger fallback to SOURCES.txt)
+        },
+        "sources_fallback.py": """
+            def main():
+                print("hello world")
+            """,
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(EggInfoPkgSourcesFallback.files, prefix=self.site_dir)
 
 
 class EggInfoFile(OnSysPath, SiteDir):

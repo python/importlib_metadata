@@ -1,3 +1,9 @@
+v6.3.0
+======
+
+* #115: Support ``installed-files.txt`` for ``Distribution.files``
+  when present.
+
 v6.2.1
 ======
 
