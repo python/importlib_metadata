@@ -338,9 +338,8 @@ class PackagesDistributionsTest(
         files = {
             'all_distributions-1.0.0.dist-info': metadata,
         }
-        mod_files = {}
         for i, suffix in enumerate(suffixes):
-            mod_files.update(
+            files.update(
                 {
                     f'importable-name {i}{suffix}': '',
                     f'in_namespace_{i}': {
@@ -352,8 +351,7 @@ class PackagesDistributionsTest(
                     },
                 }
             )
-        all_files = dict(**files, **mod_files)
-        metadata.update(RECORD=fixtures.build_record(all_files))
+        metadata.update(RECORD=fixtures.build_record(files))
         fixtures.build_files(files, prefix=self.site_dir)
 
         distributions = packages_distributions()
