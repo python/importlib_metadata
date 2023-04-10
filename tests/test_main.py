@@ -3,6 +3,7 @@ import pickle
 import unittest
 import importlib
 import importlib_metadata
+import itertools
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
@@ -328,25 +329,30 @@ class PackagesDistributionsTest(
         Test top-level modules detected on a package without 'top-level.txt'.
         """
         suffixes = importlib.machinery.all_suffixes()
-        fixtures.build_files(
-            {
-                'all_distributions-1.0.0.dist-info': {
-                    'METADATA': """
-                        Name: all_distributions
-                        Version: 1.0.0
-                    """,
-                    'RECORD': 'all_distributions-1.0.0.dist-info/METADATA\n'
-                    + ''.join(
-                        f'importable-name {i}{suffix},,\n'
-                        f'in_namespace_{i}/mod{suffix},,\n'
-                        f'in_package_{i}/__init__.py,,\n'
-                        f'in_package_{i}/mod{suffix},,\n'
-                        for i, suffix in enumerate(suffixes)
-                    ),
-                },
-            },
-            prefix=self.site_dir,
+        metadata = dict(
+            METADATA="""
+                Name: all_distributions
+                Version: 1.0.0
+                """,
         )
+        files = {
+            'all_distributions-1.0.0.dist-info': metadata,
+        }
+        for i, suffix in enumerate(suffixes):
+            files.update(
+                {
+                    f'importable-name {i}{suffix}': '',
+                    f'in_namespace_{i}': {
+                        f'mod{suffix}': '',
+                    },
+                    f'in_package_{i}': {
+                        '__init__.py': '',
+                        f'mod{suffix}': '',
+                    },
+                }
+            )
+        metadata.update(RECORD=fixtures.build_record(files))
+        fixtures.build_files(files, prefix=self.site_dir)
 
         distributions = packages_distributions()
 
