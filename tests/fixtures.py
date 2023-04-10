@@ -243,7 +243,7 @@ class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
         "egg_with_module.py": """
             def main():
                 print("hello world")
-            """
+            """,
     }
 
     def setUp(self):
