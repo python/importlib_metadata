@@ -12,6 +12,7 @@ import warnings
 import functools
 import itertools
 import posixpath
+import contextlib
 import collections
 import inspect
 
@@ -513,16 +514,14 @@ class Distribution(metaclass=abc.ABCMeta):
         # But this subdir is only available in the PathDistribution's self._path
         # which is not easily accessible from this base class...
         subdir = getattr(self, '_path', None)
-        try:
-            if text and subdir:
-                ret = [
-                    str((subdir / line).resolve().relative_to(self.locate_file('')))
-                    for line in text.splitlines()
-                ]
-                return map('"{}"'.format, ret)
-        except Exception:
-            pass
-        return None
+        if not text or not subdir:
+            return
+        with contextlib.suppress(Exception):
+            ret = [
+                str((subdir / line).resolve().relative_to(self.locate_file('')))
+                for line in text.splitlines()
+            ]
+            return map('"{}"'.format, ret)
 
     def _read_files_egginfo_sources(self):
         """
