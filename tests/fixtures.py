@@ -328,38 +328,12 @@ class EggInfoFile(OnSysPath, SiteDir):
         build_files(EggInfoFile.files, prefix=self.site_dir)
 
 
-def build_files(file_defs, prefix=pathlib.Path()):
-    """Build a set of files/directories, as described by the
+# dedent all text strings before writing
+orig = _path.create.registry[str]
+_path.create.register(str, lambda content, path: orig(DALS(content), path))
 
-    file_defs dictionary.  Each key/value pair in the dictionary is
-    interpreted as a filename/contents pair.  If the contents value is a
-    dictionary, a directory is created, and the dictionary interpreted
-    as the files within it, recursively.
 
-    For example:
-
-    {"README.txt": "A README file",
-     "foo": {
-        "__init__.py": "",
-        "bar": {
-            "__init__.py": "",
-        },
-        "baz.py": "# Some code",
-     }
-    }
-    """
-    for name, contents in file_defs.items():
-        full_name = prefix / name
-        if isinstance(contents, dict):
-            full_name.mkdir()
-            build_files(contents, prefix=full_name)
-        else:
-            if isinstance(contents, bytes):
-                with full_name.open('wb') as f:
-                    f.write(contents)
-            else:
-                with full_name.open('w', encoding='utf-8') as f:
-                    f.write(DALS(contents))
+build_files = _path.build
 
 
 def build_record(file_defs):

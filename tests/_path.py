@@ -78,6 +78,11 @@ def _(content: str, path):
     path.write_text(content, encoding='utf-8')
 
 
+@create.register
+def _(content: str, path):
+    path.write_text(content, encoding='utf-8')
+
+
 class Recording:
     """
     A TreeMaker object that records everything that would be written.
