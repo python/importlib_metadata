@@ -9,9 +9,9 @@ import functools
 import contextlib
 
 from .py39compat import FS_NONASCII
-from typing import Dict, Union
 
 from . import _path
+from ._path import FilesSpec
 
 
 try:
@@ -85,15 +85,8 @@ class OnSysPath(Fixtures):
         self.fixtures.enter_context(self.add_sys_path(self.site_dir))
 
 
-# Except for python/mypy#731, prefer to define
-# FilesDef = Dict[str, Union['FilesDef', str, bytes]]
-FilesDef = Dict[
-    str, Union[Dict[str, Union[Dict[str, Union[str, bytes]], str, bytes]], str, bytes]
-]
-
-
 class DistInfoPkg(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "distinfo_pkg-1.0.0.dist-info": {
             "METADATA": """
                 Name: distinfo-pkg
@@ -135,7 +128,7 @@ class DistInfoPkg(OnSysPath, SiteDir):
 
 
 class DistInfoPkgWithDot(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "pkg_dot-1.0.0.dist-info": {
             "METADATA": """
                 Name: pkg.dot
@@ -150,7 +143,7 @@ class DistInfoPkgWithDot(OnSysPath, SiteDir):
 
 
 class DistInfoPkgWithDotLegacy(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "pkg.dot-1.0.0.dist-info": {
             "METADATA": """
                 Name: pkg.dot
@@ -177,7 +170,7 @@ class DistInfoPkgOffPath(SiteDir):
 
 
 class EggInfoPkg(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "egginfo_pkg.egg-info": {
             "PKG-INFO": """
                 Name: egginfo-pkg
@@ -217,7 +210,7 @@ class EggInfoPkg(OnSysPath, SiteDir):
 
 
 class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "egg_with_module_pkg.egg-info": {
             "PKG-INFO": "Name: egg_with_module-pkg",
             # SOURCES.txt is made from the source archive, and contains files
@@ -252,7 +245,7 @@ class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
 
 
 class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "egg_with_no_modules_pkg.egg-info": {
             "PKG-INFO": "Name: egg_with_no_modules-pkg",
             # SOURCES.txt is made from the source archive, and contains files
@@ -282,7 +275,7 @@ class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
 
 
 class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "sources_fallback_pkg.egg-info": {
             "PKG-INFO": "Name: sources_fallback-pkg",
             # SOURCES.txt is made from the source archive, and contains files
@@ -308,7 +301,7 @@ class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
 
 
 class EggInfoFile(OnSysPath, SiteDir):
-    files: FilesDef = {
+    files: FilesSpec = {
         "egginfo_file.egg-info": """
             Metadata-Version: 1.0
             Name: egginfo_file
