@@ -348,10 +348,9 @@ class FileHash:
         return f'<FileHash mode: {self.mode} value: {self.value}>'
 
 
-class Distribution(metaclass=abc.ABCMeta):
+class Distribution:
     """A Python distribution package."""
 
-    @abc.abstractmethod
     def read_text(self, filename) -> Optional[str]:
         """Attempt to load metadata file given by the name.
 
@@ -359,12 +358,12 @@ class Distribution(metaclass=abc.ABCMeta):
         :return: The text if found, otherwise None.
         """
 
-    @abc.abstractmethod
     def locate_file(self, path):
         """
         Given a path to a file in this distribution, return a path
         to it.
         """
+        raise NotImplementedError
 
     @classmethod
     def from_name(cls, name: str):
