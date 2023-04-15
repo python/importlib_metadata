@@ -1,3 +1,9 @@
+v6.4.0
+======
+
+* Consolidated some behaviors in tests around ``_path``.
+* Added type annotation for ``Distribution.read_text``.
+
 v6.3.0
 ======
 
