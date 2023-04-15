@@ -1,3 +1,8 @@
+v6.4.1
+======
+
+* Updated docs with tweaks from upstream CPython.
+
 v6.4.0
 ======
 
