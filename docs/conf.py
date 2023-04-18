@@ -68,4 +68,6 @@ nitpick_ignore = [
     ('py:class', 'importlib_metadata._meta._T'),
     # Workaround for #435
     ('py:class', '_T'),
+    # Other workarounds
+    ('py:class', 'importlib_metadata.DeprecatedNonAbstract'),
 ]
