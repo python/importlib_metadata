@@ -20,6 +20,7 @@ from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
+    StrPath,
     install,
     pypy_partial,
 )
@@ -31,9 +32,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Iterator, List, Mapping, Optional, Set, Union, cast
-
-StrPath = Union[str, "os.PathLike[str]"]
+from typing import Iterable, List, Mapping, Optional, Set, cast
 
 __all__ = [
     'Distribution',
@@ -124,8 +123,8 @@ class Sectioned:
             yield Pair(name, value)
 
     @staticmethod
-    def valid(line: str) -> bool:
-        return bool(line) and not line.startswith('#')
+    def valid(line: str):
+        return line and not line.startswith('#')
 
 
 class DeprecatedTuple:
@@ -388,19 +387,19 @@ class Distribution(metaclass=abc.ABCMeta):
         if not name:
             raise ValueError("A distribution name is required.")
         try:
-            return next(cls.discover(name=name))
+            return next(iter(cls.discover(name=name)))
         except StopIteration:
             raise PackageNotFoundError(name)
 
     @classmethod
-    def discover(cls, **kwargs) -> Iterator["Distribution"]:
-        """Return an iterator of Distribution objects for all packages.
+    def discover(cls, **kwargs) -> Iterable["Distribution"]:
+        """Return an iterable of Distribution objects for all packages.
 
         Pass a ``context`` or pass keyword arguments for constructing
         a context.
 
         :context: A ``DistributionFinder.Context`` object.
-        :return: Iterator of Distribution objects for all packages.
+        :return: Iterable of Distribution objects for all packages.
         """
         context = kwargs.pop('context', None)
         if context and kwargs:
@@ -411,7 +410,7 @@ class Distribution(metaclass=abc.ABCMeta):
         )
 
     @staticmethod
-    def at(path: StrPath) -> "PathDistribution":
+    def at(path: StrPath) -> "Distribution":
         """Return a Distribution for the indicated metadata path
 
         :param path: a string or path-like object
@@ -638,11 +637,11 @@ class DistributionFinder(MetaPathFinder):
             return vars(self).get('path', sys.path)
 
     @abc.abstractmethod
-    def find_distributions(self, context=Context()) -> Iterator[Distribution]:
+    def find_distributions(self, context=Context()) -> Iterable[Distribution]:
         """
         Find distributions.
 
-        Return an iterator of all Distribution instances capable of
+        Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching the ``context``,
         a DistributionFinder.Context instance.
         """
@@ -775,11 +774,11 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     def find_distributions(
         self, context=DistributionFinder.Context()
-    ) -> Iterator["PathDistribution"]:
+    ) -> Iterable["PathDistribution"]:
         """
         Find distributions.
 
-        Return an iterator of all Distribution instances capable of
+        Return an iterable of all Distribution instances capable of
         loading the metadata for packages matching ``context.name``
         (or all names if ``None`` indicated) along the paths in the list
         of directories ``context.path``.
@@ -863,10 +862,10 @@ def distribution(distribution_name) -> Distribution:
     return Distribution.from_name(distribution_name)
 
 
-def distributions(**kwargs) -> Iterator[Distribution]:
+def distributions(**kwargs) -> Iterable[Distribution]:
     """Get all ``Distribution`` instances in the current environment.
 
-    :return: An iterator of ``Distribution`` instances.
+    :return: An iterable of ``Distribution`` instances.
     """
     return Distribution.discover(**kwargs)
 
@@ -927,7 +926,7 @@ def requires(distribution_name) -> Optional[List[str]]:
     """
     Return a list of requirements for the named package.
 
-    :return: An iterator of requirements, suitable for
+    :return: An iterable of requirements, suitable for
         packaging.requirement.Requirement.
     """
     return distribution(distribution_name).requires
