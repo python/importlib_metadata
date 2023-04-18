@@ -1,3 +1,10 @@
+v6.5.0
+======
+
+* #422: Removed ABC metaclass from ``Distribution`` and instead
+  deprecated construction of ``Distribution`` objects without
+  concrete methods.
+
 v6.4.1
 ======
 
