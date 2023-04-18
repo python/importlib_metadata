@@ -28,7 +28,7 @@ Project details
  * Project home: https://github.com/python/importlib_metadata
  * Report bugs at: https://github.com/python/importlib_metadata/issues
  * Code hosting: https://github.com/python/importlib_metadata
- * Documentation: https://importlib_metadata.readthedocs.io/
+ * Documentation: https://importlib-metadata.readthedocs.io/
 
 
 Indices and tables
