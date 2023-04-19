@@ -387,6 +387,32 @@ class PackagesDistributionsTest(
         assert not any(name.endswith('.dist-info') for name in distributions)
 
 
+class PackagesDistributionsDistTest(
+    fixtures.DistInfoPkg,
+    fixtures.DistInfoSymlinkedPkg,
+    unittest.TestCase,
+):
+    def test_packages_distributions_on_dist_info(self):
+        """
+        Test _top_level_inferred() on various dist-info packages.
+        """
+        distributions = packages_distributions()
+
+        def import_names_from_package(package_name):
+            return {
+                import_name
+                for import_name, package_names in distributions.items()
+                if package_name in package_names
+            }
+
+        # distinfo-pkg has one import ('mod') inferred from RECORD
+        assert import_names_from_package('distinfo-pkg') == {'mod'}
+
+        # symlinked-pkg has one import ('symlinked') inderred from RECORD which
+        # references a symlink to the real package dir elsewhere.
+        assert import_names_from_package('symlinked-pkg') == {'symlinked'}
+
+
 class PackagesDistributionsEggTest(
     fixtures.EggInfoPkg,
     fixtures.EggInfoPkgPipInstalledNoToplevel,
