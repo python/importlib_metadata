@@ -536,14 +536,14 @@ class Distribution(DeprecatedNonAbstract):
         if not text or not subdir:
             return
 
-        ret = [
+        paths = (
             (subdir / name)
             .resolve()
             .relative_to(self.locate_file('').resolve())
             .as_posix()
             for name in text.splitlines()
-        ]
-        return map('"{}"'.format, ret)
+        )
+        return map('"{}"'.format, paths)
 
     def _read_files_egginfo_sources(self):
         """
