@@ -1,3 +1,8 @@
+v6.6.0
+======
+
+* #449: Expanded type annotations.
+
 v6.3.0
 ======
 
