@@ -538,7 +538,10 @@ class Distribution(DeprecatedNonAbstract):
             return
 
         ret = [
-            str((subdir / line).resolve().relative_to(self.locate_file('').resolve()))
+            (subdir / line)
+            .resolve()
+            .relative_to(self.locate_file('').resolve())
+            .as_posix()
             for line in text.splitlines()
         ]
         return map('"{}"'.format, ret)
