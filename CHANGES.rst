@@ -1,3 +1,10 @@
+v6.5.1
+======
+
+* python/cpython#103661: Removed excess error suppression in
+  ``_read_files_egginfo_installed`` and fixed path handling
+  on Windows.
+
 v6.5.0
 ======
 
