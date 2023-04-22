@@ -64,6 +64,7 @@ intersphinx_mapping.update(
 nitpick_ignore = [
     # Workaround for #316
     ('py:class', 'importlib_metadata.EntryPoints'),
+    ('py:class', 'importlib_metadata.PackagePath'),
     ('py:class', 'importlib_metadata.SelectableGroups'),
     ('py:class', 'importlib_metadata._meta._T'),
     # Workaround for #435
