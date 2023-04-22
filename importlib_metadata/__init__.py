@@ -536,12 +536,12 @@ class Distribution(DeprecatedNonAbstract):
         subdir = getattr(self, '_path', None)
         if not text or not subdir:
             return
-        with contextlib.suppress(Exception):
-            ret = [
-                str((subdir / line).resolve().relative_to(self.locate_file('')))
-                for line in text.splitlines()
-            ]
-            return map('"{}"'.format, ret)
+
+        ret = [
+            str((subdir / line).resolve().relative_to(self.locate_file('').resolve()))
+            for line in text.splitlines()
+        ]
+        return map('"{}"'.format, ret)
 
     def _read_files_egginfo_sources(self):
         """
