@@ -349,11 +349,6 @@ def DALS(str):
     return textwrap.dedent(str).lstrip()
 
 
-class NullFinder:
-    def find_module(self, name):
-        pass
-
-
 class ZipFixtures:
     root = 'tests.data'
 
