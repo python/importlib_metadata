@@ -1,11 +1,14 @@
 .. _using:
 
-=================================
- Using :mod:`!importlib_metadata`
-=================================
+========================================================
+:mod:`!importlib_metadata` -- Accessing package metadata
+========================================================
+
+.. module:: importlib_metadata
+   :synopsis: Accessing package metadata
 
 ``importlib_metadata`` is a library that provides access to
-the metadata of an installed :term:`packaging:Distribution Package`,
+the metadata of an installed `Distribution Package <https://packaging.python.org/en/latest/glossary/#term-Distribution-Package>`_,
 such as its entry points
 or its top-level names (:term:`packaging:Import Package`\s, modules, if any).
 Built in part on Python's import system, this library
@@ -344,7 +347,7 @@ is not available through :data:`sys.path` searches, or
 package loaders directly,
 the metadata for a distribution is found through import
 system :ref:`finders <finders-and-loaders>`.  To find a distribution package's metadata,
-``importlib.metadata`` queries the list of :term:`meta path finders <meta path finder>` on
+``importlib_metadata`` queries the list of :term:`meta path finders <meta path finder>` on
 :data:`sys.meta_path`.
 
 By default ``importlib_metadata`` installs a finder for distribution packages
