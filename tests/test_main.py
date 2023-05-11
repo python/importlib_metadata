@@ -5,7 +5,6 @@ import warnings
 import importlib
 import importlib_metadata
 import contextlib
-import itertools
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures

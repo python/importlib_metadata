@@ -13,7 +13,6 @@ import warnings
 import functools
 import itertools
 import posixpath
-import contextlib
 import collections
 
 from . import _adapters, _meta, _py39compat
