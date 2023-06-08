@@ -204,6 +204,20 @@ class DiscoveryTests(
         with self.assertRaises(ValueError):
             list(distributions(context='something', name='else'))
 
+    def test_interleaved_discovery(self):
+        """
+        Ensure interleaved searches are safe.
+
+        When the search is cached, it is possible for searches to be
+        interleaved, so make sure those use-cases are safe.
+
+        Ref #293
+        """
+        dists = distributions()
+        next(dists)
+        version('egginfo-pkg')
+        next(dists)
+
 
 class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     def test_egg_info(self):

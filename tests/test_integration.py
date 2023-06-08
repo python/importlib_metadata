@@ -15,7 +15,6 @@ from . import fixtures
 from importlib_metadata import (
     MetadataPathFinder,
     _compat,
-    distributions,
     version,
 )
 
@@ -64,16 +63,3 @@ class DistSearch(unittest.TestCase):
         """
         res = MetadataPathFinder._search_paths('any-name', [])
         assert list(res) == []
-
-    def test_interleaved_discovery(self):
-        """
-        When the search is cached, it is
-        possible for searches to be interleaved, so make sure
-        those use-cases are safe.
-
-        Ref #293
-        """
-        dists = distributions()
-        next(dists)
-        version('importlib_metadata')
-        next(dists)
