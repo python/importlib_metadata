@@ -29,10 +29,13 @@ class IntegrationTests(fixtures.DistInfoPkg, unittest.TestCase):
 
 class FinderTests(fixtures.Fixtures, unittest.TestCase):
     def test_finder_without_module(self):
-        class ModuleFreeFinder(fixtures.NullFinder):
+        class ModuleFreeFinder:
             """
             A finder without an __module__ attribute
             """
+
+            def find_module(self, name):
+                pass
 
             def __getattribute__(self, name):
                 if name == '__module__':
