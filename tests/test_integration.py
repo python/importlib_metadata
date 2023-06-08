@@ -1,3 +1,12 @@
+"""
+Test behaviors specific to importlib_metadata.
+
+These tests are excluded downstream in CPython as they
+test functionality only in importlib_metadata or require
+behaviors ('packaging') that aren't available in the
+stdlib.
+"""
+
 import unittest
 import packaging.requirements
 import packaging.version
