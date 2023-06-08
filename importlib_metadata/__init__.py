@@ -3,8 +3,10 @@ import re
 import abc
 import csv
 import sys
+import json
 import zipp
 import email
+import types
 import inspect
 import pathlib
 import operator
@@ -617,6 +619,16 @@ class Distribution(DeprecatedNonAbstract):
         for section in sections:
             space = url_req_space(section.value)
             yield section.value + space + quoted_marker(section.name)
+
+    @property
+    def origin(self):
+        return self._load_json('direct_url.json')
+
+    def _load_json(self, filename):
+        return pass_none(json.loads)(
+            self.read_text(filename),
+            object_hook=lambda data: types.SimpleNamespace(**data),
+        )
 
 
 class DistributionFinder(MetaPathFinder):
