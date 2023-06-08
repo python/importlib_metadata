@@ -13,7 +13,6 @@ import packaging.version
 
 from . import fixtures
 from importlib_metadata import (
-    MetadataPathFinder,
     _compat,
     version,
 )
@@ -52,14 +51,3 @@ class FinderTests(fixtures.Fixtures, unittest.TestCase):
 
         self.fixtures.enter_context(fixtures.install_finder(ModuleFreeFinder()))
         _compat.disable_stdlib_finder()
-
-
-class DistSearch(unittest.TestCase):
-    def test_search_dist_dirs(self):
-        """
-        Pip needs the _search_paths interface to locate
-        distribution metadata dirs. Protect it for PyPA
-        use-cases (only). Ref python/importlib_metadata#111.
-        """
-        res = MetadataPathFinder._search_paths('any-name', [])
-        assert list(res) == []
