@@ -62,7 +62,7 @@ Let's say you wanted to get the version string for a
 using ``pip``.  We start by creating a virtual environment and installing
 something into it::
 
-    $ python3 -m venv example
+    $ python -m venv example
     $ source example/bin/activate
     (example) $ python -m pip install importlib_metadata
     (example) $ python -m pip install wheel
@@ -343,7 +343,7 @@ Because :term:`packaging:Distribution Package` metadata
 is not available through :data:`sys.path` searches, or
 package loaders directly,
 the metadata for a distribution is found through import
-system `finders`_.  To find a distribution package's metadata,
+system :ref:`finders <finders-and-loaders>`.  To find a distribution package's metadata,
 ``importlib.metadata`` queries the list of :term:`meta path finders <meta path finder>` on
 :data:`sys.meta_path`.
 
@@ -379,4 +379,3 @@ a custom finder, return instances of this derived ``Distribution`` in the
 
 .. _`entry point API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points
 .. _`metadata API`: https://setuptools.readthedocs.io/en/latest/pkg_resources.html#metadata-api
-.. _`finders`: https://docs.python.org/3/reference/import.html#finders-and-loaders

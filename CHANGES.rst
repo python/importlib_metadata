@@ -1,3 +1,53 @@
+v6.6.0
+======
+
+* #449: Expanded type annotations.
+
+v6.5.1
+======
+
+* python/cpython#103661: Removed excess error suppression in
+  ``_read_files_egginfo_installed`` and fixed path handling
+  on Windows.
+
+v6.5.0
+======
+
+* #422: Removed ABC metaclass from ``Distribution`` and instead
+  deprecated construction of ``Distribution`` objects without
+  concrete methods.
+
+v6.4.1
+======
+
+* Updated docs with tweaks from upstream CPython.
+
+v6.4.0
+======
+
+* Consolidated some behaviors in tests around ``_path``.
+* Added type annotation for ``Distribution.read_text``.
+
+v6.3.0
+======
+
+* #115: Support ``installed-files.txt`` for ``Distribution.files``
+  when present.
+
+v6.2.1
+======
+
+* #442: Fixed issue introduced in v6.1.0 where non-importable
+  names (metadata dirs) began appearing in
+  ``packages_distributions``.
+
+v6.2.0
+======
+
+* #384: ``PackageMetadata`` now stipulates an additional ``get``
+  method allowing for easy querying of metadata keys that may not
+  be present.
+
 v6.1.0
 ======
 
