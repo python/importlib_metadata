@@ -399,10 +399,6 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
-
-class PackagesDistributionsDistTest(
-    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
-):
     def test_packages_distributions_symlinked_top_level(self):
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
