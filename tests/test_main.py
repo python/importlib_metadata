@@ -414,12 +414,7 @@ class PackagesDistributionsTest(
                     """,
                 "RECORD": "symlinked,,\n",
             },
-            ".symlink.target": {
-                "__init__.py": """
-                    def main():
-                        print("hello world")
-                    """,
-            },
+            ".symlink.target": {},
             "symlinked": Symlink(".symlink.target"),
         }
 
