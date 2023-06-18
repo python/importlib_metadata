@@ -9,6 +9,7 @@ import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
 from ._context import suppress
+from ._path import Symlink
 from importlib_metadata import (
     Distribution,
     EntryPoint,
@@ -398,6 +399,27 @@ class PackagesDistributionsTest(
             assert distributions[f'in_package_{i}'] == ['all_distributions']
 
         assert not any(name.endswith('.dist-info') for name in distributions)
+
+    def test_packages_distributions_symlinked_top_level(self):
+        """
+        Distribution is resolvable from a simple top-level symlink in RECORD.
+        See #452.
+        """
+
+        files: fixtures.FilesSpec = {
+            "symlinked_pkg-1.0.0.dist-info": {
+                "METADATA": """
+                    Name: symlinked-pkg
+                    Version: 1.0.0
+                    """,
+                "RECORD": "symlinked,,\n",
+            },
+            ".symlink.target": {},
+            "symlinked": Symlink(".symlink.target"),
+        }
+
+        fixtures.build_files(files, self.site_dir)
+        assert packages_distributions()['symlinked'] == ['symlinked-pkg']
 
 
 class PackagesDistributionsEggTest(

@@ -1,3 +1,10 @@
+v6.7.0
+======
+
+* #453: When inferring top-level names that are importable for
+  distributions in ``package_distributions``, now symlinks to
+  other directories are honored.
+
 v6.6.0
 ======
 

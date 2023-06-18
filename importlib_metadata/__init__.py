@@ -981,30 +981,34 @@ def _topmost(name: PackagePath) -> Optional[str]:
     return top if rest else None
 
 
-def _get_toplevel_name(name: PackagePath) -> Optional[str]:
+def _get_toplevel_name(name: PackagePath) -> str:
     """
     Infer a possibly importable module name from a name presumed on
     sys.path.
 
     >>> _get_toplevel_name(PackagePath('foo.py'))
     'foo'
+    >>> _get_toplevel_name(PackagePath('foo'))
+    'foo'
     >>> _get_toplevel_name(PackagePath('foo.pyc'))
     'foo'
     >>> _get_toplevel_name(PackagePath('foo/__init__.py'))
     'foo'
     >>> _get_toplevel_name(PackagePath('foo.pth'))
+    'foo.pth'
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
+    'foo.dist-info'
     """
     return _topmost(name) or (
         # python/typeshed#10328
         inspect.getmodulename(name)  # type: ignore
+        or str(name)
     )
 
 
 def _top_level_inferred(dist):
     opt_names = set(map(_get_toplevel_name, always_iterable(dist.files)))
 
-    @pass_none
     def importable_name(name):
         return '.' not in name
 
