@@ -9,6 +9,7 @@ import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
 from ._context import suppress
+from ._path import Symlink
 from importlib_metadata import (
     Distribution,
     EntryPoint,
@@ -419,14 +420,10 @@ class PackagesDistributionsTest(
                         print("hello world")
                     """,
             },
-            # "symlinked" -> ".symlink.target", see below
+            "symlinked": Symlink(".symlink.target"),
         }
 
         fixtures.build_files(files, self.site_dir)
-        target = self.site_dir / ".symlink.target"
-        assert target.is_dir()
-        (self.site_dir / "symlinked").symlink_to(target, target_is_directory=True)
-
         assert packages_distributions()['symlinked'] == ['symlinked-pkg']
 
 
