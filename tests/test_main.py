@@ -5,7 +5,6 @@ import warnings
 import importlib
 import importlib_metadata
 import contextlib
-import itertools
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
@@ -204,6 +203,20 @@ class DiscoveryTests(
     def test_invalid_usage(self):
         with self.assertRaises(ValueError):
             list(distributions(context='something', name='else'))
+
+    def test_interleaved_discovery(self):
+        """
+        Ensure interleaved searches are safe.
+
+        When the search is cached, it is possible for searches to be
+        interleaved, so make sure those use-cases are safe.
+
+        Ref #293
+        """
+        dists = distributions()
+        next(dists)
+        version('egginfo-pkg')
+        next(dists)
 
 
 class DirectoryTest(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
