@@ -992,12 +992,12 @@ def _get_toplevel_name(name: PackagePath) -> str:
     'foo'
     >>> _get_toplevel_name(PackagePath('foo.pyc'))
     'foo'
-    >>> _get_toplevel_name(PackagePath('foo.dist-info'))
-    'foo.dist-info'
-    >>> _get_toplevel_name(PackagePath('foo.pth'))
-    'foo.pth'
     >>> _get_toplevel_name(PackagePath('foo/__init__.py'))
     'foo'
+    >>> _get_toplevel_name(PackagePath('foo.pth'))
+    'foo.pth'
+    >>> _get_toplevel_name(PackagePath('foo.dist-info'))
+    'foo.dist-info'
     """
     return _topmost(name) or (
         # python/typeshed#10328
