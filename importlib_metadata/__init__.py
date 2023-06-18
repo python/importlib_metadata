@@ -31,8 +31,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Iterable, Iterator, List, Mapping, Optional, Set, cast
-
+from typing import Iterable, List, Mapping, Optional, Set, cast
 
 __all__ = [
     'Distribution',
@@ -974,35 +973,42 @@ def _top_level_declared(dist):
     return (dist.read_text('top_level.txt') or '').split()
 
 
-def _walk_dirs(package_paths: Iterable[PackagePath]) -> Iterator[PackagePath]:
-    for package_path in package_paths:
+def _topmost(name: PackagePath) -> Optional[str]:
+    """
+    Return the top-most parent as long as there is a parent.
+    """
+    top, *rest = name.parts
+    return top if rest else None
 
-        def make_file(name):
-            result = PackagePath(name)
-            result.hash = None
-            result.size = None
-            result.dist = package_path.dist
-            return result
 
-        real_path = package_path.locate()
-        real_sitedir = package_path.dist.locate_file("")  # type: ignore
-        if real_path.is_dir() and real_path.is_symlink():
-            # .files only mentions symlink, we must recurse into it ourselves:
-            for root, dirs, files in os.walk(real_path):
-                for filename in files:
-                    real_file = pathlib.Path(root, filename)
-                    yield make_file(real_file.relative_to(real_sitedir))
-        else:
-            yield package_path
+def _get_toplevel_name(name: PackagePath) -> str:
+    """
+    Infer a possibly importable module name from a name presumed on
+    sys.path.
+
+    >>> _get_toplevel_name(PackagePath('foo.py'))
+    'foo'
+    >>> _get_toplevel_name(PackagePath('foo'))
+    'foo'
+    >>> _get_toplevel_name(PackagePath('foo.pyc'))
+    'foo'
+    >>> _get_toplevel_name(PackagePath('foo.dist-info'))
+    'foo.dist-info'
+    >>> _get_toplevel_name(PackagePath('foo.pth'))
+    'foo.pth'
+    >>> _get_toplevel_name(PackagePath('foo/__init__.py'))
+    'foo'
+    """
+    return _topmost(name) or (
+        # python/typeshed#10328
+        inspect.getmodulename(name)  # type: ignore
+        or str(name)
+    )
 
 
 def _top_level_inferred(dist):
-    opt_names = {
-        f.parts[0] if len(f.parts) > 1 else inspect.getmodulename(f)
-        for f in _walk_dirs(always_iterable(dist.files))
-    }
+    opt_names = set(map(_get_toplevel_name, always_iterable(dist.files)))
 
-    @pass_none
     def importable_name(name):
         return '.' not in name
 
