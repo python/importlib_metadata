@@ -1,4 +1,4 @@
-# from jaraco.path 3.5
+# from jaraco.path 3.6
 
 import functools
 import pathlib
@@ -11,7 +11,13 @@ except ImportError:  # pragma: no cover
     from typing_extensions import Protocol, runtime_checkable  # type: ignore
 
 
-FilesSpec = Dict[str, Union[str, bytes, 'FilesSpec']]  # type: ignore
+class Symlink(str):
+    """
+    A string indicating the target of a symlink.
+    """
+
+
+FilesSpec = Dict[str, Union[str, bytes, Symlink, 'FilesSpec']]  # type: ignore
 
 
 @runtime_checkable
@@ -26,6 +32,9 @@ class TreeMaker(Protocol):
         ...  # pragma: no cover
 
     def write_bytes(self, content):
+        ...  # pragma: no cover
+
+    def symlink_to(self, target):
         ...  # pragma: no cover
 
 
@@ -51,11 +60,15 @@ def build(
     ...             "__init__.py": "",
     ...         },
     ...         "baz.py": "# Some code",
-    ...     }
+    ...         "bar.py": Symlink("baz.py"),
+    ...     },
+    ...     "bing": Symlink("foo"),
     ... }
     >>> target = getfixture('tmp_path')
     >>> build(spec, target)
     >>> target.joinpath('foo/baz.py').read_text(encoding='utf-8')
+    '# Some code'
+    >>> target.joinpath('bing/bar.py').read_text(encoding='utf-8')
     '# Some code'
     """
     for name, contents in spec.items():
@@ -79,8 +92,8 @@ def _(content: str, path):
 
 
 @create.register
-def _(content: str, path):
-    path.write_text(content, encoding='utf-8')
+def _(content: Symlink, path):
+    path.symlink_to(content)
 
 
 class Recording:
@@ -107,3 +120,6 @@ class Recording:
 
     def mkdir(self, **kwargs):
         return
+
+    def symlink_to(self, target):
+        pass
