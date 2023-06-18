@@ -401,14 +401,36 @@ class PackagesDistributionsTest(
 
 
 class PackagesDistributionsDistTest(
-    fixtures.DistInfoSymlinkedPkg,
-    unittest.TestCase,
+    fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
 ):
     def test_packages_distributions_symlinked_top_level(self):
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
         See #452.
         """
+
+        files: fixtures.FilesSpec = {
+            "symlinked_pkg-1.0.0.dist-info": {
+                "METADATA": """
+                    Name: symlinked-pkg
+                    Version: 1.0.0
+                    """,
+                "RECORD": "symlinked,,\n",
+            },
+            ".symlink.target": {
+                "__init__.py": """
+                    def main():
+                        print("hello world")
+                    """,
+            },
+            # "symlinked" -> ".symlink.target", see below
+        }
+
+        fixtures.build_files(files, self.site_dir)
+        target = self.site_dir / ".symlink.target"
+        assert target.is_dir()
+        (self.site_dir / "symlinked").symlink_to(target, target_is_directory=True)
+
         assert packages_distributions()['symlinked'] == ['symlinked-pkg']
 
 

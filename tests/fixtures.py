@@ -169,32 +169,6 @@ class DistInfoPkgOffPath(SiteDir):
         build_files(DistInfoPkg.files, self.site_dir)
 
 
-class DistInfoSymlinkedPkg(OnSysPath, SiteDir):
-    files: FilesSpec = {
-        "symlinked_pkg-1.0.0.dist-info": {
-            "METADATA": """
-                Name: symlinked-pkg
-                Version: 1.0.0
-                """,
-            "RECORD": "symlinked,,\n",
-        },
-        ".symlink.target": {
-            "__init__.py": """
-                def main():
-                    print("hello world")
-                """,
-        },
-        # "symlinked" -> ".symlink.target", see below
-    }
-
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoSymlinkedPkg.files, self.site_dir)
-        target = self.site_dir / ".symlink.target"
-        assert target.is_dir()
-        (self.site_dir / "symlinked").symlink_to(target, target_is_directory=True)
-
-
 class EggInfoPkg(OnSysPath, SiteDir):
     files: FilesSpec = {
         "egginfo_pkg.egg-info": {
