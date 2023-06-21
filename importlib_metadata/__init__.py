@@ -873,7 +873,7 @@ class PathDistribution(Distribution):
         return name
 
 
-def distribution(distribution_name) -> Distribution:
+def distribution(distribution_name: str) -> Distribution:
     """Get the ``Distribution`` instance for the named package.
 
     :param distribution_name: The name of the distribution package as a string.
@@ -890,7 +890,7 @@ def distributions(**kwargs) -> Iterable[Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name) -> _meta.PackageMetadata:
+def metadata(distribution_name: str) -> _meta.PackageMetadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -899,7 +899,7 @@ def metadata(distribution_name) -> _meta.PackageMetadata:
     return Distribution.from_name(distribution_name).metadata
 
 
-def version(distribution_name) -> str:
+def version(distribution_name: str) -> str:
     """Get the version string for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -933,7 +933,7 @@ def entry_points(**params) -> EntryPoints:
     return EntryPoints(eps).select(**params)
 
 
-def files(distribution_name) -> Optional[List[PackagePath]]:
+def files(distribution_name: str) -> Optional[List[PackagePath]]:
     """Return a list of files for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -942,7 +942,7 @@ def files(distribution_name) -> Optional[List[PackagePath]]:
     return distribution(distribution_name).files
 
 
-def requires(distribution_name) -> Optional[List[str]]:
+def requires(distribution_name: str) -> Optional[List[str]]:
     """
     Return a list of requirements for the named package.
 
