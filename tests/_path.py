@@ -1,14 +1,9 @@
-# from jaraco.path 3.6
+# from jaraco.path 3.7
 
 import functools
 import pathlib
-from typing import Dict, Union
-
-try:
-    from typing import Protocol, runtime_checkable
-except ImportError:  # pragma: no cover
-    # Python 3.7
-    from typing_extensions import Protocol, runtime_checkable  # type: ignore
+from typing import Dict, Protocol, Union
+from typing import runtime_checkable
 
 
 class Symlink(str):
