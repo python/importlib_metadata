@@ -56,10 +56,6 @@ jobs:
           platform: ubuntu-latest
         - python: pypy3.9
           platform: ubuntu-latest
-        - platform: ubuntu-latest
-          python: "3.8"
-        - platform: ubuntu-latest
-          python: "3.9"
     runs-on: ${{ matrix.platform }}
     continue-on-error: ${{ matrix.python == '3.12' }}
     steps:
