@@ -1,6 +1,7 @@
 import os
 import sys
 import copy
+import json
 import shutil
 import pathlib
 import tempfile
@@ -125,6 +126,31 @@ class DistInfoPkg(OnSysPath, SiteDir):
         info = files["distinfo_pkg-1.0.0.dist-info"]
         info["METADATA"] = info["METADATA"].upper()
         build_files(files, self.site_dir)
+
+
+class DistInfoPkgEditable(DistInfoPkg):
+    """
+    Package with a PEP 660 direct_url.json.
+    """
+
+    some_hash = '524127ce937f7cb65665130c695abd18ca386f60bb29687efb976faa1596fdcc'
+    files: FilesSpec = {
+        'distinfo_pkg-1.0.0.dist-info': {
+            'direct_url.json': json.dumps(
+                {
+                    "archive_info": {
+                        "hash": f"sha256={some_hash}",
+                        "hashes": {"sha256": f"{some_hash}"},
+                    },
+                    "url": "file:///path/to/distinfo_pkg-1.0.0.editable-py3-none-any.whl",
+                }
+            )
+        },
+    }
+
+    def setUp(self):
+        super().setUp()
+        build_files(DistInfoPkgEditable.files, self.site_dir)
 
 
 class DistInfoPkgWithDot(OnSysPath, SiteDir):
