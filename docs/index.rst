@@ -1,6 +1,10 @@
 Welcome to |project| documentation!
 ===================================
 
+.. sidebar-links::
+   :home:
+   :pypi:
+
 ``importlib_metadata`` supplies a backport of :mod:`importlib.metadata`,
 enabling early access to features of future Python versions and making
 functionality available for older Python versions. Users are encouraged to
