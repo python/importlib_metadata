@@ -52,7 +52,7 @@ class SimplePath(Protocol[_T]):
     def joinpath(self, other: Union[str, _T]) -> _T:
         ...  # pragma: no cover
 
-    def __truediv__(self, other: Union[str, _T]) -> _T:
+    def __truediv__(self, other: _T) -> _T:
         ...  # pragma: no cover
 
     @property
