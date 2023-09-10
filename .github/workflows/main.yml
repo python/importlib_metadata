@@ -75,6 +75,9 @@ jobs:
           python -m pip install tox
       - name: Run
         run: tox
+      - name: Check diff coverage
+        if: ${{ matrix.python == '3.11' && matrix.platform == 'ubuntu-latest' }}
+        run: tox -e diffcov
 
   docs:
     runs-on: ubuntu-latest
