@@ -5,6 +5,9 @@ import warnings
 import importlib
 import contextlib
 
+from unittest.mock import patch
+from parameterized import parameterized
+
 from . import fixtures
 from importlib_metadata import (
     Distribution,
@@ -324,3 +327,63 @@ class InvalidateCache(unittest.TestCase):
     def test_invalidate_cache(self):
         # No externally observable behavior, but ensures test coverage...
         importlib.invalidate_caches()
+
+
+class MetadataAPITests(unittest.TestCase):
+    @staticmethod
+    def metadata_from_text(text):
+        with suppress_known_deprecation():
+            db = Distribution()
+        with patch.object(Distribution, "read_text") as mock_rt:
+            mock_rt.return_value = fixtures.DALS(text)
+            mock_rt.seal()
+            md = db.metadata
+        mock_rt.assert_called()
+        return md
+
+    @parameterized.expand(
+        [
+            (
+                """
+                Author: Another person, Yet Another name
+                Author-email: Pradyun Gedam <pradyun@example.com>, Tzu-Ping Chung <tzu-ping@example.com>, different.person@example.com
+                Maintainer-email: Brett Cannon <brett@python.org>
+                """,  # noqa: E501
+                {
+                    ("Another person", None),
+                    ("Yet Another name", None),
+                    ("Pradyun Gedam", "pradyun@example.com"),
+                    ("Tzu-Ping Chung", "tzu-ping@example.com"),
+                    (None, "different.person@example.com"),
+                },
+                {("Brett Cannon", "brett@python.org")},
+            )
+        ]
+    )
+    def test_structured_identity(
+        self, metadata_text, expected_authors, expected_maintainers
+    ):
+        """
+        Verify that the unstructured identity metadata is parsed and
+        converted to the expected corresponding structure.
+        """
+        md = self.metadata_from_text(metadata_text)
+        authors = set(map(tuple, md.authors))
+        maintainers = set(map(tuple, md.maintainers))
+
+        authors_exp_act = expected_authors - authors
+        authors_act_exp = authors - expected_authors
+        maintainers_exp_act = expected_maintainers - maintainers
+        maintainers_act_exp = maintainers - expected_maintainers
+
+        msg = (
+            f"\nAuthors, expected - actual: {authors_exp_act!r}"
+            f"\nAuthors, actual - expected: {authors_act_exp!r}"
+            f"\nMaintainers, expected - actual: {maintainers_exp_act!r}"
+            f"\nMaintainers, actual - expected: {maintainers_act_exp!r}"
+        )
+
+        assert not authors_exp_act, msg
+        assert not authors_act_exp, msg
+        assert not maintainers_exp_act, msg
+        assert not maintainers_act_exp, msg
