@@ -6,9 +6,10 @@ import importlib
 import contextlib
 
 from unittest.mock import patch
-from parameterized import parameterized
+import hypothesis
 
 from . import fixtures
+from . import identity
 from importlib_metadata import (
     Distribution,
     PackageNotFoundError,
@@ -341,32 +342,31 @@ class MetadataAPITests(unittest.TestCase):
         mock_rt.assert_called()
         return md
 
-    @parameterized.expand(
-        [
-            (
-                """
-                Author: Another person, Yet Another name
-                Author-email: Pradyun Gedam <pradyun@example.com>, Tzu-Ping Chung <tzu-ping@example.com>, different.person@example.com
-                Maintainer-email: Brett Cannon <brett@python.org>
-                """,  # noqa: E501
-                {
-                    ("Another person", None),
-                    ("Yet Another name", None),
-                    ("Pradyun Gedam", "pradyun@example.com"),
-                    ("Tzu-Ping Chung", "tzu-ping@example.com"),
-                    (None, "different.person@example.com"),
-                },
-                {("Brett Cannon", "brett@python.org")},
-            )
-        ]
+    @hypothesis.given(identity.identities_strategy())
+    @hypothesis.example(
+        (
+            """
+            Author: Another person, Yet Another name
+            Author-email: Pradyun Gedam <pradyun@example.com>, Tzu-Ping Chung <tzu-ping@example.com>, different.person@example.com
+            Maintainer-email: Brett Cannon <brett@python.org>
+            """,  # noqa: E501
+            {
+                ("Another person", None),
+                ("Yet Another name", None),
+                ("Pradyun Gedam", "pradyun@example.com"),
+                ("Tzu-Ping Chung", "tzu-ping@example.com"),
+                (None, "different.person@example.com"),
+            },
+            {("Brett Cannon", "brett@python.org")},
+        )
     )
-    def test_structured_identity(
-        self, metadata_text, expected_authors, expected_maintainers
-    ):
+    @hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck.too_slow])
+    def test_structured_identity(self, arg):
         """
         Verify that the unstructured identity metadata is parsed and
         converted to the expected corresponding structure.
         """
+        metadata_text, expected_authors, expected_maintainers = arg
         md = self.metadata_from_text(metadata_text)
         authors = set(map(tuple, md.authors))
         maintainers = set(map(tuple, md.maintainers))
@@ -376,14 +376,12 @@ class MetadataAPITests(unittest.TestCase):
         maintainers_exp_act = expected_maintainers - maintainers
         maintainers_act_exp = maintainers - expected_maintainers
 
-        msg = (
-            f"\nAuthors, expected - actual: {authors_exp_act!r}"
-            f"\nAuthors, actual - expected: {authors_act_exp!r}"
-            f"\nMaintainers, expected - actual: {maintainers_exp_act!r}"
-            f"\nMaintainers, actual - expected: {maintainers_act_exp!r}"
-        )
+        hypothesis.note(f"Authors, expected - actual: {authors_exp_act!r}")
+        hypothesis.note(f"Authors, actual - expected: {authors_act_exp!r}")
+        hypothesis.note(f"Maintainers, expected - actual: {maintainers_exp_act!r}")
+        hypothesis.note(f"Maintainers, actual - expected: {maintainers_act_exp!r}")
 
-        assert not authors_exp_act, msg
-        assert not authors_act_exp, msg
-        assert not maintainers_exp_act, msg
-        assert not maintainers_act_exp, msg
+        assert not authors_exp_act
+        assert not authors_act_exp
+        assert not maintainers_exp_act
+        assert not maintainers_act_exp
