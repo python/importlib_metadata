@@ -131,6 +131,10 @@ v4.11.4
   duplicate entry points by packages varying only by non-normalized
   name are hidden.
 
+Note (#459): This change had a backward-incompatible effect for
+any installers that created metadata in the filesystem with dashes
+in the package names (not replaced by underscores).
+
 v4.11.3
 =======
 
