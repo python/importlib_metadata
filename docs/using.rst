@@ -194,6 +194,16 @@ all the metadata in a JSON-compatible form per PEP 566::
     >>> wheel_metadata.json['requires_python']
     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
 
+The attributes ``authors`` and ``maintainers`` unify and provide minimal
+parsing for the respective core metadata fields ("Author", "Author-email")
+and ("Maintainer", "Maintainer-email")::
+
+    >>> wheel_metadata.authors
+    [Ident(name='Daniel Holth', email='dholth@fastmail.fm')]
+
+    >>> wheel_metadata.maintainers
+    [Ident(name='Alex Grönholm', email='alex.gronholm@nextday.fi')]
+
 .. note::
 
     The actual type of the object returned by ``metadata()`` is an
