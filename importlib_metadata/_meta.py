@@ -1,5 +1,5 @@
 from typing import Protocol
-from typing import Any, Dict, Iterator, List, Optional, TypeVar, Union, overload
+from typing import Any, Dict, Iterator, List, Set, Optional, TypeVar, Union, overload
 
 from ._adapters import Ident
 
@@ -46,13 +46,13 @@ class PackageMetadata(Protocol):
         """
 
     @property
-    def authors(self) -> set[Ident]:
+    def authors(self) -> Set[Ident]:
         """
         Minimal parsing for "Author" and "Author-email" fields.
         """
 
     @property
-    def maintainers(self) -> set[Ident]:
+    def maintainers(self) -> Set[Ident]:
         """
         Minimal parsing for "Maintainer" and "Maintainer-email" fields.
         """

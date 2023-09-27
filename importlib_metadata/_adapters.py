@@ -5,6 +5,8 @@ import textwrap
 import email.message
 import dataclasses
 
+from typing import Optional
+
 from ._text import FoldedCase
 from ._compat import pypy_partial
 
@@ -217,8 +219,8 @@ class Ident:
     maintainer fields.
     """
 
-    name: str | None
-    email: str | None
+    name: Optional[str]
+    email: Optional[str]
 
     def __iter__(self):
         return (getattr(self, field.name) for field in dataclasses.fields(self))
