@@ -299,8 +299,7 @@ class EntryPoints(tuple):
         signal that we deviate from regular tuple behavior.
         """
         return '%s(%r)' % (self.__class__.__name__, tuple(self))
-        
-        
+
     def select(self, **params):
         """
         Select entry points from self that match the
