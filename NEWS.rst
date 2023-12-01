@@ -1,3 +1,12 @@
+v6.10.0
+=======
+
+Features
+--------
+
+- Added diagnose script. (#461)
+
+
 v6.9.0
 ======
 
