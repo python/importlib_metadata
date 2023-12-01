@@ -1,3 +1,12 @@
+v6.9.0
+======
+
+Features
+--------
+
+- Added EntryPoints.__repr__ (#473)
+
+
 v6.8.0
 ======
 
