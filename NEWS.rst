@@ -1,3 +1,12 @@
+v7.0.0
+======
+
+Deprecations and Removals
+-------------------------
+
+- Removed EntryPoint access by numeric index (tuple behavior).
+
+
 v6.11.0
 =======
 
