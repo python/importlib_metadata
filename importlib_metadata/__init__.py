@@ -23,7 +23,6 @@ from ._compat import (
     NullFinder,
     StrPath,
     install,
-    pypy_partial,
 )
 from ._functools import method_cache, pass_none
 from ._itertools import always_iterable, unique_everseen
@@ -128,34 +127,7 @@ class Sectioned:
         return line and not line.startswith('#')
 
 
-class DeprecatedTuple:
-    """
-    Provide subscript item access for backward compatibility.
-
-    >>> recwarn = getfixture('recwarn')
-    >>> ep = EntryPoint(name='name', value='value', group='group')
-    >>> ep[:]
-    ('name', 'value', 'group')
-    >>> ep[0]
-    'name'
-    >>> len(recwarn)
-    1
-    """
-
-    # Do not remove prior to 2023-05-01 or Python 3.13
-    _warn = functools.partial(
-        warnings.warn,
-        "EntryPoint tuple interface is deprecated. Access members by name.",
-        DeprecationWarning,
-        stacklevel=pypy_partial(2),
-    )
-
-    def __getitem__(self, item):
-        self._warn()
-        return self._key()[item]
-
-
-class EntryPoint(DeprecatedTuple):
+class EntryPoint:
     """An entry point as defined by Python packaging conventions.
 
     See `the packaging docs on entry points
