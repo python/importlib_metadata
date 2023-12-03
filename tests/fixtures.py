@@ -86,7 +86,15 @@ class OnSysPath(Fixtures):
         self.fixtures.enter_context(self.add_sys_path(self.site_dir))
 
 
-class DistInfoPkg(OnSysPath, SiteDir):
+class SiteBuilder(SiteDir):
+    def setUp(self):
+        super().setUp()
+        for cls in self.__class__.mro():
+            with contextlib.suppress(AttributeError):
+                build_files(cls.files, prefix=self.site_dir)
+
+
+class DistInfoPkg(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "distinfo_pkg-1.0.0.dist-info": {
             "METADATA": """
@@ -112,10 +120,6 @@ class DistInfoPkg(OnSysPath, SiteDir):
                 print("hello world")
             """,
     }
-
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoPkg.files, self.site_dir)
 
     def make_uppercase(self):
         """
@@ -148,12 +152,8 @@ class DistInfoPkgEditable(DistInfoPkg):
         },
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoPkgEditable.files, self.site_dir)
 
-
-class DistInfoPkgWithDot(OnSysPath, SiteDir):
+class DistInfoPkgWithDot(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "pkg_dot-1.0.0.dist-info": {
             "METADATA": """
@@ -163,12 +163,8 @@ class DistInfoPkgWithDot(OnSysPath, SiteDir):
         },
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoPkgWithDot.files, self.site_dir)
 
-
-class DistInfoPkgWithDotLegacy(OnSysPath, SiteDir):
+class DistInfoPkgWithDotLegacy(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "pkg.dot-1.0.0.dist-info": {
             "METADATA": """
@@ -184,18 +180,12 @@ class DistInfoPkgWithDotLegacy(OnSysPath, SiteDir):
         },
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoPkgWithDotLegacy.files, self.site_dir)
+
+class DistInfoPkgOffPath(SiteBuilder):
+    files = DistInfoPkg.files
 
 
-class DistInfoPkgOffPath(SiteDir):
-    def setUp(self):
-        super().setUp()
-        build_files(DistInfoPkg.files, self.site_dir)
-
-
-class EggInfoPkg(OnSysPath, SiteDir):
+class EggInfoPkg(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "egginfo_pkg.egg-info": {
             "PKG-INFO": """
@@ -230,12 +220,8 @@ class EggInfoPkg(OnSysPath, SiteDir):
             """,
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(EggInfoPkg.files, prefix=self.site_dir)
 
-
-class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
+class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "egg_with_module_pkg.egg-info": {
             "PKG-INFO": "Name: egg_with_module-pkg",
@@ -265,12 +251,8 @@ class EggInfoPkgPipInstalledNoToplevel(OnSysPath, SiteDir):
             """,
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(EggInfoPkgPipInstalledNoToplevel.files, prefix=self.site_dir)
 
-
-class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
+class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "egg_with_no_modules_pkg.egg-info": {
             "PKG-INFO": "Name: egg_with_no_modules-pkg",
@@ -295,12 +277,8 @@ class EggInfoPkgPipInstalledNoModules(OnSysPath, SiteDir):
         },
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(EggInfoPkgPipInstalledNoModules.files, prefix=self.site_dir)
 
-
-class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
+class EggInfoPkgSourcesFallback(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "sources_fallback_pkg.egg-info": {
             "PKG-INFO": "Name: sources_fallback-pkg",
@@ -321,12 +299,8 @@ class EggInfoPkgSourcesFallback(OnSysPath, SiteDir):
             """,
     }
 
-    def setUp(self):
-        super().setUp()
-        build_files(EggInfoPkgSourcesFallback.files, prefix=self.site_dir)
 
-
-class EggInfoFile(OnSysPath, SiteDir):
+class EggInfoFile(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "egginfo_file.egg-info": """
             Metadata-Version: 1.0
@@ -341,10 +315,6 @@ class EggInfoFile(OnSysPath, SiteDir):
             Platform: UNKNOWN
             """,
     }
-
-    def setUp(self):
-        super().setUp()
-        build_files(EggInfoFile.files, prefix=self.site_dir)
 
 
 # dedent all text strings before writing

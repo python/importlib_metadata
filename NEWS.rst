@@ -1,3 +1,21 @@
+v6.10.0
+=======
+
+Features
+--------
+
+- Added diagnose script. (#461)
+
+
+v6.9.0
+======
+
+Features
+--------
+
+- Added EntryPoints.__repr__ (#473)
+
+
 v6.8.0
 ======
 
@@ -130,6 +148,10 @@ v4.11.4
   loaded from the stem of the filename are also normalized, ensuring
   duplicate entry points by packages varying only by non-normalized
   name are hidden.
+
+Note (#459): This change had a backward-incompatible effect for
+any installers that created metadata in the filesystem with dashes
+in the package names (not replaced by underscores).
 
 v4.11.3
 =======

@@ -400,7 +400,7 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
-    def test_packages_distributions_symlinked_top_level(self):
+    def test_packages_distributions_symlinked_top_level(self) -> None:
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
         See #452.
