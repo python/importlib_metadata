@@ -1,1 +1,0 @@
-Added ``Distribution.origin`` supplying the ``direct_url.json`` in a ``SimpleNamespace``.

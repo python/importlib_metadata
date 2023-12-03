@@ -1,3 +1,12 @@
+v6.11.0
+=======
+
+Features
+--------
+
+- Added ``Distribution.origin`` supplying the ``direct_url.json`` in a ``SimpleNamespace``. (#404)
+
+
 v6.10.0
 =======
 
