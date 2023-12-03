@@ -457,3 +457,10 @@ class PackagesDistributionsEggTest(
         # sources_fallback-pkg has one import ('sources_fallback') inferred from
         # SOURCES.txt (top_level.txt and installed-files.txt is missing)
         assert import_names_from_package('sources_fallback-pkg') == {'sources_fallback'}
+
+
+class EditableDistributionTest(fixtures.DistInfoPkgEditable, unittest.TestCase):
+    def test_origin(self):
+        dist = Distribution.from_name('distinfo-pkg')
+        assert dist.origin.url.endswith('.whl')
+        assert dist.origin.archive_info.hashes.sha256
