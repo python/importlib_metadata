@@ -36,9 +36,8 @@ jobs:
           platform: ubuntu-latest
         - python: "3.10"
           platform: ubuntu-latest
-        # disabled for #463
-        # - python: pypy3.10
-        #   platform: ubuntu-latest
+        - python: pypy3.10
+          platform: ubuntu-latest
     runs-on: ${{ matrix.platform }}
     continue-on-error: ${{ matrix.python == '3.13' }}
     steps:
