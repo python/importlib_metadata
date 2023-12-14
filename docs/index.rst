@@ -9,16 +9,14 @@ Welcome to |project| documentation!
 enabling early access to features of future Python versions and making
 functionality available for older Python versions. Users are encouraged to
 use the Python standard library where suitable and fall back to
-this library for future compatibility. Developers looking for detailed API
-descriptions should refer to the standard library documentation.
-
-The documentation here includes a general :ref:`usage <using>` guide.
+this library for future compatibility. For general usage guidance, start
+with :mod:`importlib.metadata` but substitute ``importlib_metadata``
+for ``importlib.metadata``.
 
 
 .. toctree::
    :maxdepth: 1
 
-   using
    api
    migration
    history
