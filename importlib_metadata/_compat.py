@@ -41,7 +41,7 @@ def disable_stdlib_finder():
 
 class NullFinder:
     """
-    A "Finder" (aka "MetaClassFinder") that never finds any modules,
+    A "Finder" (aka "MetaPathFinder") that never finds any modules,
     but may find distributions.
     """
 
