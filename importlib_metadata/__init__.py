@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import abc
@@ -21,7 +23,6 @@ from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
-    StrPath,
     install,
 )
 from ._functools import method_cache, pass_none
@@ -387,7 +388,7 @@ class Distribution(DeprecatedNonAbstract):
         """
 
     @abc.abstractmethod
-    def locate_file(self, path: StrPath) -> SimplePath:
+    def locate_file(self, path: os.PathLike[str]) -> SimplePath:
         """
         Given a path to a file in this distribution, return a SimplePath
         to it.
@@ -432,7 +433,7 @@ class Distribution(DeprecatedNonAbstract):
         )
 
     @staticmethod
-    def at(path: StrPath) -> "Distribution":
+    def at(path: os.PathLike[str]) -> "Distribution":
         """Return a Distribution for the indicated metadata path.
 
         :param path: a string or path-like object
@@ -840,7 +841,7 @@ class PathDistribution(Distribution):
         """
         self._path = path
 
-    def read_text(self, filename: StrPath) -> Optional[str]:
+    def read_text(self, filename: os.PathLike[str]) -> Optional[str]:
         with suppress(
             FileNotFoundError,
             IsADirectoryError,
@@ -854,7 +855,7 @@ class PathDistribution(Distribution):
 
     read_text.__doc__ = Distribution.read_text.__doc__
 
-    def locate_file(self, path: StrPath) -> SimplePath:
+    def locate_file(self, path: os.PathLike[str]) -> SimplePath:
         return self._path.parent / path
 
     @property

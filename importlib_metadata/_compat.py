@@ -1,8 +1,5 @@
-import os
 import sys
 import platform
-
-from typing import Union
 
 
 __all__ = ['install', 'NullFinder']
@@ -58,10 +55,3 @@ def pypy_partial(val):
     """
     is_pypy = platform.python_implementation() == 'PyPy'
     return val + is_pypy
-
-
-if sys.version_info >= (3, 9):
-    StrPath = Union[str, os.PathLike[str]]
-else:
-    # PathLike is only subscriptable at runtime in 3.9+
-    StrPath = Union[str, "os.PathLike[str]"]  # pragma: no cover
