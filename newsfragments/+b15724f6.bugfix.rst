@@ -1,0 +1,1 @@
+Corrected the interface for SimplePath to encompass the expectations of locate_file and PackagePath.
