@@ -356,11 +356,33 @@ class DeprecatedNonAbstract:
 
 
 class Distribution(DeprecatedNonAbstract):
-    """A Python distribution package."""
+    """
+    An abstract Python distribution package.
+
+    Custom providers may derive from this class and define
+    the abstract methods to provide a concrete implementation
+    for their environment.
+    """
 
     @abc.abstractmethod
     def read_text(self, filename) -> Optional[str]:
         """Attempt to load metadata file given by the name.
+
+        Python distribution metadata is organized by blobs of text
+        typically represented as "files" in the metadata directory
+        (e.g. package-1.0.dist-info). These files include things
+        like:
+
+        - METADATA: The distribution metadata including fields
+          like Name and Version and Description.
+        - entry_points.txt: A series of entry points defined by
+          the Setuptools spec in an ini format with sections
+          representing the groups.
+        - RECORD: A record of files as installed by a typical
+          installer.
+
+        A package may provide any set of files, including those
+        not listed here or none at all.
 
         :param filename: The name of the file in the distribution info.
         :return: The text if found, otherwise None.
@@ -413,7 +435,7 @@ class Distribution(DeprecatedNonAbstract):
 
     @staticmethod
     def at(path: StrPath) -> "Distribution":
-        """Return a Distribution for the indicated metadata path
+        """Return a Distribution for the indicated metadata path.
 
         :param path: a string or path-like object
         :return: a concrete Distribution instance for the path
@@ -422,7 +444,7 @@ class Distribution(DeprecatedNonAbstract):
 
     @staticmethod
     def _discover_resolvers():
-        """Search the meta_path for resolvers."""
+        """Search the meta_path for resolvers (MetadataPathFinders)."""
         declared = (
             getattr(finder, 'find_distributions', None) for finder in sys.meta_path
         )
