@@ -320,7 +320,7 @@ class PackagePath(pathlib.PurePosixPath):
     def read_binary(self) -> bytes:
         return self.locate().read_bytes()
 
-    def locate(self) -> pathlib.Path:
+    def locate(self) -> SimplePath:
         """Return a path-like object for this path"""
         return self.dist.locate_file(self)
 
@@ -387,9 +387,9 @@ class Distribution(DeprecatedNonAbstract):
         """
 
     @abc.abstractmethod
-    def locate_file(self, path: StrPath) -> pathlib.Path:
+    def locate_file(self, path: StrPath) -> SimplePath:
         """
-        Given a path to a file in this distribution, return a path
+        Given a path to a file in this distribution, return a SimplePath
         to it.
         """
 
@@ -854,7 +854,7 @@ class PathDistribution(Distribution):
 
     read_text.__doc__ = Distribution.read_text.__doc__
 
-    def locate_file(self, path: StrPath) -> pathlib.Path:
+    def locate_file(self, path: StrPath) -> SimplePath:
         return self._path.parent / path
 
     @property

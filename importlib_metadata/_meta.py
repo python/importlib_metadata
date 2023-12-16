@@ -46,7 +46,7 @@ class PackageMetadata(Protocol):
 
 class SimplePath(Protocol[_T]):
     """
-    A minimal subset of pathlib.Path required by PathDistribution.
+    A minimal subset of pathlib.Path required by Distribution.
     """
 
     def joinpath(self, other: Union[str, _T]) -> _T:
@@ -59,5 +59,11 @@ class SimplePath(Protocol[_T]):
     def parent(self) -> _T:
         ...  # pragma: no cover
 
-    def read_text(self) -> str:
+    def read_text(self, encoding=None) -> str:
+        ...  # pragma: no cover
+
+    def read_bytes(self) -> bytes:
+        ...  # pragma: no cover
+
+    def exists(self) -> bool:
         ...  # pragma: no cover
