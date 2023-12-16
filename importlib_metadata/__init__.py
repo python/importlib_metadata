@@ -315,12 +315,10 @@ class PackagePath(pathlib.PurePosixPath):
     dist: "Distribution"
 
     def read_text(self, encoding: str = 'utf-8') -> str:  # type: ignore[override]
-        with self.locate().open(encoding=encoding) as stream:
-            return stream.read()
+        return self.locate().read_text(encoding=encoding)
 
     def read_binary(self) -> bytes:
-        with self.locate().open('rb') as stream:
-            return stream.read()
+        return self.locate().read_bytes()
 
     def locate(self) -> pathlib.Path:
         """Return a path-like object for this path"""
