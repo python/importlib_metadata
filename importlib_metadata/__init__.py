@@ -336,6 +336,7 @@ class FileHash:
 
 
 class DeprecatedNonAbstract:
+    # Required until Python 3.14
     def __new__(cls, *args, **kwargs):
         all_names = {
             name for subclass in inspect.getmro(cls) for name in vars(subclass)
@@ -391,16 +392,18 @@ class Distribution(DeprecatedNonAbstract):
             raise PackageNotFoundError(name)
 
     @classmethod
-    def discover(cls, **kwargs) -> Iterable["Distribution"]:
+    def discover(
+        cls, *, context: Optional['DistributionFinder.Context'] = None, **kwargs
+    ) -> Iterable["Distribution"]:
         """Return an iterable of Distribution objects for all packages.
 
         Pass a ``context`` or pass keyword arguments for constructing
         a context.
 
         :context: A ``DistributionFinder.Context`` object.
-        :return: Iterable of Distribution objects for all packages.
+        :return: Iterable of Distribution objects for packages matching
+          the context.
         """
-        context = kwargs.pop('context', None)
         if context and kwargs:
             raise ValueError("cannot accept context and kwargs")
         context = context or DistributionFinder.Context(**kwargs)
