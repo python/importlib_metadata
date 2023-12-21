@@ -43,6 +43,8 @@ were contributed to different versions in the standard library:
 
    * - importlib_metadata
      - stdlib
+   * - 7.0
+     - 3.13
    * - 6.5
      - 3.12
    * - 4.13
