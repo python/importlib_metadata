@@ -1,3 +1,13 @@
+v7.0.1
+======
+
+Bugfixes
+--------
+
+- Corrected the interface for SimplePath to encompass the expectations of locate_file and PackagePath.
+- Fixed type annotations to allow strings.
+
+
 v7.0.0
 ======
 
