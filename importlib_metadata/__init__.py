@@ -360,7 +360,9 @@ class Distribution(DeprecatedNonAbstract):
 
     Custom providers may derive from this class and define
     the abstract methods to provide a concrete implementation
-    for their environment.
+    for their environment. Some providers may opt to override
+    the default implementation of some properties to bypass
+    the file-reading mechanism.
     """
 
     @abc.abstractmethod
@@ -374,11 +376,10 @@ class Distribution(DeprecatedNonAbstract):
 
         - METADATA: The distribution metadata including fields
           like Name and Version and Description.
-        - entry_points.txt: A series of entry points defined by
-          the Setuptools spec in an ini format with sections
-          representing the groups.
-        - RECORD: A record of files as installed by a typical
-          installer.
+        - entry_points.txt: A series of entry points as defined in
+          `this spec <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>`_.
+        - RECORD: A record of files according to
+          `this spec <https://packaging.python.org/en/latest/specifications/recording-installed-packages/#the-record-file>`_.
 
         A package may provide any set of files, including those
         not listed here or none at all.
@@ -454,7 +455,11 @@ class Distribution(DeprecatedNonAbstract):
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
-        metadata.  See PEP 566 for details.
+        metadata per the
+        `Core metadata specifications <https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata>`_.
+
+        Custom providers may provide the METADATA file or override this
+        property.
         """
         opt_text = (
             self.read_text('METADATA')
@@ -484,6 +489,12 @@ class Distribution(DeprecatedNonAbstract):
 
     @property
     def entry_points(self) -> EntryPoints:
+        """
+        Return EntryPoints for this distribution.
+
+        Custom providers may provide the ``entry_points.txt`` file
+        or override this property.
+        """
         return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
@@ -496,6 +507,10 @@ class Distribution(DeprecatedNonAbstract):
         (i.e. RECORD for dist-info, or installed-files.txt or
         SOURCES.txt for egg-info) is missing.
         Result may be empty if the metadata exists but is empty.
+
+        Custom providers are recommended to provide a "RECORD" file (in
+        ``read_text``) or override this property to allow for callers to be
+        able to resolve filenames provided by the package.
         """
 
         def make_file(name, hash=None, size_str=None):
@@ -523,7 +538,7 @@ class Distribution(DeprecatedNonAbstract):
 
     def _read_files_distinfo(self):
         """
-        Read the lines of RECORD
+        Read the lines of RECORD.
         """
         text = self.read_text('RECORD')
         return text and text.splitlines()
@@ -637,6 +652,9 @@ class Distribution(DeprecatedNonAbstract):
 class DistributionFinder(MetaPathFinder):
     """
     A MetaPathFinder capable of discovering installed distributions.
+
+    Custom providers should implement this interface in order to
+    supply metadata.
     """
 
     class Context:
@@ -684,11 +702,18 @@ class DistributionFinder(MetaPathFinder):
 
 class FastPath:
     """
-    Micro-optimized class for searching a path for
-    children.
+    Micro-optimized class for searching a root for children.
+
+    Root is a path on the file system that may contain metadata
+    directories either as natural directories or within a zip file.
 
     >>> FastPath('').children()
     ['...']
+
+    FastPath objects are cached and recycled for any given root.
+
+    >>> FastPath('foobar') is FastPath('foobar')
+    True
     """
 
     @functools.lru_cache()  # type: ignore
@@ -730,7 +755,18 @@ class FastPath:
 
 
 class Lookup:
+    """
+    A micro-optimized class for searching a (fast) path for metadata.
+    """
     def __init__(self, path: FastPath):
+        """
+        Calculate all of the children representing metadata.
+
+        From the children in the path, calculate early all of the
+        children that appear to represent metadata (infos) or legacy
+        metadata (eggs).
+        """
+
         base = os.path.basename(path.root).lower()
         base_is_egg = base.endswith(".egg")
         self.infos = FreezableDefaultDict(list)
@@ -751,7 +787,10 @@ class Lookup:
         self.infos.freeze()
         self.eggs.freeze()
 
-    def search(self, prepared):
+    def search(self, prepared: Prepared):
+        """
+        Yield all infos and eggs matching the Prepared query.
+        """
         infos = (
             self.infos[prepared.normalized]
             if prepared
@@ -767,13 +806,28 @@ class Lookup:
 
 class Prepared:
     """
-    A prepared search for metadata on a possibly-named package.
+    A prepared search query for metadata on a possibly-named package.
+
+    Pre-calculates the normalization to prevent repeated operations.
+
+    >>> none = Prepared(None)
+    >>> none.normalized
+    >>> none.legacy_normalized
+    >>> bool(none)
+    False
+    >>> sample = Prepared('Sample__Pkg-name.foo')
+    >>> sample.normalized
+    'sample_pkg_name_foo'
+    >>> sample.legacy_normalized
+    'sample__pkg_name.foo'
+    >>> bool(sample)
+    True
     """
 
     normalized = None
     legacy_normalized = None
 
-    def __init__(self, name):
+    def __init__(self, name: Optional[str]):
         self.name = name
         if name is None:
             return
