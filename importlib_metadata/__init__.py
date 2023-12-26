@@ -170,7 +170,7 @@ class EntryPoint:
     value: str
     group: str
 
-    dist: Optional['Distribution'] = None
+    dist: Optional[Distribution] = None
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
@@ -311,9 +311,9 @@ class EntryPoints(tuple):
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
-    hash: Optional["FileHash"]
+    hash: Optional[FileHash]
     size: int
-    dist: "Distribution"
+    dist: Distribution
 
     def read_text(self, encoding: str = 'utf-8') -> str:  # type: ignore[override]
         return self.locate().read_text(encoding=encoding)
@@ -395,7 +395,7 @@ class Distribution(DeprecatedNonAbstract):
         """
 
     @classmethod
-    def from_name(cls, name: str) -> "Distribution":
+    def from_name(cls, name: str) -> Distribution:
         """Return the Distribution for the given package name.
 
         :param name: The name of the distribution package to search for.
@@ -414,8 +414,8 @@ class Distribution(DeprecatedNonAbstract):
 
     @classmethod
     def discover(
-        cls, *, context: Optional['DistributionFinder.Context'] = None, **kwargs
-    ) -> Iterable["Distribution"]:
+        cls, *, context: Optional[DistributionFinder.Context] = None, **kwargs
+    ) -> Iterable[Distribution]:
         """Return an iterable of Distribution objects for all packages.
 
         Pass a ``context`` or pass keyword arguments for constructing
@@ -433,7 +433,7 @@ class Distribution(DeprecatedNonAbstract):
         )
 
     @staticmethod
-    def at(path: str | os.PathLike[str]) -> "Distribution":
+    def at(path: str | os.PathLike[str]) -> Distribution:
         """Return a Distribution for the indicated metadata path.
 
         :param path: a string or path-like object
@@ -809,7 +809,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
 
     def find_distributions(
         self, context=DistributionFinder.Context()
-    ) -> Iterable["PathDistribution"]:
+    ) -> Iterable[PathDistribution]:
         """
         Find distributions.
 
