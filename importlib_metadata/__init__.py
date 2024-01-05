@@ -562,14 +562,30 @@ class Distribution(DeprecatedNonAbstract):
         if not text or not subdir:
             return
 
+        site_path = self.locate_file('').resolve()
         paths = (
-            (subdir / name)
-            .resolve()
-            .relative_to(self.locate_file('').resolve())
-            .as_posix()
+            self._relative_to(
+                (subdir / name).resolve(),
+                site_path,
+            ).as_posix()
             for name in text.splitlines()
         )
         return map('"{}"'.format, paths)
+
+    def _relative_to(self, path, root):
+        """
+        Workaround for https://bugs.python.org/issue23082 where ".."
+        isn't added by pathlib.Path.relative_to() when path is not
+        a subpath of root.
+
+        One example of such a package is dask-labextension, which uses
+        jupyter-packaging to install JupyterLab javascript files outside
+        of site-packages.
+        """
+        try:
+            return path.relative_to(root)
+        except ValueError:
+            return pathlib.Path(os.path.relpath(path, root))
 
     def _read_files_egginfo_sources(self):
         """

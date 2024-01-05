@@ -70,3 +70,6 @@ class SimplePath(Protocol):
 
     def exists(self) -> bool:
         ...  # pragma: no cover
+
+    def resolve(self) -> bool:
+        ...  # pragma: no cover
