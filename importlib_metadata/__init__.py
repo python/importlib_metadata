@@ -667,6 +667,17 @@ class DistributionFinder(MetaPathFinder):
         Each DistributionFinder may expect any parameters
         and should attempt to honor the canonical
         parameters defined below when appropriate.
+
+        This mechanism gives a custom provider a means to
+        solicit additional details from the caller beyond
+        "name" and "path" when searching distributions.
+        For example, imagine a provider that exposes suites
+        of packages in either a "public" or "private" ``realm``.
+        A caller may wish to query only for distributions in
+        a particular realm and could call
+        ``distributions(realm="private")`` to signal to the
+        custom provider to only include distributions from that
+        realm.
         """
 
         name = None
