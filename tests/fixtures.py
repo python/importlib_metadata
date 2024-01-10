@@ -270,7 +270,8 @@ class EggInfoPkgPipInstalledExternalDataFiles(OnSysPath, SiteBuilder):
             # accurate source than SOURCES.txt as to the installed contents of
             # the package.
             "installed-files.txt": """
-                ../../../etc/jupyter/jupyter_notebook_config.d/egg_with_module.json
+                ../../../etc/jupyter/jupyter_notebook_config.d/relative.json
+                /etc/jupyter/jupyter_notebook_config.d/absolute.json
                 ../egg_with_module.py
                 PKG-INFO
                 SOURCES.txt
