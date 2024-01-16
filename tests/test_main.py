@@ -5,6 +5,8 @@ import warnings
 import importlib
 import importlib_metadata
 import contextlib
+from test.support import os_helper
+
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
@@ -396,6 +398,7 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
+    @os_helper.skip_unless_symlink
     def test_packages_distributions_symlinked_top_level(self) -> None:
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
