@@ -275,7 +275,7 @@ class EntryPoints(tuple):
         """
         return '%s(%r)' % (self.__class__.__name__, tuple(self))
 
-    def select(self, **params):
+    def select(self, **params) -> EntryPoints:
         """
         Select entry points from self that match the
         given parameters (typically group and/or name).
