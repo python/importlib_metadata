@@ -43,3 +43,16 @@ def entrypoint_regexp_perf():
     input = '0' + ' ' * 2**10 + '0'  # end warmup
 
     re.match(importlib_metadata.EntryPoint.pattern, input)
+
+
+def import_time_perf():
+    "import time"
+    import sys
+    import importlib
+
+    saved = dict(sys.modules)
+
+    # end warmup
+    sys.modules.clear()
+    sys.modules.update(saved)
+    import importlib_metadata
