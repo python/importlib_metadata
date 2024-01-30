@@ -33,7 +33,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Iterable, List, Mapping, Optional, Set, cast
+from typing import Iterable, List, Mapping, Optional, Set, cast, Any
 
 __all__ = [
     'Distribution',
@@ -175,7 +175,7 @@ class EntryPoint:
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
 
-    def load(self):
+    def load(self) -> Any:
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
         return the named object.
