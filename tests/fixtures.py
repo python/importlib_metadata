@@ -140,15 +140,13 @@ class DistInfoPkgEditable(DistInfoPkg):
     some_hash = '524127ce937f7cb65665130c695abd18ca386f60bb29687efb976faa1596fdcc'
     files: FilesSpec = {
         'distinfo_pkg-1.0.0.dist-info': {
-            'direct_url.json': json.dumps(
-                {
-                    "archive_info": {
-                        "hash": f"sha256={some_hash}",
-                        "hashes": {"sha256": f"{some_hash}"},
-                    },
-                    "url": "file:///path/to/distinfo_pkg-1.0.0.editable-py3-none-any.whl",
-                }
-            )
+            'direct_url.json': json.dumps({
+                "archive_info": {
+                    "hash": f"sha256={some_hash}",
+                    "hashes": {"sha256": f"{some_hash}"},
+                },
+                "url": "file:///path/to/distinfo_pkg-1.0.0.editable-py3-none-any.whl",
+            })
         },
     }
 

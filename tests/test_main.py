@@ -304,12 +304,10 @@ class TestEntryPoints(unittest.TestCase):
         """
         EntryPoint objects are sortable, but result is undefined.
         """
-        sorted(
-            [
-                EntryPoint(name='b', value='val', group='group'),
-                EntryPoint(name='a', value='val', group='group'),
-            ]
-        )
+        sorted([
+            EntryPoint(name='b', value='val', group='group'),
+            EntryPoint(name='a', value='val', group='group'),
+        ])
 
 
 class FileSystem(
@@ -376,18 +374,16 @@ class PackagesDistributionsTest(
             'all_distributions-1.0.0.dist-info': metadata,
         }
         for i, suffix in enumerate(suffixes):
-            files.update(
-                {
-                    f'importable-name {i}{suffix}': '',
-                    f'in_namespace_{i}': {
-                        f'mod{suffix}': '',
-                    },
-                    f'in_package_{i}': {
-                        '__init__.py': '',
-                        f'mod{suffix}': '',
-                    },
-                }
-            )
+            files.update({
+                f'importable-name {i}{suffix}': '',
+                f'in_namespace_{i}': {
+                    f'mod{suffix}': '',
+                },
+                f'in_package_{i}': {
+                    '__init__.py': '',
+                    f'mod{suffix}': '',
+                },
+            })
         metadata.update(RECORD=fixtures.build_record(files))
         fixtures.build_files(files, prefix=self.site_dir)
 

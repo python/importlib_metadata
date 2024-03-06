@@ -769,6 +769,7 @@ class Lookup:
     """
     A micro-optimized class for searching a (fast) path for metadata.
     """
+
     def __init__(self, path: FastPath):
         """
         Calculate all of the children representing metadata.
