@@ -377,9 +377,9 @@ class Distribution(DeprecatedNonAbstract):
         - METADATA: The distribution metadata including fields
           like Name and Version and Description.
         - entry_points.txt: A series of entry points as defined in
-          `this spec <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>`_.
+          `the entry points spec <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>`_.
         - RECORD: A record of files according to
-          `this spec <https://packaging.python.org/en/latest/specifications/recording-installed-packages/#the-record-file>`_.
+          `this recording spec <https://packaging.python.org/en/latest/specifications/recording-installed-packages/#the-record-file>`_.
 
         A package may provide any set of files, including those
         not listed here or none at all.
