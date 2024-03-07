@@ -33,7 +33,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, Iterable, List, Mapping, Optional, Set, cast
+from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
 
 __all__ = [
     'Distribution',
@@ -180,7 +180,7 @@ class EntryPoint:
         is indicated by the value, return that module. Otherwise,
         return the named object.
         """
-        match = self.pattern.match(self.value)
+        match = cast(Match, self.pattern.match(self.value))
         module = import_module(match.group('module'))
         attrs = filter(None, (match.group('attr') or '').split('.'))
         return functools.reduce(getattr, attrs, module)
@@ -769,6 +769,7 @@ class Lookup:
     """
     A micro-optimized class for searching a (fast) path for metadata.
     """
+
     def __init__(self, path: FastPath):
         """
         Calculate all of the children representing metadata.
