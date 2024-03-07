@@ -304,12 +304,10 @@ class TestEntryPoints(unittest.TestCase):
         """
         EntryPoint objects are sortable, but result is undefined.
         """
-        sorted(
-            [
-                EntryPoint(name='b', value='val', group='group'),
-                EntryPoint(name='a', value='val', group='group'),
-            ]
-        )
+        sorted([
+            EntryPoint(name='b', value='val', group='group'),
+            EntryPoint(name='a', value='val', group='group'),
+        ])
 
 
 class FileSystem(
@@ -376,18 +374,16 @@ class PackagesDistributionsTest(
             'all_distributions-1.0.0.dist-info': metadata,
         }
         for i, suffix in enumerate(suffixes):
-            files.update(
-                {
-                    f'importable-name {i}{suffix}': '',
-                    f'in_namespace_{i}': {
-                        f'mod{suffix}': '',
-                    },
-                    f'in_package_{i}': {
-                        '__init__.py': '',
-                        f'mod{suffix}': '',
-                    },
-                }
-            )
+            files.update({
+                f'importable-name {i}{suffix}': '',
+                f'in_namespace_{i}': {
+                    f'mod{suffix}': '',
+                },
+                f'in_package_{i}': {
+                    '__init__.py': '',
+                    f'mod{suffix}': '',
+                },
+            })
         metadata.update(RECORD=fixtures.build_record(files))
         fixtures.build_files(files, prefix=self.site_dir)
 
@@ -400,7 +396,7 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
-    def test_packages_distributions_symlinked_top_level(self):
+    def test_packages_distributions_symlinked_top_level(self) -> None:
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
         See #452.
@@ -457,3 +453,10 @@ class PackagesDistributionsEggTest(
         # sources_fallback-pkg has one import ('sources_fallback') inferred from
         # SOURCES.txt (top_level.txt and installed-files.txt is missing)
         assert import_names_from_package('sources_fallback-pkg') == {'sources_fallback'}
+
+
+class EditableDistributionTest(fixtures.DistInfoPkgEditable, unittest.TestCase):
+    def test_origin(self):
+        dist = Distribution.from_name('distinfo-pkg')
+        assert dist.origin.url.endswith('.whl')
+        assert dist.origin.archive_info.hashes.sha256

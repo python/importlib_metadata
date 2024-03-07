@@ -9,3 +9,8 @@ API Reference
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: importlib_metadata._meta
+   :members:
+   :undoc-members:
+   :show-inheritance:

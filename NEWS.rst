@@ -1,3 +1,49 @@
+v7.0.1
+======
+
+Bugfixes
+--------
+
+- Corrected the interface for SimplePath to encompass the expectations of locate_file and PackagePath.
+- Fixed type annotations to allow strings.
+
+
+v7.0.0
+======
+
+Deprecations and Removals
+-------------------------
+
+- Removed EntryPoint access by numeric index (tuple behavior).
+
+
+v6.11.0
+=======
+
+Features
+--------
+
+- Added ``Distribution.origin`` supplying the ``direct_url.json`` in a ``SimpleNamespace``. (#404)
+
+
+v6.10.0
+=======
+
+Features
+--------
+
+- Added diagnose script. (#461)
+
+
+v6.9.0
+======
+
+Features
+--------
+
+- Added EntryPoints.__repr__ (#473)
+
+
 v6.8.0
 ======
 
@@ -130,6 +176,10 @@ v4.11.4
   loaded from the stem of the filename are also normalized, ensuring
   duplicate entry points by packages varying only by non-normalized
   name are hidden.
+
+Note (#459): This change had a backward-incompatible effect for
+any installers that created metadata in the filesystem with dashes
+in the package names (not replaced by underscores).
 
 v4.11.3
 =======
