@@ -33,7 +33,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Iterable, List, Mapping, Optional, Set, cast, Any
+from typing import Any, Iterable, List, Mapping, Optional, Set, cast
 
 __all__ = [
     'Distribution',
