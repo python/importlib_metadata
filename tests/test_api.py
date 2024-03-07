@@ -357,23 +357,21 @@ class MetadataAPITests(unittest.TestCase):
         return "\n".join(f"{i:{indent}}: {tup!r}" for i, tup in diff.items())
 
     @hypothesis.given(identity.identities_strategy())
-    @hypothesis.example(
-        (
-            """
+    @hypothesis.example((
+        """
             Author: Another person, Yet Another name
             Author-email: Pradyun Gedam <pradyun@example.com>, Tzu-Ping Chung <tzu-ping@example.com>, different.person@example.com
             Maintainer-email: Brett Cannon <brett@python.org>
             """,  # noqa: E501
-            [
-                ("Another person", None),
-                ("Yet Another name", None),
-                ("Pradyun Gedam", "pradyun@example.com"),
-                ("Tzu-Ping Chung", "tzu-ping@example.com"),
-                (None, "different.person@example.com"),
-            ],
-            [("Brett Cannon", "brett@python.org")],
-        )
-    )
+        [
+            ("Another person", None),
+            ("Yet Another name", None),
+            ("Pradyun Gedam", "pradyun@example.com"),
+            ("Tzu-Ping Chung", "tzu-ping@example.com"),
+            (None, "different.person@example.com"),
+        ],
+        [("Brett Cannon", "brett@python.org")],
+    ))
     @hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck.too_slow])
     def test_structured_identity(self, arg):
         """
