@@ -574,7 +574,7 @@ class Distribution(DeprecatedNonAbstract):
 
     def _relative_to(self, path, root):
         """
-        Workaround for https://bugs.python.org/issue23082 where ".."
+        Workaround for https://github.com/python/cpython/issues/67271 where ".."
         isn't added by pathlib.Path.relative_to() when path is not
         a subpath of root.
 
