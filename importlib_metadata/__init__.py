@@ -377,9 +377,9 @@ class Distribution(DeprecatedNonAbstract):
         - METADATA: The distribution metadata including fields
           like Name and Version and Description.
         - entry_points.txt: A series of entry points as defined in
-          `this spec <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>`_.
+          `the entry points spec <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>`_.
         - RECORD: A record of files according to
-          `this spec <https://packaging.python.org/en/latest/specifications/recording-installed-packages/#the-record-file>`_.
+          `this recording spec <https://packaging.python.org/en/latest/specifications/recording-installed-packages/#the-record-file>`_.
 
         A package may provide any set of files, including those
         not listed here or none at all.
@@ -683,6 +683,17 @@ class DistributionFinder(MetaPathFinder):
         Each DistributionFinder may expect any parameters
         and should attempt to honor the canonical
         parameters defined below when appropriate.
+
+        This mechanism gives a custom provider a means to
+        solicit additional details from the caller beyond
+        "name" and "path" when searching distributions.
+        For example, imagine a provider that exposes suites
+        of packages in either a "public" or "private" ``realm``.
+        A caller may wish to query only for distributions in
+        a particular realm and could call
+        ``distributions(realm="private")`` to signal to the
+        custom provider to only include distributions from that
+        realm.
         """
 
         name = None
@@ -774,6 +785,7 @@ class Lookup:
     """
     A micro-optimized class for searching a (fast) path for metadata.
     """
+
     def __init__(self, path: FastPath):
         """
         Calculate all of the children representing metadata.
