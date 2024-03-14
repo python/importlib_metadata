@@ -898,6 +898,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
             path.search(prepared) for path in map(FastPath, paths)
         )
 
+    @classmethod
     def invalidate_caches(cls) -> None:
         FastPath.__new__.cache_clear()
 
