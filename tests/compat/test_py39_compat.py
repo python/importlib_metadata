@@ -2,7 +2,7 @@ import sys
 import pathlib
 import unittest
 
-from . import fixtures
+from .. import fixtures
 from importlib_metadata import (
     distribution,
     distributions,
