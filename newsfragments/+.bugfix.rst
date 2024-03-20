@@ -1,1 +1,0 @@
-Allow ``MetadataPathFinder.invalidate_caches`` to be called as a classmethod.
