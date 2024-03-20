@@ -9,6 +9,7 @@ import textwrap
 import functools
 import contextlib
 
+from .compat.py312 import import_helper
 from .compat.py39 import os_helper
 
 from . import _path
@@ -84,6 +85,7 @@ class OnSysPath(Fixtures):
     def setUp(self):
         super().setUp()
         self.fixtures.enter_context(self.add_sys_path(self.site_dir))
+        self.fixtures.enter_context(import_helper.isolated_modules())
 
 
 class SiteBuilder(SiteDir):
