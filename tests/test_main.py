@@ -5,7 +5,7 @@ import warnings
 import importlib
 import importlib_metadata
 import contextlib
-from test.support import os_helper
+from .py39compat import os_helper
 
 import pyfakefs.fake_filesystem_unittest as ffs
 
