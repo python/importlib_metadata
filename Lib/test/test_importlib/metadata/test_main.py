@@ -2,8 +2,10 @@ import re
 import pickle
 import unittest
 import warnings
+import importlib
 import importlib.metadata
 import contextlib
+from test.support import os_helper
 
 try:
     import pyfakefs.fake_filesystem_unittest as ffs
@@ -307,12 +309,10 @@ class TestEntryPoints(unittest.TestCase):
         """
         EntryPoint objects are sortable, but result is undefined.
         """
-        sorted(
-            [
-                EntryPoint(name='b', value='val', group='group'),
-                EntryPoint(name='a', value='val', group='group'),
-            ]
-        )
+        sorted([
+            EntryPoint(name='b', value='val', group='group'),
+            EntryPoint(name='a', value='val', group='group'),
+        ])
 
 
 class FileSystem(
@@ -379,18 +379,16 @@ class PackagesDistributionsTest(
             'all_distributions-1.0.0.dist-info': metadata,
         }
         for i, suffix in enumerate(suffixes):
-            files.update(
-                {
-                    f'importable-name {i}{suffix}': '',
-                    f'in_namespace_{i}': {
-                        f'mod{suffix}': '',
-                    },
-                    f'in_package_{i}': {
-                        '__init__.py': '',
-                        f'mod{suffix}': '',
-                    },
-                }
-            )
+            files.update({
+                f'importable-name {i}{suffix}': '',
+                f'in_namespace_{i}': {
+                    f'mod{suffix}': '',
+                },
+                f'in_package_{i}': {
+                    '__init__.py': '',
+                    f'mod{suffix}': '',
+                },
+            })
         metadata.update(RECORD=fixtures.build_record(files))
         fixtures.build_files(files, prefix=self.site_dir)
 
@@ -403,6 +401,7 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
+    @os_helper.skip_unless_symlink
     def test_packages_distributions_symlinked_top_level(self) -> None:
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
