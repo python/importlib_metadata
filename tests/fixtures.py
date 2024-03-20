@@ -9,7 +9,7 @@ import textwrap
 import functools
 import contextlib
 
-from .py39compat import os_helper
+from .compat.py39 import os_helper
 
 from . import _path
 from ._path import FilesSpec
