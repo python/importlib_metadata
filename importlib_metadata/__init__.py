@@ -18,7 +18,8 @@ import itertools
 import posixpath
 import collections
 
-from . import _adapters, _meta, _py39compat
+from . import _adapters, _meta
+from .compat import py39
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -279,7 +280,7 @@ class EntryPoints(tuple):
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        return EntryPoints(ep for ep in self if _py39compat.ep_matches(ep, **params))
+        return EntryPoints(ep for ep in self if py39.ep_matches(ep, **params))
 
     @property
     def names(self) -> Set[str]:
@@ -996,7 +997,7 @@ def version(distribution_name: str) -> str:
 
 _unique = functools.partial(
     unique_everseen,
-    key=_py39compat.normalized_name,
+    key=py39.normalized_name,
 )
 """
 Wrapper for ``distributions`` to return unique distributions by name.
