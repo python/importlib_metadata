@@ -877,8 +877,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     of Python that do not have a PathFinder find_distributions().
     """
 
+    @classmethod
     def find_distributions(
-        self, context=DistributionFinder.Context()
+        cls, context=DistributionFinder.Context()
     ) -> Iterable[PathDistribution]:
         """
         Find distributions.
@@ -888,7 +889,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         (or all names if ``None`` indicated) along the paths in the list
         of directories ``context.path``.
         """
-        found = self._search_paths(context.name, context.path)
+        found = cls._search_paths(context.name, context.path)
         return map(PathDistribution, found)
 
     @classmethod

@@ -1,0 +1,1 @@
+Make MetadataPathFinder.find_distributions a classmethod for consistency with CPython. Closes #484.
