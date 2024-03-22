@@ -65,3 +65,5 @@ class SimplePath(Protocol):
     def read_bytes(self) -> bytes: ...  # pragma: no cover
 
     def exists(self) -> bool: ...  # pragma: no cover
+
+    def resolve(self) -> bool: ...  # pragma: no cover
