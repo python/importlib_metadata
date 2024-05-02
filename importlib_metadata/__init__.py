@@ -47,7 +47,11 @@ from typing import (
 
 if TYPE_CHECKING:
     from importlib import metadata as _legacy
-    from email.message import Message as _legacy_Metadata
+
+    if sys.version_info >= (3, 10):
+        from importlib.metadata import PackageMetadata as _legacy_Metadata
+    else:
+        from email.message import Message as _legacy_Metadata
 
 
 __all__ = [
