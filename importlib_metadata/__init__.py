@@ -30,6 +30,7 @@ from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
 from importlib import import_module
+from importlib import metadata as _legacy
 from importlib.abc import MetaPathFinder
 from itertools import starmap
 from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
@@ -375,7 +376,7 @@ class Distribution(metaclass=abc.ABCMeta):
         """
 
     @classmethod
-    def from_name(cls, name: str) -> Distribution:
+    def from_name(cls, name: str) -> Distribution | _legacy.Distribution:
         """Return the Distribution for the given package name.
 
         :param name: The name of the distribution package to search for.
@@ -395,7 +396,7 @@ class Distribution(metaclass=abc.ABCMeta):
     @classmethod
     def discover(
         cls, *, context: Optional[DistributionFinder.Context] = None, **kwargs
-    ) -> Iterable[Distribution]:
+    ) -> Iterable[Distribution | _legacy.Distribution]:
         """Return an iterable of Distribution objects for all packages.
 
         Pass a ``context`` or pass keyword arguments for constructing
@@ -941,7 +942,7 @@ class PathDistribution(Distribution):
         return name
 
 
-def distribution(distribution_name: str) -> Distribution:
+def distribution(distribution_name: str) -> Distribution | _legacy.Distribution:
     """Get the ``Distribution`` instance for the named package.
 
     :param distribution_name: The name of the distribution package as a string.
@@ -950,7 +951,7 @@ def distribution(distribution_name: str) -> Distribution:
     return Distribution.from_name(distribution_name)
 
 
-def distributions(**kwargs) -> Iterable[Distribution]:
+def distributions(**kwargs) -> Iterable[Distribution | _legacy.Distribution]:
     """Get all ``Distribution`` instances in the current environment.
 
     :return: An iterable of ``Distribution`` instances.
@@ -958,7 +959,7 @@ def distributions(**kwargs) -> Iterable[Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> _meta.PackageMetadata:
+def metadata(distribution_name: str) -> _meta.PackageMetadata | email.message.Message:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1001,7 +1002,9 @@ def entry_points(**params) -> EntryPoints:
     return EntryPoints(eps).select(**params)
 
 
-def files(distribution_name: str) -> Optional[List[PackagePath]]:
+def files(
+    distribution_name: str,
+) -> Optional[List[PackagePath] | List[_legacy.PackagePath]]:
     """Return a list of files for the named package.
 
     :param distribution_name: The name of the distribution package to query.
