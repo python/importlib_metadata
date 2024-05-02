@@ -30,10 +30,25 @@ from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
 from importlib import import_module
-from importlib import metadata as _legacy
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    List,
+    Mapping,
+    Match,
+    Optional,
+    Set,
+    cast,
+)
+
+
+if TYPE_CHECKING:
+    from importlib import metadata as _legacy
+    from email.message import Message as _legacy_Metadata
+
 
 __all__ = [
     'Distribution',
@@ -959,7 +974,7 @@ def distributions(**kwargs) -> Iterable[Distribution | _legacy.Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> _meta.PackageMetadata | email.message.Message:
+def metadata(distribution_name: str) -> _meta.PackageMetadata | _legacy_Metadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
