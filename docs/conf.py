@@ -69,4 +69,8 @@ nitpick_ignore = [
     ('py:class', 'importlib_metadata._meta._T'),
     # Workaround for #435
     ('py:class', '_T'),
+    # importlib.metadata in stdlib does not have detailed API docs
+    ('py:class', 'importlib.metadata.Distribution'),
+    ('py:class', 'importlib.metadata.PackagePath'),
+    ('py:class', 'importlib.metadata._meta.PackageMetadata'),
 ]

@@ -30,28 +30,15 @@ from ._meta import PackageMetadata, SimplePath
 
 from contextlib import suppress
 from importlib import import_module
+from importlib import metadata as _legacy
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterable,
-    List,
-    Mapping,
-    Match,
-    Optional,
-    Set,
-    cast,
-)
+from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
 
-
-if TYPE_CHECKING:
-    from importlib import metadata as _legacy
-
-    if sys.version_info >= (3, 10):
-        from importlib.metadata import PackageMetadata as _legacy_Metadata
-    else:
-        from email.message import Message as _legacy_Metadata
+if sys.version_info >= (3, 10):
+    from importlib.metadata import PackageMetadata as _legacy_Metadata
+else:
+    from email.message import Message as _legacy_Metadata
 
 
 __all__ = [
