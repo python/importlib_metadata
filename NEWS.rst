@@ -1,3 +1,13 @@
+v7.2.0
+======
+
+Features
+--------
+
+- Deferred select imports in for speedup (python/cpython#109829).
+- Updated fixtures for python/cpython#120801.
+
+
 v7.1.0
 ======
 

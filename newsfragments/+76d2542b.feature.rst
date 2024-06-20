@@ -1,1 +1,0 @@
-Updated fixtures for python/cpython#120801.
