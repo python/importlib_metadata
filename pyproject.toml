@@ -27,7 +27,7 @@ dynamic = ["version"]
 Homepage = "https://github.com/python/importlib_metadata"
 
 [project.optional-dependencies]
-testing = [
+test = [
 	# upstream
 	"pytest >= 6, != 8.1.*",
 	"pytest-checkdocs >= 2.4",
@@ -44,7 +44,7 @@ testing = [
 	"pytest-perf >= 0.9.2",
 	"jaraco.test >= 5.4",
 ]
-docs = [
+doc = [
 	# upstream
 	"sphinx >= 3.5",
 	"jaraco.packaging >= 9.3",
