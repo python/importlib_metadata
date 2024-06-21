@@ -24,7 +24,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/python/importlib_metadata"
+Source = "https://github.com/python/importlib_metadata"
 
 [project.optional-dependencies]
 test = [
