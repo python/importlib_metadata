@@ -1,3 +1,13 @@
+v8.0.0
+======
+
+Deprecations and Removals
+-------------------------
+
+- Message.__getitem__ now raises a KeyError on missing keys. (#371)
+- Removed deprecated support for Distribution subclasses not implementing abstract methods.
+
+
 v7.2.1
 ======
 

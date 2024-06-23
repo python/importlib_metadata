@@ -1,1 +1,0 @@
-Message.__getitem__ now raises a KeyError on missing keys.
