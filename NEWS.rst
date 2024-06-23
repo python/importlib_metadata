@@ -1,3 +1,35 @@
+v7.2.0
+======
+
+Features
+--------
+
+- Deferred select imports in for speedup (python/cpython#109829).
+- Updated fixtures for python/cpython#120801.
+
+
+v7.1.0
+======
+
+Features
+--------
+
+- Improve import time (python/cpython#114664).
+
+
+Bugfixes
+--------
+
+- Make MetadataPathFinder.find_distributions a classmethod for consistency with CPython. Closes #484. (#484)
+- Allow ``MetadataPathFinder.invalidate_caches`` to be called as a classmethod.
+
+
+v7.0.2
+======
+
+No significant changes.
+
+
 v7.0.1
 ======
 

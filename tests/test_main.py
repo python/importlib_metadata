@@ -5,6 +5,8 @@ import warnings
 import importlib
 import importlib_metadata
 import contextlib
+from .compat.py39 import os_helper
+
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
@@ -133,7 +135,7 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         fixtures.build_files(self.make_pkg('abc'), self.site_dir)
         before = list(_unique(distributions()))
 
-        alt_site_dir = self.fixtures.enter_context(fixtures.tempdir())
+        alt_site_dir = self.fixtures.enter_context(fixtures.tmp_path())
         self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
         fixtures.build_files(self.make_pkg('ABC'), alt_site_dir)
         after = list(_unique(distributions()))
@@ -396,6 +398,7 @@ class PackagesDistributionsTest(
 
         assert not any(name.endswith('.dist-info') for name in distributions)
 
+    @os_helper.skip_unless_symlink
     def test_packages_distributions_symlinked_top_level(self) -> None:
         """
         Distribution is resolvable from a simple top-level symlink in RECORD.
