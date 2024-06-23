@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import re
 import abc
-import csv
 import sys
 import json
 import zipp
@@ -19,8 +18,8 @@ import itertools
 import posixpath
 import collections
 
-from .compat.py311 import relative_fix
-from . import _adapters, _meta, _py39compat
+from . import _meta
+from .compat import py39, py311
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -34,7 +33,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Iterable, List, Mapping, Optional, Set, cast
+from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
 
 __all__ = [
     'Distribution',
@@ -176,12 +175,12 @@ class EntryPoint:
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
 
-    def load(self):
+    def load(self) -> Any:
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
         return the named object.
         """
-        match = self.pattern.match(self.value)
+        match = cast(Match, self.pattern.match(self.value))
         module = import_module(match.group('module'))
         attrs = filter(None, (match.group('attr') or '').split('.'))
         return functools.reduce(getattr, attrs, module)
@@ -276,12 +275,12 @@ class EntryPoints(tuple):
         """
         return '%s(%r)' % (self.__class__.__name__, tuple(self))
 
-    def select(self, **params):
+    def select(self, **params) -> EntryPoints:
         """
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        return EntryPoints(ep for ep in self if _py39compat.ep_matches(ep, **params))
+        return EntryPoints(ep for ep in self if py39.ep_matches(ep, **params))
 
     @property
     def names(self) -> Set[str]:
@@ -462,6 +461,9 @@ class Distribution(DeprecatedNonAbstract):
         Custom providers may provide the METADATA file or override this
         property.
         """
+        # deferred for performance (python/cpython#109829)
+        from . import _adapters
+
         opt_text = (
             self.read_text('METADATA')
             or self.read_text('PKG-INFO')
@@ -523,6 +525,10 @@ class Distribution(DeprecatedNonAbstract):
 
         @pass_none
         def make_files(lines):
+            # Delay csv import, since Distribution.files is not as widely used
+            # as other parts of importlib.metadata
+            import csv
+
             return starmap(make_file, csv.reader(lines))
 
         @pass_none
@@ -564,7 +570,7 @@ class Distribution(DeprecatedNonAbstract):
             return
 
         paths = (
-            relative_fix((subdir / name).resolve())
+            py311.relative_fix((subdir / name).resolve())
             .relative_to(self.locate_file('').resolve(), walk_up=True)
             .as_posix()
             for name in text.splitlines()
@@ -873,8 +879,9 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
     of Python that do not have a PathFinder find_distributions().
     """
 
+    @classmethod
     def find_distributions(
-        self, context=DistributionFinder.Context()
+        cls, context=DistributionFinder.Context()
     ) -> Iterable[PathDistribution]:
         """
         Find distributions.
@@ -884,7 +891,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
         (or all names if ``None`` indicated) along the paths in the list
         of directories ``context.path``.
         """
-        found = self._search_paths(context.name, context.path)
+        found = cls._search_paths(context.name, context.path)
         return map(PathDistribution, found)
 
     @classmethod
@@ -895,6 +902,7 @@ class MetadataPathFinder(NullFinder, DistributionFinder):
             path.search(prepared) for path in map(FastPath, paths)
         )
 
+    @classmethod
     def invalidate_caches(cls) -> None:
         FastPath.__new__.cache_clear()
 
@@ -992,7 +1000,7 @@ def version(distribution_name: str) -> str:
 
 _unique = functools.partial(
     unique_everseen,
-    key=_py39compat.normalized_name,
+    key=py39.normalized_name,
 )
 """
 Wrapper for ``distributions`` to return unique distributions by name.

@@ -25,7 +25,7 @@ link_files = {
                 url='https://peps.python.org/pep-{pep_number:0>4}/',
             ),
             dict(
-                pattern=r'(Python #|py-)(?P<python>\d+)',
+                pattern=r'(python/cpython#|Python #|py-)(?P<python>\d+)',
                 url='https://github.com/python/cpython/issues/{python}',
             ),
         ],
