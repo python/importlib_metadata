@@ -4,7 +4,7 @@ import sys
 import types
 
 
-def wrap(path):
+def wrap(path):  # pragma: no cover
     """
     Workaround for https://github.com/python/cpython/issues/84538
     to add backward compatibility for walk_up=True.
