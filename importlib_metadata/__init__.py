@@ -440,7 +440,7 @@ class Distribution(DeprecatedNonAbstract):
         :param path: a string or path-like object
         :return: a concrete Distribution instance for the path
         """
-        return PathDistribution(cast(SimplePath, pathlib.Path(path)))
+        return PathDistribution(pathlib.Path(path))
 
     @staticmethod
     def _discover_resolvers():
