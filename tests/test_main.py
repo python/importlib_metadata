@@ -1,16 +1,13 @@
 import re
 import pickle
 import unittest
-import warnings
 import importlib
 import importlib_metadata
-import contextlib
 from .compat.py39 import os_helper
 
 import pyfakefs.fake_filesystem_unittest as ffs
 
 from . import fixtures
-from ._context import suppress
 from ._path import Symlink
 from importlib_metadata import (
     Distribution,
@@ -23,13 +20,6 @@ from importlib_metadata import (
     packages_distributions,
     version,
 )
-
-
-@contextlib.contextmanager
-def suppress_known_deprecation():
-    with warnings.catch_warnings(record=True) as ctx:
-        warnings.simplefilter('default', category=DeprecationWarning)
-        yield ctx
 
 
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
@@ -56,9 +46,6 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
 
         assert "metadata" in str(ctx.exception)
 
-    # expected to fail until ABC is enforced
-    @suppress(AssertionError)
-    @suppress_known_deprecation()
     def test_abc_enforced(self):
         with self.assertRaises(TypeError):
             type('DistributionSubclass', (Distribution,), {})()

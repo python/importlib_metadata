@@ -1,0 +1,1 @@
+Removed deprecated support for Distribution subclasses not implementing abstract methods.
