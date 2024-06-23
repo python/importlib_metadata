@@ -19,7 +19,7 @@ import itertools
 import posixpath
 import collections
 
-from .compat.py38 import relative_fix
+from .compat.py311 import relative_fix
 from . import _adapters, _meta, _py39compat
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (

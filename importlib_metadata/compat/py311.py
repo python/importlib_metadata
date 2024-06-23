@@ -6,10 +6,9 @@ import types
 
 def wrap(path):
     """
-    Workaround for https://github.com/python/cpython/issues/67271 where ".."
-    isn't added by pathlib.Path.relative_to() when path is not
-    a subpath of root.
-    One example of such a package is dask-labextension, which uses
+    Workaround for https://github.com/python/cpython/issues/84538
+    to add backward compatibility for walk_up=True.
+    An example affected package is dask-labextension, which uses
     jupyter-packaging to install JupyterLab javascript files outside
     of site-packages.
     """
@@ -20,4 +19,4 @@ def wrap(path):
     return types.SimpleNamespace(relative_to=relative_to)
 
 
-relative_fix = wrap if sys.version_info < (3, 9) else lambda x: x
+relative_fix = wrap if sys.version_info < (3, 12) else lambda x: x
