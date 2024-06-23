@@ -1,3 +1,12 @@
+v7.2.1
+======
+
+Bugfixes
+--------
+
+- When reading installed files from an egg, use ``relative_to(walk_up=True)`` to honor files installed outside of the installation root. (#455)
+
+
 v7.2.0
 ======
 
