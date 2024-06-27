@@ -511,7 +511,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
-    def metadata(self) -> _meta.PackageMetadata:
+    def metadata(self) -> _meta.PackageMetadata | None:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
@@ -521,10 +521,8 @@ class Distribution(metaclass=abc.ABCMeta):
         Custom providers may provide the METADATA file or override this
         property.
         """
-        # deferred for performance (python/cpython#109829)
-        from . import _adapters
 
-        opt_text = (
+        text = (
             self.read_text('METADATA')
             or self.read_text('PKG-INFO')
             # This last clause is here to support old egg-info files.  Its
@@ -532,7 +530,14 @@ class Distribution(metaclass=abc.ABCMeta):
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        text = cast(str, opt_text)
+        return self._assemble_message(text)
+
+    @staticmethod
+    @pass_none
+    def _assemble_message(text: str) -> _meta.PackageMetadata:
+        # deferred for performance (python/cpython#109829)
+        from . import _adapters
+
         return _adapters.Message(email.message_from_string(text))
 
     @property
