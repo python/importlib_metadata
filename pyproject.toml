@@ -18,7 +18,8 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-	"zipp>=0.5",
+	"zipp>=0.5"; python_version < "3.8"',
+	"zipp>=3.19.1"; python_version >= "3.8"',
 	'typing-extensions>=3.6.4; python_version < "3.8"',
 ]
 dynamic = ["version"]
