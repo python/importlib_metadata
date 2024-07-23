@@ -1,0 +1,1 @@
+Prioritize valid dists to invalid dists when retrieving by name.

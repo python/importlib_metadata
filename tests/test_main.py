@@ -140,7 +140,6 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
             f'{name}.dist-info': files,
         }
 
-    @__import__('pytest').mark.xfail(reason="#489")
     def test_valid_dists_preferred(self):
         """
         Dists with metadata should be preferred when discovered by name.
