@@ -130,6 +130,32 @@ class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.Test
         assert len(after) == len(before)
 
 
+class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
+    @staticmethod
+    def make_pkg(name, files=dict(METADATA="VERSION: 1.0")):
+        """
+        Create metadata for a dist-info package with name and files.
+        """
+        return {
+            f'{name}.dist-info': files,
+        }
+
+    @__import__('pytest').mark.xfail(reason="#489")
+    def test_valid_dists_preferred(self):
+        """
+        Dists with metadata should be preferred when discovered by name.
+
+        Ref python/importlib_metadata#489.
+        """
+        # create three dists with the valid one in the middle (lexicographically)
+        # such that on most file systems, the valid one is never naturally first.
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(self.make_pkg('foo-4.1'), self.site_dir)
+        fixtures.build_files(self.make_pkg('foo-4.2', files={}), self.site_dir)
+        dist = Distribution.from_name('foo')
+        assert dist.version == "1.0"
+
+
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
     def pkg_with_non_ascii_description(site_dir):
