@@ -1,3 +1,12 @@
+v8.1.0
+======
+
+Features
+--------
+
+- Prioritize valid dists to invalid dists when retrieving by name. (#489)
+
+
 v8.0.0
 ======
 
