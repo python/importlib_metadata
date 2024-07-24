@@ -1,0 +1,1 @@
+Add SimplePath to importlib_metadata.__all__.
