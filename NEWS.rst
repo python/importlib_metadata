@@ -1,3 +1,12 @@
+v8.2.0
+======
+
+Features
+--------
+
+- Add SimplePath to importlib_metadata.__all__. (#494)
+
+
 v8.1.0
 ======
 
