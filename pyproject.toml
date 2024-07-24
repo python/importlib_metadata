@@ -43,6 +43,7 @@ test = [
 	"flufl.flake8",
 	"pytest-perf >= 0.9.2",
 	"jaraco.test >= 5.4",
+	"hypothesis >= 6.85.0",
 ]
 doc = [
 	# upstream

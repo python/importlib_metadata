@@ -4,6 +4,8 @@ import os
 from typing import Protocol
 from typing import Any, Dict, Iterator, List, Optional, TypeVar, Union, overload
 
+from ._adapters import Ident
+
 
 _T = TypeVar("_T")
 
@@ -41,6 +43,18 @@ class PackageMetadata(Protocol):
     def json(self) -> Dict[str, Union[str, List[str]]]:
         """
         A JSON-compatible form of the metadata.
+        """
+
+    @property
+    def authors(self) -> List[Ident]:
+        """
+        Minimal parsing for "Author" and "Author-email" fields.
+        """
+
+    @property
+    def maintainers(self) -> List[Ident]:
+        """
+        Minimal parsing for "Maintainer" and "Maintainer-email" fields.
         """
 
 

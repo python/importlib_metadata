@@ -3,7 +3,12 @@ import textwrap
 import unittest
 import importlib
 
+from itertools import zip_longest
+from unittest.mock import patch
+import hypothesis
+
 from . import fixtures
+from . import identity
 from importlib_metadata import (
     Distribution,
     PackageNotFoundError,
@@ -316,3 +321,65 @@ class InvalidateCache(unittest.TestCase):
     def test_invalidate_cache(self):
         # No externally observable behavior, but ensures test coverage...
         importlib.invalidate_caches()
+
+
+class MetadataAPITests(unittest.TestCase):
+    @staticmethod
+    def metadata_from_text(text):
+        with suppress_known_deprecation():
+            db = Distribution()
+        with patch.object(Distribution, "read_text") as mock_rt:
+            mock_rt.return_value = fixtures.DALS(text)
+            mock_rt.seal()
+            md = db.metadata
+        mock_rt.assert_called()
+        return md
+
+    @staticmethod
+    def diff(*iters, fillvalue=None):
+        return {
+            i: tup
+            for i, tup in enumerate(zip_longest(*iters, fillvalue=fillvalue))
+            if len(set(tup)) != 1
+        }
+
+    @staticmethod
+    def diff_fmt(diff, indent=4):
+        indent = max((len(str(i)) for i in diff), default=0) + indent
+        return "\n".join(f"{i:{indent}}: {tup!r}" for i, tup in diff.items())
+
+    @hypothesis.given(identity.identities_strategy())
+    @hypothesis.example((
+        """
+            Author: Another person, Yet Another name
+            Author-email: Pradyun Gedam <pradyun@example.com>, Tzu-Ping Chung <tzu-ping@example.com>, different.person@example.com
+            Maintainer-email: Brett Cannon <brett@python.org>
+            """,  # noqa: E501
+        [
+            ("Another person", None),
+            ("Yet Another name", None),
+            ("Pradyun Gedam", "pradyun@example.com"),
+            ("Tzu-Ping Chung", "tzu-ping@example.com"),
+            (None, "different.person@example.com"),
+        ],
+        [("Brett Cannon", "brett@python.org")],
+    ))
+    @hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck.too_slow])
+    def test_structured_identity(self, arg):
+        """
+        Verify that the unstructured identity metadata is parsed and
+        converted to the expected corresponding structure.
+        """
+        metadata_text, expected_authors, expected_maintainers = arg
+        md = self.metadata_from_text(metadata_text)
+        authors = list(map(tuple, md.authors))
+        maintainers = list(map(tuple, md.maintainers))
+
+        authors_diff = self.diff(authors, expected_authors)
+        maintainers_diff = self.diff(maintainers, expected_maintainers)
+
+        hypothesis.note(f"Authors diff: {self.diff_fmt(authors_diff)}")
+        hypothesis.note(f"Maintainers diff: {self.diff_fmt(maintainers_diff)}")
+
+        assert authors == expected_authors
+        assert maintainers == expected_maintainers
