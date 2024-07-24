@@ -69,4 +69,9 @@ nitpick_ignore = [
     ('py:class', 'importlib_metadata._meta._T'),
     # Workaround for #435
     ('py:class', '_T'),
+    # importlib.metadata in stdlib does not have detailed API docs
+    # + `if TYPE_CHECKING` is not handled by sphinx:
+    ('py:class', 'stdlib._DistributionOrLegacy'),
+    ('py:class', 'stdlib._PackageMetadataOrLegacy'),
+    ('py:class', 'stdlib._List_PackagePathOrLegacy'),
 ]
