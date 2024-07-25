@@ -373,6 +373,17 @@ class Distribution(metaclass=abc.ABCMeta):
         """
         Given a path to a file in this distribution, return a SimplePath
         to it.
+
+        This method is used by callers of ``Distribution.files()`` to
+        locate files within the distribution. If it's possible for a
+        Distribution to represent files in the distribution as
+        ``SimplePath`` objects, it should implement this method
+        to resolve such objects.
+
+        Some Distribution providers may elect not to resolve SimplePath
+        objects within the distribution by raising a
+        NotImplementedError, but consumers of such a Distribution would
+        be unable to invoke ``Distribution.files()``.
         """
 
     @classmethod
