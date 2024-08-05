@@ -8,7 +8,6 @@ import json
 import zipp
 import email
 import types
-import inspect
 import pathlib
 import operator
 import textwrap
@@ -1071,6 +1070,9 @@ def _topmost(name: PackagePath) -> Optional[str]:
     return top if rest else None
 
 
+inspect = None
+
+
 def _get_toplevel_name(name: PackagePath) -> str:
     """
     Infer a possibly importable module name from a name presumed on
@@ -1089,11 +1091,14 @@ def _get_toplevel_name(name: PackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
-    return _topmost(name) or (
-        # python/typeshed#10328
-        inspect.getmodulename(name)  # type: ignore
-        or str(name)
-    )
+    n = _topmost(name)
+    if n:
+        return n
+
+    global inspect
+    if inspect is None:
+        import inspect
+    return inspect.getmodulename(name) or str(name)
 
 
 def _top_level_inferred(dist):
