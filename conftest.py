@@ -13,13 +13,18 @@ def pytest_configure():
 
 def remove_importlib_metadata():
     """
-    Because pytest imports importlib_metadata, the coverage
-    reports are broken (#322). So work around the issue by
-    undoing the changes made by pytest's import of
-    importlib_metadata (if any).
+    Ensure importlib_metadata is not imported yet.
+
+    Because pytest or other modules might import
+    importlib_metadata, the coverage reports are broken (#322).
+    Work around the issue by undoing the changes made by a
+    previous import of importlib_metadata (if any).
     """
-    if sys.meta_path[-1].__class__.__name__ == 'MetadataPathFinder':
-        del sys.meta_path[-1]
+    sys.meta_path[:] = [
+        item
+        for item in sys.meta_path
+        if item.__class__.__name__ != 'MetadataPathFinder'
+    ]
     for mod in list(sys.modules):
         if mod.startswith('importlib_metadata'):
             del sys.modules[mod]
