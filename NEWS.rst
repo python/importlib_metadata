@@ -1,3 +1,12 @@
+v8.3.0
+======
+
+Features
+--------
+
+- Disallow passing of 'dist' to EntryPoints.select.
+
+
 v8.2.0
 ======
 
