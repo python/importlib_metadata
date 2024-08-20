@@ -8,7 +8,6 @@ import json
 import zipp
 import email
 import types
-import inspect
 import pathlib
 import operator
 import textwrap
@@ -1106,6 +1105,9 @@ def _get_toplevel_name(name: PackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
+    # Defer import of inspect for performance (python/cpython#118761)
+    import inspect
+
     return _topmost(name) or (
         # python/typeshed#10328
         inspect.getmodulename(name)  # type: ignore
