@@ -8,14 +8,16 @@ stdlib.
 """
 
 import unittest
+
 import packaging.requirements
 import packaging.version
 
-from . import fixtures
 from importlib_metadata import (
     _compat,
     version,
 )
+
+from . import fixtures
 
 
 class IntegrationTests(fixtures.DistInfoPkg, unittest.TestCase):

@@ -1,8 +1,7 @@
-import sys
 import pathlib
+import sys
 import unittest
 
-from .. import fixtures
 from importlib_metadata import (
     distribution,
     distributions,
@@ -10,6 +9,8 @@ from importlib_metadata import (
     metadata,
     version,
 )
+
+from .. import fixtures
 
 
 class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):

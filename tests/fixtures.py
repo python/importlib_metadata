@@ -1,18 +1,16 @@
-import sys
-import copy
-import json
-import shutil
-import pathlib
-import textwrap
-import functools
 import contextlib
-
-from .compat.py312 import import_helper
-from .compat.py39 import os_helper
+import copy
+import functools
+import json
+import pathlib
+import shutil
+import sys
+import textwrap
 
 from . import _path
 from ._path import FilesSpec
-
+from .compat.py39 import os_helper
+from .compat.py312 import import_helper
 
 try:
     from importlib import resources  # type: ignore

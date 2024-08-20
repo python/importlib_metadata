@@ -1,23 +1,28 @@
 from __future__ import annotations
 
-import os
-import re
 import abc
-import sys
-import json
-import zipp
+import collections
 import email
-import types
-import pathlib
-import operator
-import textwrap
 import functools
 import itertools
+import json
+import operator
+import os
+import pathlib
 import posixpath
-import collections
+import re
+import sys
+import textwrap
+import types
+from contextlib import suppress
+from importlib import import_module
+from importlib.abc import MetaPathFinder
+from itertools import starmap
+from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
+
+import zipp
 
 from . import _meta
-from .compat import py39, py311
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
@@ -26,12 +31,7 @@ from ._compat import (
 from ._functools import method_cache, pass_none
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import PackageMetadata, SimplePath
-
-from contextlib import suppress
-from importlib import import_module
-from importlib.abc import MetaPathFinder
-from itertools import starmap
-from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
+from .compat import py39, py311
 
 __all__ = [
     'Distribution',

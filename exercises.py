@@ -29,6 +29,7 @@ def cached_distribution_perf():
 def uncached_distribution_perf():
     "uncached distribution"
     import importlib
+
     import importlib_metadata
 
     # end warmup
@@ -37,8 +38,9 @@ def uncached_distribution_perf():
 
 
 def entrypoint_regexp_perf():
-    import importlib_metadata
     import re
+
+    import importlib_metadata
 
     input = '0' + ' ' * 2**10 + '0'  # end warmup
 

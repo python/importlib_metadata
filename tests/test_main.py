@@ -1,14 +1,11 @@
-import re
-import pickle
-import unittest
 import importlib
-import importlib_metadata
-from .compat.py39 import os_helper
+import pickle
+import re
+import unittest
 
 import pyfakefs.fake_filesystem_unittest as ffs
 
-from . import fixtures
-from ._path import Symlink
+import importlib_metadata
 from importlib_metadata import (
     Distribution,
     EntryPoint,
@@ -20,6 +17,10 @@ from importlib_metadata import (
     packages_distributions,
     version,
 )
+
+from . import fixtures
+from ._path import Symlink
+from .compat.py39 import os_helper
 
 
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
