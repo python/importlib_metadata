@@ -1088,13 +1088,14 @@ def _get_toplevel_name(name: PackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
-    if n := _topmost(name):
-        return n
-
     # We're deffering import of inspect to speed up overall import time
     import inspect
 
-    return inspect.getmodulename(name) or str(name)
+    return _topmost(name) or (
+        # python/typeshed#10328
+        inspect.getmodulename(name)  # type: ignore
+        or str(name)
+    )
 
 
 def _top_level_inferred(dist):
