@@ -20,7 +20,7 @@ from importlib.abc import MetaPathFinder
 from itertools import starmap
 from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
 
-import zipp
+from zipp.compat.overlay import zipfile
 
 from . import _meta
 from ._collections import FreezableDefaultDict, Pair
@@ -768,7 +768,7 @@ class FastPath:
         return []
 
     def zip_children(self):
-        zip_path = zipp.Path(self.root)
+        zip_path = zipfile.Path(self.root)
         names = zip_path.root.namelist()
         self.joinpath = zip_path.joinpath
 
