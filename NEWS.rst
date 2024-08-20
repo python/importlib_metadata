@@ -1,3 +1,12 @@
+v8.4.0
+======
+
+Features
+--------
+
+- Deferred import of inspect for import performance. (#499)
+
+
 v8.3.0
 ======
 
