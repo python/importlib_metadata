@@ -1088,7 +1088,7 @@ def _get_toplevel_name(name: PackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
-    # We're deffering import of inspect to speed up overall import time
+    # Defer import of inspect for performance (python/cpython#118761)
     import inspect
 
     return _topmost(name) or (
