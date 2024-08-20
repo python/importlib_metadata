@@ -1108,7 +1108,7 @@ def _get_toplevel_name(name: PackagePath) -> str:
     # Defer import of inspect for performance (python/cpython#118761)
     import inspect
 
-    return _topmost(name) or (inspect.getmodulename(name) or str(name))
+    return _topmost(name) or inspect.getmodulename(name) or str(name)
 
 
 def _top_level_inferred(dist):
