@@ -1070,9 +1070,6 @@ def _topmost(name: PackagePath) -> Optional[str]:
     return top if rest else None
 
 
-inspect = None
-
-
 def _get_toplevel_name(name: PackagePath) -> str:
     """
     Infer a possibly importable module name from a name presumed on
@@ -1091,13 +1088,12 @@ def _get_toplevel_name(name: PackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
-    n = _topmost(name)
-    if n:
+    if n := _topmost(name):
         return n
 
-    global inspect
-    if inspect is None:
-        import inspect
+    # We're deffering import of inspect to speed up overall import time
+    import inspect
+
     return inspect.getmodulename(name) or str(name)
 
 
