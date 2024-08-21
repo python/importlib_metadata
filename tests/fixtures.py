@@ -13,12 +13,12 @@ from .compat.py39 import os_helper
 from .compat.py312 import import_helper
 
 try:
-    from importlib import resources  # type: ignore
+    from importlib import resources
 
     getattr(resources, 'files')
     getattr(resources, 'as_file')
 except (ImportError, AttributeError):
-    import importlib_resources as resources  # type: ignore
+    import importlib_resources as resources  # type: ignore[import-not-found, no-redef]
 
 
 @contextlib.contextmanager

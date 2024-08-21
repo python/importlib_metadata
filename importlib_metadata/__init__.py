@@ -331,7 +331,7 @@ class PackagePath(pathlib.PurePosixPath):
     size: int
     dist: Distribution
 
-    def read_text(self, encoding: str = 'utf-8') -> str:  # type: ignore[override]
+    def read_text(self, encoding: str = 'utf-8') -> str:
         return self.locate().read_text(encoding=encoding)
 
     def read_binary(self) -> bytes:
@@ -750,7 +750,7 @@ class FastPath:
     True
     """
 
-    @functools.lru_cache()  # type: ignore
+    @functools.lru_cache()  # type: ignore[misc]
     def __new__(cls, root):
         return super().__new__(cls)
 
