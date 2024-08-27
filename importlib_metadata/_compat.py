@@ -1,4 +1,3 @@
-import platform
 import sys
 
 __all__ = ['install', 'NullFinder']
@@ -52,5 +51,7 @@ def pypy_partial(val):
 
     Workaround for #327.
     """
+    import platform
+
     is_pypy = platform.python_implementation() == 'PyPy'
     return val + is_pypy
