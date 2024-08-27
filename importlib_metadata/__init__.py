@@ -14,7 +14,6 @@ import collections
 import email
 import functools
 import itertools
-import json
 import operator
 import os
 import pathlib
@@ -673,6 +672,8 @@ class Distribution(metaclass=abc.ABCMeta):
         return self._load_json('direct_url.json')
 
     def _load_json(self, filename):
+        import json
+
         return pass_none(json.loads)(
             self.read_text(filename),
             object_hook=lambda data: types.SimpleNamespace(**data),
