@@ -34,6 +34,7 @@ from ._compat import (
     NullFinder,
     install,
     localize_dist,
+    localize_metadata,
 )
 from ._functools import apply, method_cache, pass_none
 from ._itertools import always_iterable, bucket, unique_everseen
@@ -477,6 +478,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
+    @apply(localize_metadata)
     def metadata(self) -> _meta.PackageMetadata:
         """Return the parsed metadata for this Distribution.
 

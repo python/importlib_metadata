@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import email.message
 import importlib.metadata
 import platform
 import sys
 import warnings
 from typing import cast
 
-import importlib_metadata
+import importlib_metadata._adapters
 
 
 __all__ = ['install', 'NullFinder']
@@ -76,3 +77,17 @@ def localize_dist(
         return importlib_metadata.PathDistribution(dist._path)
     warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
     return cast(importlib_metadata.Distribution, dist)
+
+
+if sys.version_info >= (3, 10):
+    StdlibMessage = importlib.metadata._adapters.Message
+else:
+    StdlibMessage = email.message.Message
+
+
+def localize_metadata(
+    input: importlib_metadata._adapters.Message | StdlibMessage,
+) -> importlib_metadata._adapters.Message:
+    if isinstance(input, importlib_metadata._adapters.Message):
+        return input
+    return importlib_metadata._adapters.Message(input)
