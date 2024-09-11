@@ -1,6 +1,8 @@
+import contextlib
 import pathlib
 import sys
 import unittest
+import warnings
 
 from importlib_metadata import (
     distribution,
@@ -63,6 +65,9 @@ class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
         Ref python/importlib_metadata#396.
         """
         self.fixtures.enter_context(fixtures.install_finder(self._meta_path_finder()))
+        self.fixtures.enter_context(
+            suppress_unrecognized_distribution_subclass_warning()
+        )
 
         assert list(distributions())
         assert distribution("distinfo_pkg")
@@ -72,3 +77,15 @@ class OldStdlibFinderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
         assert list(metadata("distinfo_pkg"))
         assert list(metadata("distinfo_pkg_custom"))
         assert list(entry_points(group="entries"))
+
+
+@contextlib.contextmanager
+def suppress_unrecognized_distribution_subclass_warning():
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=UserWarning,
+            message="Unrecognized distribution subclass",
+            append=True,
+        )
+        yield
