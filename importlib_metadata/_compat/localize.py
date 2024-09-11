@@ -27,7 +27,7 @@ def dist(
     return cast(importlib_metadata.Distribution, dist)
 
 
-def metadata(
+def message(
     input: importlib_metadata._adapters.Message | email.message.Message,
 ) -> importlib_metadata._adapters.Message:
     if isinstance(input, importlib_metadata._adapters.Message):

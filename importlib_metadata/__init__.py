@@ -477,7 +477,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
-    @apply(localize.metadata)
+    @apply(localize.message)
     def metadata(self) -> _meta.PackageMetadata:
         """Return the parsed metadata for this Distribution.
 
