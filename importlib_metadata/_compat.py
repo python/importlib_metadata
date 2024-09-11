@@ -1,5 +1,13 @@
+from __future__ import annotations
+
+import importlib.metadata
 import platform
 import sys
+import warnings
+from typing import cast
+
+import importlib_metadata
+
 
 __all__ = ['install', 'NullFinder']
 
@@ -54,3 +62,17 @@ def pypy_partial(val):
     """
     is_pypy = platform.python_implementation() == 'PyPy'
     return val + is_pypy
+
+
+def localize_dist(
+    dist: importlib_metadata.Distribution | importlib.metadata.Distribution,
+) -> importlib_metadata.Distribution:
+    """
+    Ensure dist is an :class:`importlib_metadata.Distribution`.
+    """
+    if isinstance(dist, importlib_metadata.Distribution):
+        return dist
+    if isinstance(dist, importlib.metadata.PathDistribution):
+        return importlib_metadata.PathDistribution(dist._path)
+    warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
+    return cast(importlib_metadata.Distribution, dist)

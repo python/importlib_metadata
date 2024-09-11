@@ -33,8 +33,9 @@ from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
     install,
+    localize_dist,
 )
-from ._functools import method_cache, pass_none
+from ._functools import apply, method_cache, pass_none
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import PackageMetadata, SimplePath
 from .compat import py39, py311
@@ -409,6 +410,7 @@ class Distribution(metaclass=abc.ABCMeta):
         """
 
     @classmethod
+    @apply(localize_dist)
     def from_name(cls, name: str) -> Distribution:
         """Return the Distribution for the given package name.
 
@@ -427,6 +429,7 @@ class Distribution(metaclass=abc.ABCMeta):
             raise PackageNotFoundError(name)
 
     @classmethod
+    @apply(functools.partial(map, localize_dist))
     def discover(
         cls, *, context: Optional[DistributionFinder.Context] = None, **kwargs
     ) -> Iterable[Distribution]:
