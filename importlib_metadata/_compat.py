@@ -77,7 +77,10 @@ def localize_dist(
         return importlib_metadata.PathDistribution(
             cast(importlib_metadata._meta.SimplePath, dist._path)
         )
-    warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
+    # workaround for when pytest has replaced importlib_metadata
+    # https://github.com/python/importlib_metadata/pull/505#issuecomment-2344329001
+    if dist.__class__.__module__ != 'importlib_metadata':
+        warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
     return cast(importlib_metadata.Distribution, dist)
 
 
