@@ -12,13 +12,10 @@ from ._path import FilesSpec
 from .compat.py39 import os_helper
 from .compat.py312 import import_helper
 
-try:
+if sys.version_info >= (3, 9):
     from importlib import resources
-
-    getattr(resources, 'files')
-    getattr(resources, 'as_file')
-except (ImportError, AttributeError):
-    import importlib_resources as resources  # type: ignore[import-not-found, no-redef, unused-ignore]
+else:
+    import importlib_resources as resources
 
 
 @contextlib.contextmanager

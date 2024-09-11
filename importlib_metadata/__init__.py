@@ -63,7 +63,7 @@ class PackageNotFoundError(ModuleNotFoundError):
         return f"No package metadata was found for {self.name}"
 
     @property
-    def name(self) -> str:  # type: ignore[override]
+    def name(self) -> str:  # type: ignore[override] # make readonly
         (name,) = self.args
         return name
 
@@ -281,7 +281,7 @@ class EntryPoints(tuple):
 
     __slots__ = ()
 
-    def __getitem__(self, name: str) -> EntryPoint:  # type: ignore[override]
+    def __getitem__(self, name: str) -> EntryPoint:  # type: ignore[override] # Work with str instead of int
         """
         Get the EntryPoint in self matching name.
         """
