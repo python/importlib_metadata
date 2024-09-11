@@ -81,14 +81,8 @@ def localize_dist(
     return cast(importlib_metadata.Distribution, dist)
 
 
-if sys.version_info >= (3, 10):
-    StdlibMessage = importlib.metadata._adapters.Message
-else:
-    StdlibMessage = email.message.Message
-
-
 def localize_metadata(
-    input: importlib_metadata._adapters.Message | StdlibMessage,
+    input: importlib_metadata._adapters.Message | email.message.Message,
 ) -> importlib_metadata._adapters.Message:
     if isinstance(input, importlib_metadata._adapters.Message):
         return input
