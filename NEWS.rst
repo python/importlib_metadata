@@ -1,3 +1,14 @@
+v8.5.0
+======
+
+Features
+--------
+
+- Deferred import of zipfile.Path (#502)
+- Deferred import of json (#503)
+- Rely on zipp overlay for zipfile.Path.
+
+
 v8.4.0
 ======
 

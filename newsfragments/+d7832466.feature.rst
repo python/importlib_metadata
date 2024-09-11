@@ -1,1 +1,0 @@
-Rely on zipp overlay for zipfile.Path.
