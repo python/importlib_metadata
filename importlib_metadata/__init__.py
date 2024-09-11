@@ -35,8 +35,9 @@ from ._compat import (
     install,
     localize_dist,
     localize_metadata,
+    localize_package_path,
 )
-from ._functools import apply, method_cache, pass_none
+from ._functools import apply, compose, method_cache, pass_none
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import PackageMetadata, SimplePath
 from .compat import py39, py311
@@ -529,6 +530,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
+    @apply(pass_none(compose(list, functools.partial(map, localize_package_path))))
     def files(self) -> Optional[List[PackagePath]]:
         """Files in this distribution.
 

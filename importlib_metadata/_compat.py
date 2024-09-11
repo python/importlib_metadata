@@ -91,3 +91,13 @@ def localize_metadata(
     if isinstance(input, importlib_metadata._adapters.Message):
         return input
     return importlib_metadata._adapters.Message(input)
+
+
+def localize_package_path(
+    input: importlib_metadata.PackagePath | importlib.metadata.PackagePath,
+) -> importlib_metadata.PackagePath:
+    if isinstance(input, importlib_metadata.PackagePath):
+        return input
+    replacement = importlib_metadata.PackagePath(input)
+    vars(replacement).update(vars(input))
+    return replacement
