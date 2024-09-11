@@ -74,7 +74,9 @@ def localize_dist(
     if isinstance(dist, importlib_metadata.Distribution):
         return dist
     if isinstance(dist, importlib.metadata.PathDistribution):
-        return importlib_metadata.PathDistribution(dist._path)
+        return importlib_metadata.PathDistribution(
+            cast(importlib_metadata._meta.SimplePath, dist._path)
+        )
     warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
     return cast(importlib_metadata.Distribution, dist)
 
