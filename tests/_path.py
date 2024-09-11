@@ -28,12 +28,12 @@ class TreeMaker(Protocol):
 
 
 def _ensure_tree_maker(obj: Union[str, TreeMaker]) -> TreeMaker:
-    return obj if isinstance(obj, TreeMaker) else pathlib.Path(obj)  # type: ignore[return-value] # jaraco/jaraco.path#4
+    return obj if isinstance(obj, TreeMaker) else pathlib.Path(obj)  # type: ignore[return-value]
 
 
 def build(
     spec: FilesSpec,
-    prefix: Union[str, TreeMaker] = pathlib.Path(),  # type: ignore[assignment] # jaraco/jaraco.path#4
+    prefix: Union[str, TreeMaker] = pathlib.Path(),  # type: ignore[assignment]
 ):
     """
     Build a set of files/directories, as described by the spec.
@@ -67,8 +67,7 @@ def build(
 @functools.singledispatch
 def create(content: Union[str, bytes, FilesSpec], path):
     path.mkdir(exist_ok=True)
-    # Mypy only looks at the signature of the main singledispatch method. So it must contain the complete Union
-    build(content, prefix=path)  # type: ignore[arg-type] # python/mypy#11727
+    build(content, prefix=path)  # type: ignore[arg-type]
 
 
 @create.register
