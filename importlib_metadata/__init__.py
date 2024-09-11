@@ -775,6 +775,7 @@ class FastPath:
         return []
 
     def zip_children(self):
+        # deferred for performance (python/importlib_metadata#502)
         from zipp.compat.overlay import zipfile
 
         zip_path = zipfile.Path(self.root)
