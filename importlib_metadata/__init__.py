@@ -672,6 +672,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return self._load_json('direct_url.json')
 
     def _load_json(self, filename):
+        # Deferred for performance (python/importlib_metadata#503)
         import json
 
         return pass_none(json.loads)(
