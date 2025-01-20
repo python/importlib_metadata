@@ -44,8 +44,6 @@ class Message(email.message.Message):
     Description: First line of description.
             Second line of description.
     <BLANKLINE>
-    First line of description.
-    Second line of description.
     <BLANKLINE>
     """
 
@@ -108,6 +106,7 @@ class Message(email.message.Message):
         headers = [(key, redent(value)) for key, value in vars(self)['_headers']]
         if self._payload:
             headers.append(('Description', self.get_payload()))
+            self.set_payload('')
         return headers
 
     def as_string(self):
