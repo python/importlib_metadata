@@ -1,3 +1,12 @@
+v8.6.1
+======
+
+Bugfixes
+--------
+
+- Fixed indentation logic to also honor blank lines.
+
+
 v8.6.0
 ======
 
