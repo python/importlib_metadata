@@ -1,11 +1,54 @@
 import email.message
+import email.policy
 import re
 import textwrap
 
 from ._text import FoldedCase
 
 
+class RawPolicy(email.policy.EmailPolicy):
+    def fold(self, name, value):
+        folded = self.linesep.join(
+            textwrap.indent(value, prefix=' ' * 8).lstrip().splitlines()
+        )
+        return f'{name}: {folded}{self.linesep}'
+
+
 class Message(email.message.Message):
+    r"""
+    Specialized Message subclass to handle metadata naturally.
+
+    Reads values that may have newlines in them and converts the
+    payload to the Description.
+
+    >>> msg_text = textwrap.dedent('''
+    ...     Name: Foo
+    ...     Version: 3.0
+    ...     License: blah
+    ...             de-blah
+    ...     <BLANKLINE>
+    ...     First line of description.
+    ...     Second line of description.
+    ...     ''').lstrip().replace('<BLANKLINE>', '')
+    >>> msg = Message(email.message_from_string(msg_text))
+    >>> msg['Description']
+    'First line of description.\nSecond line of description.\n'
+
+    Message should render even if values contain newlines.
+
+    >>> print(msg)
+    Name: Foo
+    Version: 3.0
+    License: blah
+            de-blah
+    Description: First line of description.
+            Second line of description.
+    <BLANKLINE>
+    First line of description.
+    Second line of description.
+    <BLANKLINE>
+    """
+
     multiple_use_keys = set(
         map(
             FoldedCase,
@@ -66,6 +109,9 @@ class Message(email.message.Message):
         if self._payload:
             headers.append(('Description', self.get_payload()))
         return headers
+
+    def as_string(self):
+        return super().as_string(policy=RawPolicy())
 
     @property
     def json(self):

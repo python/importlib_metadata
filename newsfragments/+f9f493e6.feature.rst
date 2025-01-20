@@ -1,0 +1,1 @@
+Add support for rendering metadata where some fields have newlines (python/cpython#119650).
