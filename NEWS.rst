@@ -1,3 +1,12 @@
+v8.6.0
+======
+
+Features
+--------
+
+- Add support for rendering metadata where some fields have newlines (python/cpython#119650).
+
+
 v8.5.0
 ======
 
