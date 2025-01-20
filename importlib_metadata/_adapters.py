@@ -9,7 +9,9 @@ from ._text import FoldedCase
 class RawPolicy(email.policy.EmailPolicy):
     def fold(self, name, value):
         folded = self.linesep.join(
-            textwrap.indent(value, prefix=' ' * 8).lstrip().splitlines()
+            textwrap.indent(value, prefix=' ' * 8, predicate=lambda line: True)
+            .lstrip()
+            .splitlines()
         )
         return f'{name}: {folded}{self.linesep}'
 
@@ -29,10 +31,12 @@ class Message(email.message.Message):
     ...     <BLANKLINE>
     ...     First line of description.
     ...     Second line of description.
+    ...     <BLANKLINE>
+    ...     Fourth line!
     ...     ''').lstrip().replace('<BLANKLINE>', '')
     >>> msg = Message(email.message_from_string(msg_text))
     >>> msg['Description']
-    'First line of description.\nSecond line of description.\n'
+    'First line of description.\nSecond line of description.\n\nFourth line!\n'
 
     Message should render even if values contain newlines.
 
@@ -43,6 +47,8 @@ class Message(email.message.Message):
             de-blah
     Description: First line of description.
             Second line of description.
+    <BLANKLINE>
+            Fourth line!
     <BLANKLINE>
     <BLANKLINE>
     """
