@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import (
     Any,
     Dict,
     Iterator,
     List,
     Optional,
-    Protocol,
     TypeVar,
     Union,
     overload,
 )
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
 
 _T = TypeVar("_T")
 
