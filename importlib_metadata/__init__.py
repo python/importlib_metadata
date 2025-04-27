@@ -171,6 +171,14 @@ class EntryPoint:
     Traceback (most recent call last):
     ...
     ValueError: ('Invalid object reference...invalid-name...
+
+    The same thing happens on construction.
+
+    >>> EntryPoint(name=None, group=None, value='invalid-name')
+    Traceback (most recent call last):
+    ...
+    ValueError: ('Invalid object reference...invalid-name...
+
     """
 
     pattern = re.compile(
@@ -202,6 +210,7 @@ class EntryPoint:
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
+        self.module
 
     def load(self) -> Any:
         """Load the entry point from its definition. If only a module
