@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import functools
 import pathlib
-from typing import TYPE_CHECKING, Mapping, Protocol, Union, runtime_checkable
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
     from typing_extensions import Self

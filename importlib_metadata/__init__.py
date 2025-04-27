@@ -22,11 +22,13 @@ import re
 import sys
 import textwrap
 import types
+from collections.abc import Iterable, Mapping
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, Iterable, List, Mapping, Match, Optional, Set, cast
+from re import Match
+from typing import Any, List, Optional, Set, cast
 
 from . import _meta
 from ._collections import FreezableDefaultDict, Pair
@@ -175,7 +177,7 @@ class EntryPoint:
     value: str
     group: str
 
-    dist: Optional[Distribution] = None
+    dist: Distribution | None = None
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
@@ -203,7 +205,7 @@ class EntryPoint:
         return match.group('attr')
 
     @property
-    def extras(self) -> List[str]:
+    def extras(self) -> list[str]:
         match = self.pattern.match(self.value)
         assert match is not None
         return re.findall(r'\w+', match.group('extras') or '')
@@ -305,14 +307,14 @@ class EntryPoints(tuple):
         return EntryPoints(ep for ep in self if py39.ep_matches(ep, **params))
 
     @property
-    def names(self) -> Set[str]:
+    def names(self) -> set[str]:
         """
         Return the set of all names of all entry points.
         """
         return {ep.name for ep in self}
 
     @property
-    def groups(self) -> Set[str]:
+    def groups(self) -> set[str]:
         """
         Return the set of all groups of all entry points.
         """
@@ -333,7 +335,7 @@ class EntryPoints(tuple):
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
-    hash: Optional[FileHash]
+    hash: FileHash | None
     size: int
     dist: Distribution
 
@@ -368,7 +370,7 @@ class Distribution(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def read_text(self, filename) -> Optional[str]:
+    def read_text(self, filename) -> str | None:
         """Attempt to load metadata file given by the name.
 
         Python distribution metadata is organized by blobs of text
@@ -428,7 +430,7 @@ class Distribution(metaclass=abc.ABCMeta):
 
     @classmethod
     def discover(
-        cls, *, context: Optional[DistributionFinder.Context] = None, **kwargs
+        cls, *, context: DistributionFinder.Context | None = None, **kwargs
     ) -> Iterable[Distribution]:
         """Return an iterable of Distribution objects for all packages.
 
@@ -524,7 +526,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
-    def files(self) -> Optional[List[PackagePath]]:
+    def files(self) -> list[PackagePath] | None:
         """Files in this distribution.
 
         :return: List of PackagePath for this distribution or None
@@ -616,7 +618,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return text and map('"{}"'.format, text.splitlines())
 
     @property
-    def requires(self) -> Optional[List[str]]:
+    def requires(self) -> list[str] | None:
         """Generated requirements specified for this Distribution"""
         reqs = self._read_dist_info_reqs() or self._read_egg_info_reqs()
         return reqs and list(reqs)
@@ -722,7 +724,7 @@ class DistributionFinder(MetaPathFinder):
             vars(self).update(kwargs)
 
         @property
-        def path(self) -> List[str]:
+        def path(self) -> list[str]:
             """
             The sequence of directory path that a distribution finder
             should search.
@@ -874,7 +876,7 @@ class Prepared:
     normalized = None
     legacy_normalized = None
 
-    def __init__(self, name: Optional[str]):
+    def __init__(self, name: str | None):
         self.name = name
         if name is None:
             return
@@ -944,7 +946,7 @@ class PathDistribution(Distribution):
         """
         self._path = path
 
-    def read_text(self, filename: str | os.PathLike[str]) -> Optional[str]:
+    def read_text(self, filename: str | os.PathLike[str]) -> str | None:
         with suppress(
             FileNotFoundError,
             IsADirectoryError,
@@ -1051,7 +1053,7 @@ def entry_points(**params) -> EntryPoints:
     return EntryPoints(eps).select(**params)
 
 
-def files(distribution_name: str) -> Optional[List[PackagePath]]:
+def files(distribution_name: str) -> list[PackagePath] | None:
     """Return a list of files for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1060,7 +1062,7 @@ def files(distribution_name: str) -> Optional[List[PackagePath]]:
     return distribution(distribution_name).files
 
 
-def requires(distribution_name: str) -> Optional[List[str]]:
+def requires(distribution_name: str) -> list[str] | None:
     """
     Return a list of requirements for the named package.
 
@@ -1070,7 +1072,7 @@ def requires(distribution_name: str) -> Optional[List[str]]:
     return distribution(distribution_name).requires
 
 
-def packages_distributions() -> Mapping[str, List[str]]:
+def packages_distributions() -> Mapping[str, list[str]]:
     """
     Return a mapping of top-level packages to their
     distributions.
@@ -1091,7 +1093,7 @@ def _top_level_declared(dist):
     return (dist.read_text('top_level.txt') or '').split()
 
 
-def _topmost(name: PackagePath) -> Optional[str]:
+def _topmost(name: PackagePath) -> str | None:
     """
     Return the top-most parent as long as there is a parent.
     """
