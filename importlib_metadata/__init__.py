@@ -28,7 +28,7 @@ from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
 from re import Match
-from typing import Any, List, Optional, Set, cast
+from typing import Any, cast
 
 from . import _meta
 from ._collections import FreezableDefaultDict, Pair
