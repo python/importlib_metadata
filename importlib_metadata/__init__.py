@@ -27,7 +27,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any, cast
+from typing import Any
 
 from . import _meta
 from ._collections import FreezableDefaultDict, Pair
@@ -38,6 +38,7 @@ from ._compat import (
 from ._functools import method_cache, pass_none
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import PackageMetadata, SimplePath
+from ._typing import md_none
 from .compat import py39, py311
 
 __all__ = [
@@ -511,7 +512,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
-    def metadata(self) -> _meta.PackageMetadata:
+    def metadata(self) -> _meta.PackageMetadata | None:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
@@ -521,10 +522,8 @@ class Distribution(metaclass=abc.ABCMeta):
         Custom providers may provide the METADATA file or override this
         property.
         """
-        # deferred for performance (python/cpython#109829)
-        from . import _adapters
 
-        opt_text = (
+        text = (
             self.read_text('METADATA')
             or self.read_text('PKG-INFO')
             # This last clause is here to support old egg-info files.  Its
@@ -532,13 +531,20 @@ class Distribution(metaclass=abc.ABCMeta):
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        text = cast(str, opt_text)
+        return self._assemble_message(text)
+
+    @staticmethod
+    @pass_none
+    def _assemble_message(text: str) -> _meta.PackageMetadata:
+        # deferred for performance (python/cpython#109829)
+        from . import _adapters
+
         return _adapters.Message(email.message_from_string(text))
 
     @property
     def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
-        return self.metadata['Name']
+        return md_none(self.metadata)['Name']
 
     @property
     def _normalized_name(self):
@@ -548,7 +554,7 @@ class Distribution(metaclass=abc.ABCMeta):
     @property
     def version(self) -> str:
         """Return the 'Version' metadata for the distribution package."""
-        return self.metadata['Version']
+        return md_none(self.metadata)['Version']
 
     @property
     def entry_points(self) -> EntryPoints:
@@ -1045,7 +1051,7 @@ def distributions(**kwargs) -> Iterable[Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> _meta.PackageMetadata:
+def metadata(distribution_name: str) -> _meta.PackageMetadata | None:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1120,7 +1126,7 @@ def packages_distributions() -> Mapping[str, list[str]]:
     pkg_to_dist = collections.defaultdict(list)
     for dist in distributions():
         for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
-            pkg_to_dist[pkg].append(dist.metadata['Name'])
+            pkg_to_dist[pkg].append(md_none(dist.metadata)['Name'])
     return dict(pkg_to_dist)
 
 
