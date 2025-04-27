@@ -155,6 +155,16 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         dist = Distribution.from_name('foo')
         assert dist.version == "1.0"
 
+    def test_missing_metadata(self):
+        """
+        Dists with a missing metadata file should return None.
+
+        Ref python/importlib_metadata#493.
+        """
+        fixtures.build_files(self.make_pkg('foo-4.3', files={}), self.site_dir)
+        assert Distribution.from_name('foo').metadata is None
+        assert metadata('foo') is None
+
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
