@@ -233,7 +233,7 @@ class EntryPoint:
     def extras(self) -> list[str]:
         return re.findall(r'\w+', self._match.extras or '')
 
-    @property
+    @functools.cached_property
     def _match(self) -> _EntryPointMatch:
         match = self.pattern.match(self.value)
         if not match:
