@@ -1,1 +1,0 @@
-Raise consistent ValueError for invalid EntryPoint.value

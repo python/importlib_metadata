@@ -1,1 +1,0 @@
-``.metadata()`` (and ``Distribution.metadata``) can now return ``None`` if the metadata directory exists but not metadata file is present.

@@ -1,3 +1,18 @@
+v8.7.0
+======
+
+Features
+--------
+
+- ``.metadata()`` (and ``Distribution.metadata``) can now return ``None`` if the metadata directory exists but not metadata file is present. (#493)
+
+
+Bugfixes
+--------
+
+- Raise consistent ValueError for invalid EntryPoint.value (#518)
+
+
 v8.6.1
 ======
 
