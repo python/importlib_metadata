@@ -543,7 +543,7 @@ class Distribution(metaclass=abc.ABCMeta):
     @property
     def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
-        return self.metadata['Name']
+        return cast(PackageMetadata, self.metadata)['Name']
 
     @property
     def _normalized_name(self):
@@ -553,7 +553,7 @@ class Distribution(metaclass=abc.ABCMeta):
     @property
     def version(self) -> str:
         """Return the 'Version' metadata for the distribution package."""
-        return self.metadata['Version']
+        return cast(PackageMetadata, self.metadata)['Version']
 
     @property
     def entry_points(self) -> EntryPoints:
@@ -1050,7 +1050,7 @@ def distributions(**kwargs) -> Iterable[Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> _meta.PackageMetadata:
+def metadata(distribution_name: str) -> _meta.PackageMetadata | None:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1125,7 +1125,7 @@ def packages_distributions() -> Mapping[str, list[str]]:
     pkg_to_dist = collections.defaultdict(list)
     for dist in distributions():
         for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
-            pkg_to_dist[pkg].append(dist.metadata['Name'])
+            pkg_to_dist[pkg].append(cast(PackageMetadata, dist.metadata)['Name'])
     return dict(pkg_to_dist)
 
 

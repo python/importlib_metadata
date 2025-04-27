@@ -4,13 +4,15 @@ Compatibility layer with Python 3.8/3.9
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     # Prevent circular imports on runtime.
     from .. import Distribution, EntryPoint
 else:
     Distribution = EntryPoint = Any
+
+from .._meta import PackageMetadata
 
 
 def normalized_name(dist: Distribution) -> str | None:
@@ -22,7 +24,9 @@ def normalized_name(dist: Distribution) -> str | None:
     except AttributeError:
         from .. import Prepared  # -> delay to prevent circular imports.
 
-        return Prepared.normalize(getattr(dist, "name", None) or dist.metadata['Name'])
+        return Prepared.normalize(
+            getattr(dist, "name", None) or cast(PackageMetadata, dist.metadata)['Name']
+        )
 
 
 def ep_matches(ep: EntryPoint, **params) -> bool:
