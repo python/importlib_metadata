@@ -27,7 +27,6 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from re import Match
 from typing import Any, cast
 
 from . import _meta
@@ -135,6 +134,12 @@ class Sectioned:
         return line and not line.startswith('#')
 
 
+class _EntryPointMatch(types.SimpleNamespace):
+    module: str
+    attr: str
+    extras: str
+
+
 class EntryPoint:
     """An entry point as defined by Python packaging conventions.
 
@@ -150,6 +155,30 @@ class EntryPoint:
     'attr'
     >>> ep.extras
     ['extra1', 'extra2']
+
+    If the value package or module are not valid identifiers, a
+    ValueError is raised on access.
+
+    >>> EntryPoint(name=None, group=None, value='invalid-name').module
+    Traceback (most recent call last):
+    ...
+    ValueError: ('Invalid object reference...invalid-name...
+    >>> EntryPoint(name=None, group=None, value='invalid-name').attr
+    Traceback (most recent call last):
+    ...
+    ValueError: ('Invalid object reference...invalid-name...
+    >>> EntryPoint(name=None, group=None, value='invalid-name').extras
+    Traceback (most recent call last):
+    ...
+    ValueError: ('Invalid object reference...invalid-name...
+
+    The same thing happens on construction.
+
+    >>> EntryPoint(name=None, group=None, value='invalid-name')
+    Traceback (most recent call last):
+    ...
+    ValueError: ('Invalid object reference...invalid-name...
+
     """
 
     pattern = re.compile(
@@ -181,34 +210,40 @@ class EntryPoint:
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
+        self.module
 
     def load(self) -> Any:
         """Load the entry point from its definition. If only a module
         is indicated by the value, return that module. Otherwise,
         return the named object.
         """
-        match = cast(Match, self.pattern.match(self.value))
-        module = import_module(match.group('module'))
-        attrs = filter(None, (match.group('attr') or '').split('.'))
+        module = import_module(self.module)
+        attrs = filter(None, (self.attr or '').split('.'))
         return functools.reduce(getattr, attrs, module)
 
     @property
     def module(self) -> str:
-        match = self.pattern.match(self.value)
-        assert match is not None
-        return match.group('module')
+        return self._match.module
 
     @property
     def attr(self) -> str:
-        match = self.pattern.match(self.value)
-        assert match is not None
-        return match.group('attr')
+        return self._match.attr
 
     @property
     def extras(self) -> list[str]:
+        return re.findall(r'\w+', self._match.extras or '')
+
+    @functools.cached_property
+    def _match(self) -> _EntryPointMatch:
         match = self.pattern.match(self.value)
-        assert match is not None
-        return re.findall(r'\w+', match.group('extras') or '')
+        if not match:
+            raise ValueError(
+                'Invalid object reference. '
+                'See https://packaging.python.org'
+                '/en/latest/specifications/entry-points/#data-model',
+                self.value,
+            )
+        return _EntryPointMatch(**match.groupdict())
 
     def _for(self, dist):
         vars(self).update(dist=dist)
