@@ -27,7 +27,6 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from re import Match
 from typing import Any, cast
 
 from . import _meta
@@ -135,6 +134,12 @@ class Sectioned:
         return line and not line.startswith('#')
 
 
+class _EntryPointMatch(types.SimpleNamespace):
+    module: str
+    attr: str
+    extras: str
+
+
 class EntryPoint:
     """An entry point as defined by Python packaging conventions.
 
@@ -187,28 +192,27 @@ class EntryPoint:
         is indicated by the value, return that module. Otherwise,
         return the named object.
         """
-        match = cast(Match, self.pattern.match(self.value))
-        module = import_module(match.group('module'))
-        attrs = filter(None, (match.group('attr') or '').split('.'))
+        module = import_module(self.module)
+        attrs = filter(None, (self.attr or '').split('.'))
         return functools.reduce(getattr, attrs, module)
 
     @property
     def module(self) -> str:
-        match = self.pattern.match(self.value)
-        assert match is not None
-        return match.group('module')
+        return self._match.module
 
     @property
     def attr(self) -> str:
-        match = self.pattern.match(self.value)
-        assert match is not None
-        return match.group('attr')
+        return self._match.attr
 
     @property
     def extras(self) -> list[str]:
+        return re.findall(r'\w+', self._match.extras or '')
+
+    @property
+    def _match(self) -> _EntryPointMatch:
         match = self.pattern.match(self.value)
         assert match is not None
-        return re.findall(r'\w+', match.group('extras') or '')
+        return _EntryPointMatch(**match.groupdict())
 
     def _for(self, dist):
         vars(self).update(dist=dist)
