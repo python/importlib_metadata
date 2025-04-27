@@ -2,7 +2,9 @@
 Compatibility layer with Python 3.8/3.9
 """
 
-from typing import TYPE_CHECKING, Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:  # pragma: no cover
     # Prevent circular imports on runtime.
@@ -11,7 +13,7 @@ else:
     Distribution = EntryPoint = Any
 
 
-def normalized_name(dist: Distribution) -> Optional[str]:
+def normalized_name(dist: Distribution) -> str | None:
     """
     Honor name normalization for distributions that don't provide ``_normalized_name``.
     """
