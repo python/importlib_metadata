@@ -4,7 +4,7 @@ Compatibility layer with Python 3.8/3.9
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:  # pragma: no cover
     # Prevent circular imports on runtime.
@@ -12,7 +12,7 @@ if TYPE_CHECKING:  # pragma: no cover
 else:
     Distribution = EntryPoint = Any
 
-from .._meta import PackageMetadata
+from .._typing import md_none
 
 
 def normalized_name(dist: Distribution) -> str | None:
@@ -25,7 +25,7 @@ def normalized_name(dist: Distribution) -> str | None:
         from .. import Prepared  # -> delay to prevent circular imports.
 
         return Prepared.normalize(
-            getattr(dist, "name", None) or cast(PackageMetadata, dist.metadata)['Name']
+            getattr(dist, "name", None) or md_none(dist.metadata)['Name']
         )
 
 
