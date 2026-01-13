@@ -20,7 +20,7 @@ from importlib_metadata import (
 
 from . import fixtures
 from ._path import Symlink
-from .compat.py39 import os_helper
+from .fixtures import os_helper
 
 
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):

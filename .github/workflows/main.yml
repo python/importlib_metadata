@@ -34,15 +34,13 @@ jobs:
       # https://blog.jaraco.com/efficient-use-of-ci-resources/
       matrix:
         python:
-        - "3.9"
+        - "3.10"
         - "3.13"
         platform:
         - ubuntu-latest
         - macos-latest
         - windows-latest
         include:
-        - python: "3.10"
-          platform: ubuntu-latest
         - python: "3.11"
           platform: ubuntu-latest
         - python: "3.12"
