@@ -3,6 +3,7 @@ build
 /diffcov.html
 htmlcov
 importlib_metadata.egg-info
+__pycache__/
 .mypy_cache
 /.coverage
 /.DS_Store

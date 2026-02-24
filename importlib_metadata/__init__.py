@@ -45,6 +45,7 @@ __all__ = [
     'Distribution',
     'DistributionFinder',
     'PackageMetadata',
+    'PackagePath',
     'PackageNotFoundError',
     'SimplePath',
     'distribution',
