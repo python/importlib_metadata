@@ -35,6 +35,7 @@ from ._compat import (
     NullFinder,
     install,
 )
+from ._context import ExceptionTrap
 from ._functools import method_cache, noop, pass_none, passthrough
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import PackageMetadata, SimplePath
@@ -496,11 +497,9 @@ class Distribution(metaclass=abc.ABCMeta):
         Ref python/importlib_resources#489.
         """
 
-        def has_metadata(dist: Distribution) -> bool:
-            with suppress(MetadataNotFound):
-                dist.metadata
-                return True
-            return False
+        has_metadata = ExceptionTrap(MetadataNotFound).passes(
+            operator.attrgetter('metadata')
+        )
 
         buckets = bucket(dists, has_metadata)
         return itertools.chain(buckets[True], buckets[False])

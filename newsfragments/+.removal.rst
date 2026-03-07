@@ -1,1 +1,2 @@
 - Removed the internal ``md_none`` typing helper since ``Distribution.metadata`` now always returns ``PackageMetadata`` and raises ``MetadataNotFound`` when absent (python/cpython#143387).
+- Vendored ``ExceptionTrap`` from ``jaraco.context`` (as ``_context``) and now rely on its ``passes`` helper when checking for missing metadata, keeping behavior aligned without adding dependencies.
