@@ -1,0 +1,1 @@
+- Removed the internal ``md_none`` typing helper since ``Distribution.metadata`` now always returns ``PackageMetadata`` and raises ``MetadataNotFound`` when absent (python/cpython#143387).

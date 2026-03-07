@@ -12,8 +12,6 @@ if TYPE_CHECKING:  # pragma: no cover
 else:
     Distribution = EntryPoint = Any
 
-from .._typing import md_none
-
 
 def normalized_name(dist: Distribution) -> str | None:
     """
@@ -24,9 +22,7 @@ def normalized_name(dist: Distribution) -> str | None:
     except AttributeError:
         from .. import Prepared  # -> delay to prevent circular imports.
 
-        return Prepared.normalize(
-            getattr(dist, "name", None) or md_none(dist.metadata)['Name']
-        )
+        return Prepared.normalize(getattr(dist, "name", None) or dist.metadata['Name'])
 
 
 def ep_matches(ep: EntryPoint, **params) -> bool:
