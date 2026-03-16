@@ -87,4 +87,6 @@ nitpick_ignore += [
     ('py:class', 'importlib_metadata._meta._T'),
     # Workaround for #435
     ('py:class', '_T'),
+    # encountered in #505
+    ('py:class', 'importlib_metadata.FileHash'),
 ]

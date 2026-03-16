@@ -29,24 +29,32 @@ from importlib.abc import MetaPathFinder
 from itertools import starmap
 from typing import Any
 
-from . import _meta
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
     NullFinder,
     install,
+    localize,
 )
-from ._functools import method_cache, noop, pass_none, passthrough
+from ._functools import apply, compose, method_cache, noop, pass_none, passthrough
 from ._itertools import always_iterable, bucket, unique_everseen
-from ._meta import PackageMetadata, SimplePath
+from ._meta import (
+    IDistribution,
+    IPackagePath,
+    PackageMetadata,
+    SimplePath,
+)
 from ._typing import md_none
 from .compat import py39, py311
 
 __all__ = [
     'Distribution',
     'DistributionFinder',
+    'IDistribution',
     'PackageMetadata',
     'PackageNotFoundError',
     'SimplePath',
+    'PackagePath',
+    'IPackagePath',
     'distribution',
     'distributions',
     'entry_points',
@@ -207,7 +215,7 @@ class EntryPoint:
     value: str
     group: str
 
-    dist: Distribution | None = None
+    dist: IDistribution | None = None
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
@@ -373,7 +381,7 @@ class PackagePath(pathlib.PurePosixPath):
 
     hash: FileHash | None
     size: int
-    dist: Distribution
+    dist: IDistribution
 
     def read_text(self, encoding: str = 'utf-8') -> str:
         return self.locate().read_text(encoding=encoding)
@@ -447,6 +455,7 @@ class Distribution(metaclass=abc.ABCMeta):
         """
 
     @classmethod
+    @apply(localize.dist)
     def from_name(cls, name: str) -> Distribution:
         """Return the Distribution for the given package name.
 
@@ -465,6 +474,7 @@ class Distribution(metaclass=abc.ABCMeta):
             raise PackageNotFoundError(name)
 
     @classmethod
+    @apply(functools.partial(map, localize.dist))
     def discover(
         cls, *, context: DistributionFinder.Context | None = None, **kwargs
     ) -> Iterable[Distribution]:
@@ -512,7 +522,8 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
-    def metadata(self) -> _meta.PackageMetadata | None:
+    @apply(pass_none(localize.message))
+    def metadata(self) -> PackageMetadata | None:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
@@ -535,7 +546,7 @@ class Distribution(metaclass=abc.ABCMeta):
 
     @staticmethod
     @pass_none
-    def _assemble_message(text: str) -> _meta.PackageMetadata:
+    def _assemble_message(text: str) -> PackageMetadata:
         # deferred for performance (python/cpython#109829)
         from . import _adapters
 
@@ -567,10 +578,11 @@ class Distribution(metaclass=abc.ABCMeta):
         return EntryPoints._from_text_for(self.read_text('entry_points.txt'), self)
 
     @property
-    def files(self) -> list[PackagePath] | None:
+    @apply(pass_none(compose(list, functools.partial(map, localize.package_path))))
+    def files(self) -> list[IPackagePath] | None:
         """Files in this distribution.
 
-        :return: List of PackagePath for this distribution or None
+        :return: List of PackagePath-like objects for this distribution or None
 
         Result is `None` if the metadata file that enumerates files
         (i.e. RECORD for dist-info, or installed-files.txt or
@@ -1050,7 +1062,7 @@ class PathDistribution(Distribution):
         return name
 
 
-def distribution(distribution_name: str) -> Distribution:
+def distribution(distribution_name: str) -> IDistribution:
     """Get the ``Distribution`` instance for the named package.
 
     :param distribution_name: The name of the distribution package as a string.
@@ -1059,7 +1071,7 @@ def distribution(distribution_name: str) -> Distribution:
     return Distribution.from_name(distribution_name)
 
 
-def distributions(**kwargs) -> Iterable[Distribution]:
+def distributions(**kwargs) -> Iterable[IDistribution]:
     """Get all ``Distribution`` instances in the current environment.
 
     :return: An iterable of ``Distribution`` instances.
@@ -1067,7 +1079,7 @@ def distributions(**kwargs) -> Iterable[Distribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> _meta.PackageMetadata | None:
+def metadata(distribution_name: str) -> PackageMetadata | None:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1110,7 +1122,7 @@ def entry_points(**params) -> EntryPoints:
     return EntryPoints(eps).select(**params)
 
 
-def files(distribution_name: str) -> list[PackagePath] | None:
+def files(distribution_name: str) -> list[IPackagePath] | None:
     """Return a list of files for the named package.
 
     :param distribution_name: The name of the distribution package to query.
@@ -1150,7 +1162,7 @@ def _top_level_declared(dist):
     return (dist.read_text('top_level.txt') or '').split()
 
 
-def _topmost(name: PackagePath) -> str | None:
+def _topmost(name: IPackagePath) -> str | None:
     """
     Return the top-most parent as long as there is a parent.
     """
@@ -1158,7 +1170,7 @@ def _topmost(name: PackagePath) -> str | None:
     return top if rest else None
 
 
-def _get_toplevel_name(name: PackagePath) -> str:
+def _get_toplevel_name(name: IPackagePath) -> str:
     """
     Infer a possibly importable module name from a name presumed on
     sys.path.

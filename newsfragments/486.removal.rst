@@ -1,0 +1,1 @@
+When providers supply objects from ``importlib.metadata``, they are now adapted to the classes from ``importlib_metadata``.

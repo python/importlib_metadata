@@ -1,0 +1,1 @@
+Added ``IDistribution`` and ``IPackagePath`` protocols so consumers can target a stable, shared interface across ``importlib.metadata`` and ``importlib_metadata``.
