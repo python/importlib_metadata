@@ -8,15 +8,11 @@ import sys
 import textwrap
 from importlib import resources
 
-from jaraco.test.cpython import from_test_support, try_import
+from test.support import os_helper  # type: ignore[import-untyped]
 
 from . import _path
 from ._path import FilesSpec
 from .compat.py312 import import_helper
-
-os_helper = try_import('os_helper') or from_test_support(
-    'FS_NONASCII', 'skip_unless_symlink', 'temp_dir'
-)
 
 
 @contextlib.contextmanager
