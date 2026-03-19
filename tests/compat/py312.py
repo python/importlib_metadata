@@ -1,6 +1,6 @@
 import contextlib
 
-from test.support import import_helper
+from test.support import import_helper  # type: ignore[import-untyped]
 
 
 @contextlib.contextmanager
