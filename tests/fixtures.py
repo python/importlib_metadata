@@ -8,9 +8,10 @@ import sys
 import textwrap
 from importlib import resources
 
+from test.support import os_helper
+
 from . import _path
 from ._path import FilesSpec
-from .compat.py39 import os_helper
 from .compat.py312 import import_helper
 
 
