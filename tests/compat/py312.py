@@ -1,10 +1,6 @@
 import contextlib
 
-from jaraco.test.cpython import from_test_support, try_import
-
-import_helper = try_import('import_helper') or from_test_support(
-    'modules_setup', 'modules_cleanup'
-)
+from test.support import import_helper
 
 
 @contextlib.contextmanager
