@@ -8,7 +8,7 @@ import sys
 import textwrap
 from importlib import resources
 
-from test.support import os_helper  # type: ignore[import-untyped]
+from test.support import os_helper
 
 from . import _path
 from ._path import FilesSpec
