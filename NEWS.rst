@@ -1,14 +1,3 @@
-v8.8.0
-======
-
-Features
---------
-
-- Added ``MetadataNotFound`` (subclass of ``FileNotFoundError``) and updated
-  ``Distribution.metadata``/``metadata()`` to raise it when the metadata files
-  are missing instead of returning ``None`` (python/cpython#143387).
-
-
 v8.7.1
 ======
 
