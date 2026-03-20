@@ -4,6 +4,7 @@ import re
 import unittest
 
 import pyfakefs.fake_filesystem_unittest as ffs
+from test.support import os_helper
 
 import importlib_metadata
 from importlib_metadata import (
@@ -21,7 +22,6 @@ from importlib_metadata import (
 
 from . import fixtures
 from ._path import Symlink
-from .compat.py39 import os_helper
 
 
 class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):

@@ -1,3 +1,12 @@
+v8.8.0
+======
+
+Features
+--------
+
+- Removed Python 3.9 compatibility.
+
+
 v8.7.1
 ======
 
