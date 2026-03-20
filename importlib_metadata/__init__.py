@@ -46,6 +46,7 @@ __all__ = [
     'DistributionFinder',
     'PackageMetadata',
     'PackageNotFoundError',
+    'PackagePath',
     'MetadataNotFound',
     'SimplePath',
     'distribution',
@@ -467,7 +468,7 @@ class Distribution(metaclass=abc.ABCMeta):
         try:
             return next(iter(cls._prefer_valid(cls.discover(name=name))))
         except StopIteration:
-            raise PackageNotFoundError(name)
+            raise PackageNotFoundError(name) from None
 
     @classmethod
     def discover(
@@ -961,8 +962,15 @@ class Prepared:
     def normalize(name):
         """
         PEP 503 normalization plus dashes as underscores.
+
+        Specifically avoids ``re.sub`` as prescribed for performance
+        benefits (see python/cpython#143658).
         """
-        return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
+        value = name.lower().replace("-", "_").replace(".", "_")
+        # Condense repeats
+        while "__" in value:
+            value = value.replace("__", "_")
+        return value
 
     @staticmethod
     def legacy_normalize(name):
