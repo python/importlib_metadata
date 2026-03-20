@@ -636,7 +636,8 @@ class Distribution(metaclass=abc.ABCMeta):
             return
 
         paths = (
-            py311.relative_fix((subdir / name).resolve())
+            py311
+            .relative_fix((subdir / name).resolve())
             .relative_to(self.locate_file('').resolve(), walk_up=True)
             .as_posix()
             for name in text.splitlines()
@@ -928,10 +929,12 @@ class Prepared:
     def normalize(name):
         """
         PEP 503 normalization plus dashes as underscores.
+
+        Specifically avoids ``re.sub`` as prescribed for performance
+        benefits (see python/cpython#143658).
         """
-        # Much faster than re.sub, and even faster than str.translate
         value = name.lower().replace("-", "_").replace(".", "_")
-        # Condense repeats (faster than regex)
+        # Condense repeats
         while "__" in value:
             value = value.replace("__", "_")
         return value
