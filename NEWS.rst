@@ -1,3 +1,12 @@
+v8.9.0
+======
+
+Features
+--------
+
+- Ported changes from CPython (python/cpython#110937, python/cpython#140141, python/cpython#143658)
+
+
 v8.8.0
 ======
 
