@@ -45,3 +45,10 @@ def entrypoint_regexp_perf():
     input = '0' + ' ' * 2**10 + '0'  # end warmup
 
     re.match(importlib_metadata.EntryPoint.pattern, input)
+
+
+def normalize_perf():
+    # python/cpython#143658
+    import importlib_metadata  # end warmup
+
+    importlib_metadata.Prepared.normalize('sample')
