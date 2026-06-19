@@ -1,4 +1,5 @@
 import importlib
+import pathlib
 import re
 import textwrap
 import unittest
@@ -6,6 +7,8 @@ import unittest
 from importlib_metadata import (
     Distribution,
     PackageNotFoundError,
+    PackagePath,
+    PathDistribution,
     Prepared,
     distribution,
     entry_points,
@@ -191,6 +194,14 @@ class APITests(
 
     def test_files_dist_info(self):
         self._test_files(files('distinfo-pkg'))
+
+    def test_locate_file_with_windows_absolute_path(self):
+        dist = PathDistribution(pathlib.PureWindowsPath('C:/site/sample-1.0.dist-info'))
+        path = PackagePath('C:/venv/Scripts/sample.exe')
+
+        assert dist.locate_file(path) == pathlib.PureWindowsPath(
+            'C:/venv/Scripts/sample.exe'
+        )
 
     def test_files_egg_info(self):
         self._test_files(files('egginfo-pkg'))
