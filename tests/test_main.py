@@ -2,6 +2,7 @@ import importlib
 import pickle
 import re
 import unittest
+from unittest import mock
 
 import pyfakefs.fake_filesystem_unittest as ffs
 from test.support import os_helper
@@ -167,6 +168,38 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
             Distribution.from_name('foo').metadata
         with self.assertRaises(MetadataNotFound):
             metadata('foo')
+
+    def test_entry_points_prefer_valid_distribution(self):
+        """
+        Entry points should be exposed from the valid distribution when an
+        empty dist-info directory for the same name is discovered first.
+
+        Ref python/importlib_metadata#534.
+        """
+        fixtures.build_files(self.make_pkg('foo-0.9', files={}), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg(
+                'foo-1.0',
+                files={
+                    "METADATA": """
+                    Name: foo
+                    Version: 1.0
+                    """,
+                    "entry_points.txt": """
+                    [entries]
+                    main = mod:main
+                    """,
+                },
+            ),
+            self.site_dir,
+        )
+        dists = [
+            Distribution.at(self.site_dir / 'foo-0.9.dist-info'),
+            Distribution.at(self.site_dir / 'foo-1.0.dist-info'),
+        ]
+        with mock.patch.object(importlib_metadata, 'distributions', return_value=dists):
+            entries = importlib_metadata.entry_points(group='entries')
+        assert entries['main'].value == 'mod:main'
 
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
