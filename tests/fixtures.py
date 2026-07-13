@@ -126,6 +126,21 @@ class DistInfoPkgEditable(DistInfoPkg):
     }
 
 
+class DistInfoPkgEditableDirInfo(DistInfoPkg):
+    """
+    Package installed as editable from a local directory (:pep:`660`).
+    """
+
+    files: FilesSpec = {
+        'distinfo_pkg-1.0.0.dist-info': {
+            'direct_url.json': json.dumps({
+                "dir_info": {"editable": True},
+                "url": "file:///path/to/distinfo_pkg",
+            })
+        },
+    }
+
+
 class DistInfoPkgWithDot(OnSysPath, SiteBuilder):
     files: FilesSpec = {
         "pkg_dot-1.0.0.dist-info": {

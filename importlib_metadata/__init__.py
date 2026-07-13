@@ -51,6 +51,7 @@ __all__ = [
     'SimplePath',
     'distribution',
     'distributions',
+    'editable',
     'entry_points',
     'files',
     'metadata',
@@ -733,6 +734,18 @@ class Distribution(metaclass=abc.ABCMeta):
     def origin(self):
         return self._load_json('direct_url.json')
 
+    @property
+    def editable(self) -> bool:
+        """
+        Whether the distribution is an editable install (:pep:`660`).
+
+        Reads ``dir_info.editable`` from the :pep:`610` ``direct_url.json``,
+        defaulting to ``False`` when there is no origin or the package was
+        not installed from a local directory.
+        """
+        dir_info = getattr(self.origin, 'dir_info', None)
+        return bool(getattr(dir_info, 'editable', False))
+
     def _load_json(self, filename):
         # Deferred for performance (python/importlib_metadata#503)
         import json
@@ -1110,6 +1123,15 @@ def version(distribution_name: str) -> str:
         "Version" metadata key.
     """
     return distribution(distribution_name).version
+
+
+def editable(distribution_name: str) -> bool:
+    """Return whether the named distribution is an editable install.
+
+    :param distribution_name: The name of the distribution package to query.
+    :return: True if the package is installed in editable mode (:pep:`660`).
+    """
+    return distribution(distribution_name).editable
 
 
 _unique = functools.partial(

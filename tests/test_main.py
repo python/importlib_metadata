@@ -489,3 +489,23 @@ class EditableDistributionTest(fixtures.DistInfoPkgEditable, unittest.TestCase):
         dist = Distribution.from_name('distinfo-pkg')
         assert dist.origin.url.endswith('.whl')
         assert dist.origin.archive_info.hashes.sha256
+
+    def test_not_editable_from_archive(self):
+        # An origin without dir_info (here an archive) is not editable.
+        assert Distribution.from_name('distinfo-pkg').editable is False
+        assert importlib_metadata.editable('distinfo-pkg') is False
+
+
+class EditableDirInfoDistributionTest(
+    fixtures.DistInfoPkgEditableDirInfo, unittest.TestCase
+):
+    def test_editable(self):
+        assert Distribution.from_name('distinfo-pkg').editable is True
+        assert importlib_metadata.editable('distinfo-pkg') is True
+
+
+class NonEditableDistributionTest(fixtures.DistInfoPkg, unittest.TestCase):
+    def test_not_editable_without_origin(self):
+        # No direct_url.json means no origin, so not editable.
+        assert Distribution.from_name('distinfo-pkg').editable is False
+        assert importlib_metadata.editable('distinfo-pkg') is False
