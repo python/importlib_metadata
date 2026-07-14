@@ -339,7 +339,7 @@ class EntryPoints(tuple):
         Repr with classname and tuple constructor to
         signal that we deviate from regular tuple behavior.
         """
-        return '%s(%r)' % (self.__class__.__name__, tuple(self))
+        return f'{self.__class__.__name__}({tuple(self)!r})'
 
     def select(self, **params) -> EntryPoints:
         """
@@ -836,7 +836,7 @@ class FastPath:
     """
 
     @_clear_after_fork  # type: ignore[misc]
-    @functools.lru_cache()
+    @functools.lru_cache
     def __new__(cls, root):
         return super().__new__(cls)
 
