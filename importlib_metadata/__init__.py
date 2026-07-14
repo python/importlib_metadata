@@ -962,15 +962,8 @@ class Prepared:
     def normalize(name):
         """
         PEP 503 normalization plus dashes as underscores.
-
-        Specifically avoids ``re.sub`` as prescribed for performance
-        benefits (see python/cpython#143658).
         """
-        value = name.lower().replace("-", "_").replace(".", "_")
-        # Condense repeats
-        while "__" in value:
-            value = value.replace("__", "_")
-        return value
+        return re.sub(r"[-_.]+", "-", name).lower().replace('-', '_')
 
     @staticmethod
     def legacy_normalize(name):
