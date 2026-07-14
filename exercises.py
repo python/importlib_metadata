@@ -51,7 +51,4 @@ def normalize_perf():
     # python/cpython#143658
     import importlib_metadata  # end warmup
 
-    # operation completes in < 1ms, so repeat it to get visibility
-    # https://github.com/jaraco/pytest-perf/issues/12
-    for _ in range(1000):
-        importlib_metadata.Prepared.normalize('sample')
+    importlib_metadata.Prepared.normalize('sample')
