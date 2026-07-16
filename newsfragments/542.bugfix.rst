@@ -1,0 +1,1 @@
+Marked the ``other`` parameter of ``SimplePath.joinpath`` and ``SimplePath.__truediv__`` positional-only, so ``pathlib.Path`` satisfies the protocol under type checkers that compare parameter names.
