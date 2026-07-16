@@ -1121,6 +1121,21 @@ Wrapper for ``distributions`` to return unique distributions by name.
 """
 
 
+def _unique_valid(dists: Iterable[Distribution]) -> Iterable[Distribution]:
+    """
+    Return unique distributions, preferring valid metadata for duplicates.
+    """
+    has_metadata = ExceptionTrap(MetadataNotFound).passes(operator.attrgetter('metadata'))
+    unique: dict[str, Distribution] = {}
+    for dist in dists:
+        name = dist._normalized_name
+        if name not in unique:
+            unique[name] = dist
+        elif not has_metadata(unique[name]) and has_metadata(dist):
+            unique[name] = dist
+    return unique.values()
+
+
 def entry_points(**params) -> EntryPoints:
     """Return EntryPoint objects for all installed packages.
 
@@ -1131,7 +1146,7 @@ def entry_points(**params) -> EntryPoints:
     :return: EntryPoints for all installed packages.
     """
     eps = itertools.chain.from_iterable(
-        dist.entry_points for dist in _unique(distributions())
+        dist.entry_points for dist in _unique_valid(distributions())
     )
     return EntryPoints(eps).select(**params)
 
