@@ -38,7 +38,7 @@ test = [
 	# local
 	"packaging",
 	"pyfakefs",
-	"pytest-perf >= 0.16",
+	"pytest-perf >= 0.17",
 ]
 
 doc = [

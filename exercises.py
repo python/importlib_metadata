@@ -52,3 +52,8 @@ def normalize_perf():
     import importlib_metadata  # end warmup
 
     importlib_metadata.Prepared.normalize('sample')
+
+
+def import_time():
+    "import"
+    import importlib_metadata  # noqa: F401
