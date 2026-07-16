@@ -1043,7 +1043,7 @@ class PathDistribution(Distribution):
     read_text.__doc__ = Distribution.read_text.__doc__
 
     def locate_file(self, path: str | os.PathLike[str]) -> SimplePath:
-        return self._path.parent / path
+        return self._path.parent / os.fspath(path)
 
     @property
     def _normalized_name(self):
