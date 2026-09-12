@@ -1,0 +1,1 @@
+Added ``Distribution.editable`` property and top-level ``editable()`` function reporting whether a distribution is an editable install (:pep:`660`).
