@@ -281,6 +281,29 @@ class APITests(
         assert len(md['requires_dist']) == 2
         assert md['keywords'] == ['SAMPLE', 'PACKAGE']
 
+    @fixtures.parameterize(
+        dict(key='License-File', values=['LICENSE', 'NOTICE']),
+        dict(key='Import-Name', values=['example', '_example ; private']),
+        dict(key='Import-Namespace', values=['example', 'another']),
+        dict(key='Import-Name', values=['']),
+    )
+    def test_as_json_recent_multiple_use_fields(self, key, values):
+        for count in range(1, len(values) + 1):
+            with self.subTest(count=count):
+                selected = values[:count]
+                headers = '\n'.join(
+                    f'{key if index == 0 else key.upper()}: {value}'
+                    for index, value in enumerate(selected)
+                )
+                content = (
+                    'Metadata-Version: 2.5\nName: distinfo-pkg\nVersion: 1.0.0\n'
+                    + headers
+                )
+                path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info' / 'METADATA'
+                path.write_text(content, encoding='utf-8')
+                md = metadata('distinfo-pkg').json
+                assert md[key.lower().replace('-', '_')] == selected
+
 
 class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
     def test_name_normalization(self):
