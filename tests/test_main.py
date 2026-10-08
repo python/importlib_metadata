@@ -169,6 +169,19 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         with self.assertRaises(MetadataNotFound):
             metadata('foo')
 
+    def test_missing_name_metadata(self):
+        """
+        Dists with metadata but no Name should raise a KeyError
+        with a useful message identifying the distribution.
+
+        Ref python/importlib_metadata#508.
+        """
+        fixtures.build_files(self.make_pkg('foo-4.4'), self.site_dir)
+        dist = Distribution.at(self.site_dir / 'foo-4.4.dist-info')
+        with self.assertRaises(KeyError) as ctx:
+            dist.name
+        assert 'foo-4.4.dist-info' in str(ctx.exception)
+
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod

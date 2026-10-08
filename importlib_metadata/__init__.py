@@ -563,7 +563,12 @@ class Distribution(metaclass=abc.ABCMeta):
     @property
     def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
-        return self.metadata['Name']
+        try:
+            return self.metadata['Name']
+        except KeyError:
+            raise KeyError(
+                f'No Name metadata found for {getattr(self, "_path", self)}'
+            ) from None
 
     @property
     def _normalized_name(self):
