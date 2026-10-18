@@ -1,0 +1,2 @@
+Defer validation of invalid ``EntryPoint.value`` values until their components
+are accessed or they are loaded.

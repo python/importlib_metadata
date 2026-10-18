@@ -179,9 +179,10 @@ class EntryPoint:
     ...
     ValueError: ('Invalid object reference...invalid-name...
 
-    The same thing happens on construction.
+    The invalid value is stored during construction and raises when accessed
+    or loaded.
 
-    >>> EntryPoint(name=None, group=None, value='invalid-name')
+    >>> EntryPoint(name=None, group=None, value='invalid-name').load()
     Traceback (most recent call last):
     ...
     ValueError: ('Invalid object reference...invalid-name...
@@ -217,8 +218,6 @@ class EntryPoint:
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
-        # resolve the value now, raising ValueError if it's invalid
-        _ = self.module
 
     def load(self) -> Any:
         """Load the entry point from its definition. If only a module

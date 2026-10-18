@@ -132,6 +132,34 @@ class APITests(
     def test_entry_points_missing_group(self):
         assert entry_points(group='missing') == ()
 
+    def test_entry_points_with_invalid_value_in_unselected_group(self):
+        alt_site_dir = self.fixtures.enter_context(fixtures.tmp_path())
+        self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
+        pkg = {
+            "invalid-entry-points-1.0.dist-info": {
+                "METADATA": """
+                Name: invalid-entry-points
+                Version: 1.0.0
+                """,
+                "entry_points.txt": textwrap.dedent(
+                    """
+                    [selected]
+                    valid = importlib_metadata:EntryPoint
+
+                    [unselected]
+                    invalid = invalid-name
+                    """
+                ),
+            },
+        }
+        fixtures.build_files(pkg, alt_site_dir)
+
+        entries = entry_points(group='selected')
+
+        self.assertEqual([ep.name for ep in entries], ['valid'])
+        with self.assertRaises(ValueError):
+            entry_points(group='unselected')['invalid'].load()
+
     def test_entry_points_allows_no_attributes(self):
         ep = entry_points().select(group='entries', name='main')
         with self.assertRaises(AttributeError):
