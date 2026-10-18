@@ -1,0 +1,1 @@
+Document the legacy ``top_level.txt`` dependency and fallback behavior of ``packages_distributions()``.
