@@ -1,0 +1,1 @@
+Return ``License-File``, ``Import-Name``, and ``Import-Namespace`` as lists in JSON-compatible metadata, including when only one value is present, and retain all repeated values as required by PEP 566.
