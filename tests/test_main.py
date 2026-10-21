@@ -189,6 +189,76 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         assert 'nameless-1.0.dist-info (metadata without a name)' in report
 
 
+class MultipleVersionsTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
+    """
+    An unclean upgrade can leave more than one metadata directory for a
+    distribution in one path. Prefer the greater one.
+
+    Ref python/cpython#100666.
+    """
+
+    # Deliberately not in version order; the preference follows the
+    # lexicographic ordering of the directory names, which only
+    # approximates the ordering of the versions they name.
+    versions = '1.12.1', '1.13.1', '1.9.0', '2.0.0'
+    expected = '2.0.0', '1.9.0', '1.13.1', '1.12.1'
+
+    @staticmethod
+    def make_pkg(name, version, files=None):
+        """
+        Create metadata for a dist-info package at the indicated version.
+        """
+        return {
+            f'{name}-{version}.dist-info': (
+                {'METADATA': f'Name: {name}\nVersion: {version}\n'}
+                if files is None
+                else files
+            ),
+        }
+
+    def build_versions(self, *versions):
+        for ver in versions:
+            fixtures.build_files(self.make_pkg('foo', ver), self.site_dir)
+
+    def test_greater_version_preferred(self):
+        """
+        Retrieving by name resolves to the greater version.
+        """
+        self.build_versions(*self.versions)
+        assert version('foo') == self.expected[0]
+
+    def test_discovery_order(self):
+        """
+        Preferring one version doesn't hide the others from discovery,
+        which reports them greatest first.
+        """
+        self.build_versions(*self.versions)
+        found = tuple(dist.version for dist in Distribution.discover(name='foo'))
+        assert found == self.expected
+
+    def test_greater_version_preferred_in_eggs(self):
+        """
+        Legacy egg-info metadata gets the same preference.
+        """
+        fixtures.build_files(
+            {
+                f'foo-{ver}.egg-info': {'PKG-INFO': f'Name: foo\nVersion: {ver}\n'}
+                for ver in self.versions
+            },
+            self.site_dir,
+        )
+        assert version('foo') == self.expected[0]
+
+    def test_validity_preferred_to_version(self):
+        """
+        A valid dist is still preferred to an invalid one of a greater
+        version, the condition that prompted the report.
+        """
+        self.build_versions('1.12.1')
+        fixtures.build_files(self.make_pkg('foo', '2.0.0', files={}), self.site_dir)
+        assert version('foo') == '1.12.1'
+
+
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod
     def pkg_with_non_ascii_description(site_dir):
