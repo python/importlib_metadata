@@ -1,4 +1,6 @@
+import contextlib
 import importlib
+import io
 import pickle
 import re
 import unittest
@@ -13,6 +15,7 @@ from importlib_metadata import (
     MetadataNotFound,
     PackageNotFoundError,
     _unique,
+    diagnose,
     distributions,
     entry_points,
     metadata,
@@ -168,6 +171,22 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
             _ = Distribution.from_name('foo').metadata
         with self.assertRaises(MetadataNotFound):
             metadata('foo')
+
+    def test_diagnose_reports_invalid(self):
+        """
+        The diagnostic should report invalid dists by location
+        rather than crashing on them.
+
+        Ref python/importlib_metadata#548.
+        """
+        fixtures.build_files(self.make_pkg('nameless-1.0'), self.site_dir)
+        fixtures.build_files(self.make_pkg('empty-1.0', files={}), self.site_dir)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            diagnose.inspect(str(self.site_dir))
+        report = out.getvalue()
+        assert 'empty-1.0.dist-info (no metadata)' in report
+        assert 'nameless-1.0.dist-info (metadata without a name)' in report
 
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
