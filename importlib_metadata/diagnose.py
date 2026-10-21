@@ -3,13 +3,6 @@ import sys
 from . import Distribution, MetadataNotFound
 
 
-def _locate(dist: Distribution) -> str:
-    """
-    Indicate where the distribution's metadata was found.
-    """
-    return str(getattr(dist, '_path', dist))
-
-
 def describe(dist: Distribution) -> str:
     """
     Describe the distribution by name, or by location when the
@@ -21,9 +14,9 @@ def describe(dist: Distribution) -> str:
     try:
         return dist.name
     except MetadataNotFound:
-        return f'{_locate(dist)} (no metadata)'
+        return f'{dist} (no metadata)'
     except KeyError:
-        return f'{_locate(dist)} (metadata without a name)'
+        return f'{dist} (metadata without a name)'
 
 
 def inspect(path):

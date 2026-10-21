@@ -188,6 +188,25 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         assert 'empty-1.0.dist-info (no metadata)' in report
         assert 'nameless-1.0.dist-info (metadata without a name)' in report
 
+    def test_missing_required_metadata(self):
+        """
+        A missing required metadata field should raise a ``KeyError``
+        naming the field and locating the distribution.
+
+        Ref python/importlib_metadata#508.
+        """
+        fixtures.build_files(self.make_pkg('nameless-4.4'), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg('unversioned-4.4', files=dict(METADATA='Name: unversioned')),
+            self.site_dir,
+        )
+        nameless = Distribution.at(self.site_dir / 'nameless-4.4.dist-info')
+        with self.assertRaisesRegex(KeyError, 'Name.*nameless-4.4.dist-info'):
+            nameless.name
+        unversioned = Distribution.at(self.site_dir / 'unversioned-4.4.dist-info')
+        with self.assertRaisesRegex(KeyError, 'Version.*unversioned-4.4.dist-info'):
+            unversioned.version
+
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
     @staticmethod

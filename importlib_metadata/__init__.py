@@ -22,7 +22,7 @@ import re
 import sys
 import textwrap
 import types
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
@@ -401,6 +401,25 @@ class FileHash:
         return f'<FileHash mode: {self.mode} value: {self.value}>'
 
 
+def _identify_dist(
+    accessor: Callable[[Distribution], str],
+) -> Callable[[Distribution], str]:
+    """
+    Decorate a required metadata accessor to identify the distribution
+    in the error raised when its field is absent.
+    """
+
+    @functools.wraps(accessor)
+    def wrapper(self: Distribution) -> str:
+        try:
+            return accessor(self)
+        except KeyError as exc:
+            (field,) = exc.args
+            raise KeyError(f'Metadata field {field} not present in {self}') from None
+
+    return wrapper
+
+
 class Distribution(metaclass=abc.ABCMeta):
     """
     An abstract Python distribution package.
@@ -561,6 +580,7 @@ class Distribution(metaclass=abc.ABCMeta):
         raise MetadataNotFound('No package metadata was found.')
 
     @property
+    @_identify_dist
     def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
         return self.metadata['Name']
@@ -571,6 +591,7 @@ class Distribution(metaclass=abc.ABCMeta):
         return Prepared.normalize(self.name)
 
     @property
+    @_identify_dist
     def version(self) -> str:
         """Return the 'Version' metadata for the distribution package."""
         return self.metadata['Version']
@@ -1028,6 +1049,16 @@ class PathDistribution(Distribution):
         :param path: SimplePath indicating the metadata directory.
         """
         self._path = path
+
+    def __str__(self) -> str:
+        """
+        Render as the metadata path, identifying the distribution
+        even when its metadata cannot name it.
+
+        >>> str(Distribution.at('foo-1.0.dist-info'))
+        'foo-1.0.dist-info'
+        """
+        return str(self._path)
 
     def read_text(self, filename: str | os.PathLike[str]) -> str | None:
         with suppress(
