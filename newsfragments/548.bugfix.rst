@@ -1,0 +1,3 @@
+``importlib_metadata.diagnose`` no longer crashes on a metadata directory
+that has no metadata file or whose metadata declares no name. Such
+distributions are now reported by their location.
