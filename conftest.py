@@ -27,3 +27,21 @@ def remove_importlib_metadata():
     for mod in list(sys.modules):
         if mod.startswith('importlib_metadata'):
             del sys.modules[mod]
+    restore_stdlib_finder()
+
+
+def restore_stdlib_finder():
+    """
+    Restore the stdlib distribution finder.
+
+    A previous import of importlib_metadata disables the stdlib
+    finder (``_compat.disable_stdlib_finder``). With the backport's
+    finder removed above, no distributions would be discoverable
+    (breaking ``pluggy.__version__``, for one). Restore the stdlib
+    behavior until importlib_metadata is imported again.
+    """
+    from importlib.machinery import PathFinder
+    from importlib.metadata import MetadataPathFinder
+
+    if not hasattr(PathFinder, 'find_distributions'):
+        PathFinder.find_distributions = MetadataPathFinder.find_distributions
