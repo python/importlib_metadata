@@ -132,31 +132,33 @@ class APITests(
     def test_entry_points_missing_group(self):
         assert entry_points(group='missing') == ()
 
-    def test_entry_points_with_invalid_value_in_unselected_group(self):
+    def test_entry_points_invalid_value_in_other_group(self):
+        """
+        An invalid value in one group should not prevent entry points
+        in other groups from being selected.
+        """
         alt_site_dir = self.fixtures.enter_context(fixtures.tmp_path())
         self.fixtures.enter_context(self.add_sys_path(alt_site_dir))
-        pkg = {
-            "invalid-entry-points-1.0.dist-info": {
+        alt_pkg = {
+            "invalid_entry_points-1.0.0.dist-info": {
                 "METADATA": """
                 Name: invalid-entry-points
                 Version: 1.0.0
                 """,
-                "entry_points.txt": textwrap.dedent(
-                    """
-                    [selected]
-                    valid = importlib_metadata:EntryPoint
+                "entry_points.txt": """
+                [selected]
+                valid = mod:main
 
-                    [unselected]
-                    invalid = invalid-name
-                    """
-                ),
+                [unselected]
+                invalid = invalid-name
+            """,
             },
         }
-        fixtures.build_files(pkg, alt_site_dir)
+        fixtures.build_files(alt_pkg, alt_site_dir)
 
-        entries = entry_points(group='selected')
+        assert [ep.name for ep in entry_points(group='selected')] == ['valid']
 
-        self.assertEqual([ep.name for ep in entries], ['valid'])
+        # the invalid value is still rejected when the entry point is used
         with self.assertRaises(ValueError):
             entry_points(group='unselected')['invalid'].load()
 

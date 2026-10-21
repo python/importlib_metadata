@@ -1,2 +1,4 @@
-Defer validation of invalid ``EntryPoint.value`` values until their components
-are accessed or they are loaded.
+Restored lazy validation of ``EntryPoint.value``, deferring the ``ValueError``
+for an invalid value until a component is accessed or the entry point is
+loaded, so one malformed entry point no longer prevents entry points in other
+groups from being selected.

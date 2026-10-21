@@ -179,10 +179,11 @@ class EntryPoint:
     ...
     ValueError: ('Invalid object reference...invalid-name...
 
-    The invalid value is stored during construction and raises when accessed
-    or loaded.
+    Construction never raises; the value is validated only when
+    accessed or loaded.
 
-    >>> EntryPoint(name=None, group=None, value='invalid-name').load()
+    >>> ep = EntryPoint(name=None, group=None, value='invalid-name')
+    >>> ep.load()
     Traceback (most recent call last):
     ...
     ValueError: ('Invalid object reference...invalid-name...
