@@ -1,3 +1,32 @@
+v9.1.0
+======
+
+Features
+--------
+
+- Removed support for Python 3.10, now end-of-life.
+- Where a path supplies more than one metadata directory for a distribution,
+  as an interrupted or unclean upgrade may leave behind, discovery now prefers
+  the greater one by reverse lexicographic ordering of the directory names, so
+  the stale metadata no longer shadows the version in use
+  (python/cpython#100666).
+
+
+Bugfixes
+--------
+
+- A missing required metadata field (``Name`` or ``Version``) now raises a
+  ``KeyError`` that names the field and identifies the distribution, which
+  ``PathDistribution`` renders as its metadata path. (#508)
+- Restored lazy validation of ``EntryPoint.value``, deferring the ``ValueError``
+  for an invalid value until a component is accessed or the entry point is
+  loaded, so one malformed entry point no longer prevents entry points in other
+  groups from being selected. (#523)
+- ``importlib_metadata.diagnose`` no longer crashes on a metadata directory
+  that has no metadata file or whose metadata declares no name. Such
+  distributions are now reported by their location. (#548)
+
+
 v9.0.1
 ======
 
