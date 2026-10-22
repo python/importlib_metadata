@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, cast
 
 import importlib_metadata
 
-from ..compat import py311
+from ..compat import py312
 
 if TYPE_CHECKING:
     import email.message
@@ -65,7 +65,7 @@ def dist(
     # on the class not being one of ours; a provider can act on the former.
     # Also tolerates pytest having replaced importlib_metadata, as the
     # replaced class still conforms.
-    if not py311.conforms(dist, importlib_metadata.IDistribution):
+    if not py312.conforms(dist, importlib_metadata.IDistribution):
         warnings.warn(
             f"Distribution subclass {dist.__class__} is missing "
             f"{', '.join(unimplemented(dist))}"
@@ -77,8 +77,8 @@ def unimplemented(dist) -> list[str]:
     """
     The members IDistribution requires that dist's class doesn't supply.
     """
-    attrs = py311.protocol_attrs(importlib_metadata.IDistribution)
-    return sorted(attr for attr in attrs if not hasattr(type(dist), attr))
+    required = py312.required(importlib_metadata.IDistribution)
+    return sorted(attr for attr in required if not hasattr(type(dist), attr))
 
 
 def message(

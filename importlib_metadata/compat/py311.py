@@ -30,19 +30,3 @@ protocol_attrs = (
     if sys.version_info < (3, 12)
     else operator.attrgetter('__protocol_attrs__')
 )
-
-
-def static_isinstance(instance, protocol):  # pragma: no cover
-    """
-    Determine protocol conformance from the type alone.
-
-    Workaround for https://github.com/python/cpython/issues/102433.
-    Through Python 3.11, isinstance() against a runtime-checkable
-    protocol calls hasattr() on the instance, so deciding the question
-    evaluates every property member and anything one raises propagates.
-    Python 3.12 consults the type instead.
-    """
-    return all(hasattr(type(instance), attr) for attr in protocol_attrs(protocol))
-
-
-conforms = static_isinstance if sys.version_info < (3, 12) else isinstance

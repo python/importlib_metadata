@@ -5,13 +5,21 @@ providers into their ``importlib_metadata`` counterparts (#486).
 
 import importlib.metadata as stdlib
 import pathlib
+import sys
 import unittest
 import warnings
 
 import importlib_metadata
 import importlib_metadata._adapters
-from importlib_metadata import distribution, distributions, entry_points, files
+from importlib_metadata import (
+    IDistribution,
+    distribution,
+    distributions,
+    entry_points,
+    files,
+)
 from importlib_metadata._compat import localize
+from importlib_metadata.compat import py312
 
 from .. import fixtures
 
@@ -113,6 +121,18 @@ class CustomProviderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
 
 
 class ConformanceCheckTests(unittest.TestCase):
+    @unittest.skipIf(
+        sys.version_info >= (3, 13),
+        "origin is exempt only while Python 3.12 is supported",
+    )
+    def test_exempt_members_are_not_required(self):
+        """
+        There is no Distribution.origin for a provider to inherit before
+        Python 3.13, so its absence must not be faulted.
+        """
+        assert not hasattr(stdlib.Distribution, 'origin')
+        assert 'origin' not in py312.required(IDistribution)
+
     def test_properties_are_not_evaluated(self):
         """
         Deciding conformance consults the class, never the instance.
