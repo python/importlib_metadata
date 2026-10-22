@@ -1,6 +1,6 @@
 import contextlib
 
-from .py39 import import_helper
+from test.support import import_helper
 
 
 @contextlib.contextmanager

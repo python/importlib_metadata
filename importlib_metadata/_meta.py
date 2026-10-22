@@ -56,11 +56,11 @@ class SimplePath(Protocol):
     """
 
     def joinpath(
-        self, other: str | os.PathLike[str]
+        self, other: str | os.PathLike[str], /
     ) -> SimplePath: ...  # pragma: no cover
 
     def __truediv__(
-        self, other: str | os.PathLike[str]
+        self, other: str | os.PathLike[str], /
     ) -> SimplePath: ...  # pragma: no cover
 
     @property

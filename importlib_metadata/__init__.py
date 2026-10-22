@@ -22,7 +22,7 @@ import re
 import sys
 import textwrap
 import types
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
@@ -35,6 +35,7 @@ from ._compat import (
     install,
     localize,
 )
+from ._context import ExceptionTrap
 from ._functools import apply, compose, method_cache, noop, pass_none, passthrough
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import (
@@ -43,18 +44,18 @@ from ._meta import (
     PackageMetadata,
     SimplePath,
 )
-from ._typing import md_none
-from .compat import py39, py311
+from .compat import py311
 
 __all__ = [
     'Distribution',
     'DistributionFinder',
     'IDistribution',
+    'IPackagePath',
+    'MetadataNotFound',
     'PackageMetadata',
     'PackageNotFoundError',
-    'SimplePath',
     'PackagePath',
-    'IPackagePath',
+    'SimplePath',
     'distribution',
     'distributions',
     'entry_points',
@@ -76,6 +77,10 @@ class PackageNotFoundError(ModuleNotFoundError):
     def name(self) -> str:  # type: ignore[override] # make readonly
         (name,) = self.args
         return name
+
+
+class MetadataNotFound(FileNotFoundError):
+    """No metadata file is present in the distribution."""
 
 
 class Sectioned:
@@ -181,9 +186,11 @@ class EntryPoint:
     ...
     ValueError: ('Invalid object reference...invalid-name...
 
-    The same thing happens on construction.
+    Construction never raises; the value is validated only when
+    accessed or loaded.
 
-    >>> EntryPoint(name=None, group=None, value='invalid-name')
+    >>> ep = EntryPoint(name=None, group=None, value='invalid-name')
+    >>> ep.load()
     Traceback (most recent call last):
     ...
     ValueError: ('Invalid object reference...invalid-name...
@@ -219,7 +226,6 @@ class EntryPoint:
 
     def __init__(self, name: str, value: str, group: str) -> None:
         vars(self).update(name=name, value=value, group=group)
-        self.module
 
     def load(self) -> Any:
         """Load the entry point from its definition. If only a module
@@ -341,14 +347,14 @@ class EntryPoints(tuple):
         Repr with classname and tuple constructor to
         signal that we deviate from regular tuple behavior.
         """
-        return '%s(%r)' % (self.__class__.__name__, tuple(self))
+        return f'{self.__class__.__name__}({tuple(self)!r})'
 
     def select(self, **params) -> EntryPoints:
         """
         Select entry points from self that match the
         given parameters (typically group and/or name).
         """
-        return EntryPoints(ep for ep in self if py39.ep_matches(ep, **params))
+        return EntryPoints(ep for ep in self if ep.matches(**params))
 
     @property
     def names(self) -> set[str]:
@@ -400,6 +406,25 @@ class FileHash:
 
     def __repr__(self) -> str:
         return f'<FileHash mode: {self.mode} value: {self.value}>'
+
+
+def _identify_dist(
+    accessor: Callable[[Distribution], str],
+) -> Callable[[Distribution], str]:
+    """
+    Decorate a required metadata accessor to identify the distribution
+    in the error raised when its field is absent.
+    """
+
+    @functools.wraps(accessor)
+    def wrapper(self: Distribution) -> str:
+        try:
+            return accessor(self)
+        except KeyError as exc:
+            (field,) = exc.args
+            raise KeyError(f'Metadata field {field} not present in {self}') from None
+
+    return wrapper
 
 
 class Distribution(metaclass=abc.ABCMeta):
@@ -471,7 +496,7 @@ class Distribution(metaclass=abc.ABCMeta):
         try:
             return next(iter(cls._prefer_valid(cls.discover(name=name))))
         except StopIteration:
-            raise PackageNotFoundError(name)
+            raise PackageNotFoundError(name) from None
 
     @classmethod
     @apply(functools.partial(map, localize.dist))
@@ -501,7 +526,12 @@ class Distribution(metaclass=abc.ABCMeta):
 
         Ref python/importlib_resources#489.
         """
-        buckets = bucket(dists, lambda dist: bool(dist.metadata))
+
+        has_metadata = ExceptionTrap(MetadataNotFound).passes(
+            operator.attrgetter('metadata')
+        )
+
+        buckets = bucket(dists, has_metadata)
         return itertools.chain(buckets[True], buckets[False])
 
     @staticmethod
@@ -522,8 +552,8 @@ class Distribution(metaclass=abc.ABCMeta):
         return filter(None, declared)
 
     @property
-    @apply(pass_none(localize.message))
-    def metadata(self) -> PackageMetadata | None:
+    @apply(localize.message)
+    def metadata(self) -> PackageMetadata:
         """Return the parsed metadata for this Distribution.
 
         The returned object will have keys that name the various bits of
@@ -532,6 +562,8 @@ class Distribution(metaclass=abc.ABCMeta):
 
         Custom providers may provide the METADATA file or override this
         property.
+
+        :raises MetadataNotFound: If no metadata file is present.
         """
 
         text = (
@@ -542,20 +574,26 @@ class Distribution(metaclass=abc.ABCMeta):
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        return self._assemble_message(text)
+        return self._assemble_message(self._ensure_metadata_present(text))
 
     @staticmethod
-    @pass_none
     def _assemble_message(text: str) -> PackageMetadata:
         # deferred for performance (python/cpython#109829)
         from . import _adapters
 
         return _adapters.Message(email.message_from_string(text))
 
+    def _ensure_metadata_present(self, text: str | None) -> str:
+        if text is not None:
+            return text
+
+        raise MetadataNotFound('No package metadata was found.')
+
     @property
+    @_identify_dist
     def name(self) -> str:
         """Return the 'Name' metadata for the distribution package."""
-        return md_none(self.metadata)['Name']
+        return self.metadata['Name']
 
     @property
     def _normalized_name(self):
@@ -563,9 +601,10 @@ class Distribution(metaclass=abc.ABCMeta):
         return Prepared.normalize(self.name)
 
     @property
+    @_identify_dist
     def version(self) -> str:
         """Return the 'Version' metadata for the distribution package."""
-        return md_none(self.metadata)['Version']
+        return self.metadata['Version']
 
     @property
     def entry_points(self) -> EntryPoints:
@@ -705,7 +744,7 @@ class Distribution(metaclass=abc.ABCMeta):
 
         def quoted_marker(section):
             section = section or ''
-            extra, sep, markers = section.partition(':')
+            extra, _sep, markers = section.partition(':')
             if extra and markers:
                 markers = f'({markers})'
             conditions = list(filter(None, [markers, make_condition(extra)]))
@@ -830,7 +869,7 @@ class FastPath:
     """
 
     @_clear_after_fork  # type: ignore[misc]
-    @functools.lru_cache()
+    @functools.lru_cache
     def __new__(cls, root):
         return super().__new__(cls)
 
@@ -883,6 +922,14 @@ class Lookup:
         From the children in the path, calculate early all of the
         children that appear to represent metadata (infos) or legacy
         metadata (eggs).
+
+        Children are considered in reverse lexicographic order, so when
+        a path supplies more than one metadata directory for a
+        distribution, as an interrupted or unclean upgrade may leave
+        behind, the greater one is found first
+        (python/cpython#100666). Because the order is lexicographic on
+        the directory name and not on the parsed version, it only
+        approximates a preference for the newer version.
         """
 
         base = os.path.basename(path.root).lower()
@@ -890,7 +937,7 @@ class Lookup:
         self.infos = FreezableDefaultDict(list)
         self.eggs = FreezableDefaultDict(list)
 
-        for child in path.children():
+        for child in sorted(path.children(), key=str.lower, reverse=True):
             low = child.lower()
             if low.endswith((".dist-info", ".egg-info")):
                 # rpartition is faster than splitext and suitable for this purpose.
@@ -1015,6 +1062,16 @@ class PathDistribution(Distribution):
         """
         self._path = path
 
+    def __str__(self) -> str:
+        """
+        Render as the metadata path, identifying the distribution
+        even when its metadata cannot name it.
+
+        >>> str(Distribution.at('foo-1.0.dist-info'))
+        'foo-1.0.dist-info'
+        """
+        return str(self._path)
+
     def read_text(self, filename: str | os.PathLike[str]) -> str | None:
         with suppress(
             FileNotFoundError,
@@ -1058,7 +1115,7 @@ class PathDistribution(Distribution):
         filename, ext = os.path.splitext(stem)
         if ext not in ('.dist-info', '.egg-info'):
             return
-        name, sep, rest = filename.partition('-')
+        name, _sep, _rest = filename.partition('-')
         return name
 
 
@@ -1079,11 +1136,12 @@ def distributions(**kwargs) -> Iterable[IDistribution]:
     return Distribution.discover(**kwargs)
 
 
-def metadata(distribution_name: str) -> PackageMetadata | None:
+def metadata(distribution_name: str) -> PackageMetadata:
     """Get the metadata for the named package.
 
     :param distribution_name: The name of the distribution package to query.
     :return: A PackageMetadata containing the parsed metadata.
+    :raises MetadataNotFound: If no metadata file is present in the distribution.
     """
     return Distribution.from_name(distribution_name).metadata
 
@@ -1100,7 +1158,7 @@ def version(distribution_name: str) -> str:
 
 _unique = functools.partial(
     unique_everseen,
-    key=py39.normalized_name,
+    key=operator.attrgetter('_normalized_name'),
 )
 """
 Wrapper for ``distributions`` to return unique distributions by name.
@@ -1154,7 +1212,7 @@ def packages_distributions() -> Mapping[str, list[str]]:
     pkg_to_dist = collections.defaultdict(list)
     for dist in distributions():
         for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
-            pkg_to_dist[pkg].append(md_none(dist.metadata)['Name'])
+            pkg_to_dist[pkg].append(dist.metadata['Name'])
     return dict(pkg_to_dist)
 
 

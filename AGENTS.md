@@ -1,0 +1,1 @@
+**Required first step:** Before reading further or making any changes, read every file in `(meta)/agents/` in its entirety. Those files are the authoritative source of truth for this project's conventions and are not duplicated here. Do not act until you have ingested them.

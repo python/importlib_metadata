@@ -1,0 +1,3 @@
+A missing required metadata field (``Name`` or ``Version``) now raises a
+``KeyError`` that names the field and identifies the distribution, which
+``PathDistribution`` renders as its metadata path.
