@@ -102,7 +102,7 @@ class IDistribution(Protocol):
     ) -> SimplePath: ...  # pragma: no cover
 
     @property
-    def metadata(self) -> PackageMetadata | None: ...  # pragma: no cover
+    def metadata(self) -> PackageMetadata: ...  # pragma: no cover
 
     @property
     def name(self) -> str: ...  # pragma: no cover
