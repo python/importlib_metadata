@@ -75,6 +75,14 @@ class SimplePath(Protocol):
 
 @runtime_checkable
 class IPackagePath(Protocol):
+    """
+    The interface of the paths yielded by ``IDistribution.files``.
+
+    Consumers should prefer this protocol over ``PackagePath``,
+    as it is also satisfied by the objects that ``importlib.metadata``
+    supplies.
+    """
+
     hash: Any | None
     size: int | None
     dist: IDistribution
@@ -93,6 +101,15 @@ class IPackagePath(Protocol):
 
 @runtime_checkable
 class IDistribution(Protocol):
+    """
+    The interface of the distributions yielded by ``distributions()``
+    and friends.
+
+    Consumers should prefer this protocol over ``Distribution``,
+    as it is also satisfied by the objects that ``importlib.metadata``
+    supplies.
+    """
+
     def read_text(
         self, filename: str | os.PathLike[str]
     ) -> str | None: ...  # pragma: no cover
