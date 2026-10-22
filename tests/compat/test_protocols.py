@@ -5,7 +5,6 @@ The published protocols must also describe the objects supplied by
 
 import importlib.metadata as stdlib
 import pathlib
-import sys
 import tempfile
 import unittest
 
@@ -24,9 +23,6 @@ class StdlibProtocolTests(unittest.TestCase):
         )
         self.dist = stdlib.PathDistribution(dist_info)
 
-    @unittest.skipIf(
-        sys.version_info < (3, 13), "stdlib Distribution.origin added in Python 3.13"
-    )
     def test_stdlib_distribution_matches_protocol(self):
         assert isinstance(self.dist, IDistribution)
 
