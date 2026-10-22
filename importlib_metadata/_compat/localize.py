@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, cast
 
 import importlib_metadata
 
+from ..compat import py311
+
 if TYPE_CHECKING:
     import email.message
     import importlib.metadata
@@ -27,18 +29,27 @@ def dist(
     >>> type(local)
     <class 'importlib_metadata.PathDistribution'>
 
+    A provider of its own Distribution subclass is passed through, as
+    long as it implements the interface consumers expect.
+
     >>> class CustomDist(importlib.metadata.Distribution):
     ...     def read_text(self, name):
     ...         return
     ...     def locate_file(self, name):
     ...         return
-    >>> subclass = CustomDist()
-    >>> type(subclass)
-    <class 'importlib_metadata._compat.localize.CustomDist'>
+    >>> custom = CustomDist()
+    >>> dist(custom) is custom
+    True
+
+    One that doesn't is passed through too, but names what it omits.
+
+    >>> class Incomplete:
+    ...     def read_text(self, name):
+    ...         return
     >>> import pytest
-    >>> with pytest.warns(UserWarning, match="Unrecognized distribution subclass <class 'importlib_metadata._compat.localize.CustomDist'>"):
-    ...     local = dist(subclass)
-    >>> type(local) is type(subclass)
+    >>> with pytest.warns(UserWarning, match="is missing at, discover"):
+    ...     local = dist(Incomplete())
+    >>> local is not None
     True
     """
     if isinstance(dist, importlib_metadata.Distribution):
@@ -50,11 +61,24 @@ def dist(
 
     if isinstance(dist, importlib.metadata.PathDistribution):
         return importlib_metadata.PathDistribution(cast('SimplePath', dist._path))
-    # workaround for when pytest has replaced importlib_metadata
-    # https://github.com/python/importlib_metadata/pull/505#issuecomment-2344329001
-    if dist.__class__.__module__ != 'importlib_metadata':
-        warnings.warn(f"Unrecognized distribution subclass {dist.__class__}")
+    # Warn on what the interface requires and the class omits, rather than
+    # on the class not being one of ours; a provider can act on the former.
+    # Also tolerates pytest having replaced importlib_metadata, as the
+    # replaced class still conforms.
+    if not py311.conforms(dist, importlib_metadata.IDistribution):
+        warnings.warn(
+            f"Distribution subclass {dist.__class__} is missing "
+            f"{', '.join(unimplemented(dist))}"
+        )
     return cast('importlib_metadata.Distribution', dist)
+
+
+def unimplemented(dist) -> list[str]:
+    """
+    The members IDistribution requires that dist's class doesn't supply.
+    """
+    attrs = py311.protocol_attrs(importlib_metadata.IDistribution)
+    return sorted(attr for attr in attrs if not hasattr(type(dist), attr))
 
 
 def message(
