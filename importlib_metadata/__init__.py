@@ -911,6 +911,14 @@ class Lookup:
         From the children in the path, calculate early all of the
         children that appear to represent metadata (infos) or legacy
         metadata (eggs).
+
+        Children are considered in reverse lexicographic order, so when
+        a path supplies more than one metadata directory for a
+        distribution, as an interrupted or unclean upgrade may leave
+        behind, the greater one is found first
+        (python/cpython#100666). Because the order is lexicographic on
+        the directory name and not on the parsed version, it only
+        approximates a preference for the newer version.
         """
 
         base = os.path.basename(path.root).lower()
@@ -918,7 +926,7 @@ class Lookup:
         self.infos = FreezableDefaultDict(list)
         self.eggs = FreezableDefaultDict(list)
 
-        for child in path.children():
+        for child in sorted(path.children(), key=str.lower, reverse=True):
             low = child.lower()
             if low.endswith((".dist-info", ".egg-info")):
                 # rpartition is faster than splitext and suitable for this purpose.
