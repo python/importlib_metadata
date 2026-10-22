@@ -5,10 +5,12 @@ The published protocols must also describe the objects supplied by
 
 import importlib.metadata as stdlib
 import pathlib
+import sys
 import tempfile
 import unittest
 
 from importlib_metadata import IDistribution, IPackagePath, PackageMetadata
+from importlib_metadata.compat import py312
 
 
 class StdlibProtocolTests(unittest.TestCase):
@@ -23,6 +25,12 @@ class StdlibProtocolTests(unittest.TestCase):
         )
         self.dist = stdlib.PathDistribution(dist_info)
 
+    def test_stdlib_distribution_conforms(self):
+        assert py312.conforms(self.dist, IDistribution)
+
+    @unittest.skipIf(
+        sys.version_info < (3, 13), "stdlib Distribution.origin added in Python 3.13"
+    )
     def test_stdlib_distribution_matches_protocol(self):
         assert isinstance(self.dist, IDistribution)
 

@@ -136,6 +136,9 @@ class IDistribution(Protocol):
     @property
     def requires(self) -> list[str] | None: ...  # pragma: no cover
 
+    @property
+    def origin(self) -> Any: ...  # pragma: no cover
+
     @classmethod
     def discover(
         cls, *, context: Any | None = None, **kwargs: Any
