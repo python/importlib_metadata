@@ -1,1 +1,1 @@
-Added ``IDistribution`` and ``IPackagePath`` protocols so consumers can target a stable, shared interface across ``importlib.metadata`` and ``importlib_metadata``.
+Added ``IDistribution`` and ``IPackagePath`` protocols so consumers can target a stable, shared interface across ``importlib.metadata`` and ``importlib_metadata``. A provider supplying its own ``Distribution`` subclass is warned about only when the class omits members that interface requires, not merely because it derives from ``importlib.metadata``.
