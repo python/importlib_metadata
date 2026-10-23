@@ -57,6 +57,25 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
             type('DistributionSubclass', (Distribution,), {})()
 
     @fixtures.parameterize(
+        dict(text='Name: foo\nVersion: 1.0\n', expected=True),
+        dict(text=None, expected=False),
+    )
+    def test_detects_metadata_by_reading(self, text, expected):
+        """
+        A distribution that isn't path-based takes the default
+        detection, which reads what it cannot otherwise detect.
+        """
+
+        class Provided(Distribution):
+            def read_text(self, filename):
+                return text if filename == 'METADATA' else None
+
+            def locate_file(self, path):
+                return None  # pragma: no cover
+
+        assert Provided()._has_metadata() is expected
+
+    @fixtures.parameterize(
         dict(name=None),
         dict(name=''),
     )
@@ -159,6 +178,40 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         fixtures.build_files(self.make_pkg('foo-4.2', files={}), self.site_dir)
         dist = Distribution.from_name('foo')
         assert dist.version == "1.0"
+
+    def test_invalid_dists_deferred(self):
+        """
+        Preferring the valid dists defers the invalid ones to the end
+        rather than dropping them.
+        """
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(self.make_pkg('foo-4.1'), self.site_dir)
+        dists = list(Distribution._prefer_valid(Distribution.discover(name='foo')))
+        assert len(dists) == 2
+        assert dists[0].version == "1.0"
+
+    def test_entry_points_from_valid_dist(self):
+        """
+        Entry points come from the valid dist even when an invalid one
+        of the same name is discovered first.
+
+        Ref python/importlib_metadata#534.
+        """
+        # as in test_valid_dists_preferred, bracket the valid dist so that
+        # on most file systems it is never naturally first.
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg(
+                'foo-4.1',
+                files={
+                    'METADATA': "VERSION: 1.0",
+                    'entry_points.txt': '[shadowed]\nep = foo:main\n',
+                },
+            ),
+            self.site_dir,
+        )
+        fixtures.build_files(self.make_pkg('foo-4.2', files={}), self.site_dir)
+        assert entry_points(group='shadowed').names == {'ep'}
 
     def test_missing_metadata(self):
         """

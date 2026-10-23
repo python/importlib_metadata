@@ -119,6 +119,24 @@ class CustomProviderTests(fixtures.DistInfoPkgOffPath, unittest.TestCase):
             assert distribution('distinfo-pkg').version == '1.0.0'
         assert not [str(warning.message) for warning in caught]
 
+    def test_dist_without_metadata_is_deferred(self):
+        """
+        A provider's own distribution supplies no detection of its own,
+        so the metadata is sought through ``read_text``. Asking for
+        ``metadata`` instead would raise, as the ``MetadataNotFound``
+        of a distribution deriving from ``importlib.metadata`` is a
+        different class.
+        """
+
+        class Empty(stdlib.Distribution):
+            def read_text(self, filename):
+                return None
+
+            def locate_file(self, path):
+                return None
+
+        assert not importlib_metadata._safe_has_metadata(Empty())
+
 
 class ConformanceCheckTests(unittest.TestCase):
     @unittest.skipIf(
