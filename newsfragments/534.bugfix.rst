@@ -1,5 +1,0 @@
-``entry_points()`` now prefers distributions whose metadata is readable, so
-an empty metadata directory left behind by an unclean upgrade no longer
-shadows the valid one of the same name and suppresses its entry points.
-Invalid distributions are deferred to the end of the enumeration rather than
-dropped.

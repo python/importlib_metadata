@@ -1,3 +1,36 @@
+v10.1.0
+=======
+
+Features
+--------
+
+- Detecting whether a distribution supplies metadata no longer reads or parses
+  that metadata where the metadata directory can be inspected instead, so
+  retrieving a distribution by name, which prefers the valid candidates, is
+  substantially faster.
+- Reverted the preference for the greater metadata directory added in v9.1.0.
+  The ordering was lexicographic on the directory name and not on the parsed
+  version, so it only approximated a preference for the newer version. Where a
+  path supplies more than one metadata directory for a distribution, discovery
+  once again reports them in the order the path supplies
+  (python/cpython#100666).
+
+
+Bugfixes
+--------
+
+- ``entry_points()`` now prefers distributions whose metadata is readable, so
+  an empty metadata directory left behind by an unclean upgrade no longer
+  shadows the valid one of the same name and suppresses its entry points.
+  Invalid distributions are deferred to the end of the enumeration rather than
+  dropped. (#534)
+- The preference for valid distributions no longer propagates the
+  ``MetadataNotFound`` of a distribution that a provider derived from
+  ``importlib.metadata``, whose exception is a different class from this
+  package's and so escaped the preference rather than marking the distribution
+  invalid.
+
+
 v10.0.0
 =======
 
