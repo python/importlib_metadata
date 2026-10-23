@@ -1,3 +1,18 @@
+v10.0.0
+=======
+
+Features
+--------
+
+- Added ``IDistribution`` and ``IPackagePath`` protocols so consumers can target a stable, shared interface across ``importlib.metadata`` and ``importlib_metadata``. A provider supplying its own ``Distribution`` subclass is warned about only when the class omits members that interface requires, not merely because it derives from ``importlib.metadata``. ``origin`` is exempt from that expectation until support for Python 3.12 is dropped, as there is none to inherit before Python 3.13. (#486)
+
+
+Deprecations and Removals
+-------------------------
+
+- When providers supply objects from ``importlib.metadata``, they are now adapted to the classes from ``importlib_metadata``. (#486)
+
+
 v9.1.0
 ======
 
