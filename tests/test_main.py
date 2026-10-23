@@ -179,6 +179,40 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         dist = Distribution.from_name('foo')
         assert dist.version == "1.0"
 
+    def test_invalid_dists_deferred(self):
+        """
+        Preferring the valid dists defers the invalid ones to the end
+        rather than dropping them.
+        """
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(self.make_pkg('foo-4.1'), self.site_dir)
+        dists = list(Distribution._prefer_valid(Distribution.discover(name='foo')))
+        assert len(dists) == 2
+        assert dists[0].version == "1.0"
+
+    def test_entry_points_from_valid_dist(self):
+        """
+        Entry points come from the valid dist even when an invalid one
+        of the same name is discovered first.
+
+        Ref python/importlib_metadata#534.
+        """
+        # as in test_valid_dists_preferred, bracket the valid dist so that
+        # on most file systems it is never naturally first.
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg(
+                'foo-4.1',
+                files={
+                    'METADATA': "VERSION: 1.0",
+                    'entry_points.txt': '[shadowed]\nep = foo:main\n',
+                },
+            ),
+            self.site_dir,
+        )
+        fixtures.build_files(self.make_pkg('foo-4.2', files={}), self.site_dir)
+        assert entry_points(group='shadowed').names == {'ep'}
+
     def test_missing_metadata(self):
         """
         Dists with a missing metadata file should raise ``MetadataNotFound``.

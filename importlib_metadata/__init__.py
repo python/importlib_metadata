@@ -1224,7 +1224,8 @@ def entry_points(**params) -> EntryPoints:
     :return: EntryPoints for all installed packages.
     """
     eps = itertools.chain.from_iterable(
-        dist.entry_points for dist in _unique(distributions())
+        dist.entry_points
+        for dist in _unique(Distribution._prefer_valid(distributions()))
     )
     return EntryPoints(eps).select(**params)
 
