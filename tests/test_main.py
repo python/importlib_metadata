@@ -57,6 +57,25 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
             type('DistributionSubclass', (Distribution,), {})()
 
     @fixtures.parameterize(
+        dict(text='Name: foo\nVersion: 1.0\n', expected=True),
+        dict(text=None, expected=False),
+    )
+    def test_detects_metadata_by_reading(self, text, expected):
+        """
+        A distribution that isn't path-based takes the default
+        detection, which reads what it cannot otherwise detect.
+        """
+
+        class Provided(Distribution):
+            def read_text(self, filename):
+                return text if filename == 'METADATA' else None
+
+            def locate_file(self, path):
+                return None  # pragma: no cover
+
+        assert Provided()._has_metadata() is expected
+
+    @fixtures.parameterize(
         dict(name=None),
         dict(name=''),
     )

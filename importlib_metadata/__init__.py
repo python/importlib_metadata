@@ -27,7 +27,7 @@ from contextlib import suppress
 from importlib import import_module
 from importlib.abc import MetaPathFinder
 from itertools import starmap
-from typing import Any
+from typing import Any, TypeVar
 
 from ._collections import FreezableDefaultDict, Pair
 from ._compat import (
@@ -35,7 +35,6 @@ from ._compat import (
     install,
     localize,
 )
-from ._context import ExceptionTrap
 from ._functools import apply, compose, method_cache, noop, pass_none, passthrough
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import (
@@ -65,6 +64,9 @@ __all__ = [
     'requires',
     'version',
 ]
+
+
+_D = TypeVar('_D', bound=IDistribution)
 
 
 class PackageNotFoundError(ModuleNotFoundError):
@@ -520,18 +522,14 @@ class Distribution(metaclass=abc.ABCMeta):
         )
 
     @staticmethod
-    def _prefer_valid(dists: Iterable[Distribution]) -> Iterable[Distribution]:
+    def _prefer_valid(dists: Iterable[_D]) -> Iterable[_D]:
         """
         Prefer (move to the front) distributions that have metadata.
 
         Ref python/importlib_resources#489.
         """
 
-        has_metadata = ExceptionTrap(MetadataNotFound).passes(
-            operator.attrgetter('metadata')
-        )
-
-        buckets = bucket(dists, has_metadata)
+        buckets = bucket(dists, _safe_has_metadata)
         return itertools.chain(buckets[True], buckets[False])
 
     @staticmethod
@@ -566,7 +564,18 @@ class Distribution(metaclass=abc.ABCMeta):
         :raises MetadataNotFound: If no metadata file is present.
         """
 
-        text = (
+        text = self._metadata_text()
+        return self._assemble_message(self._ensure_metadata_present(text))
+
+    def _metadata_text(self) -> str | None:
+        """
+        The metadata text, if any.
+
+        Separate from ``metadata`` so that ``_has_metadata`` can name
+        the same files without repeating them and without paying to
+        parse what it finds.
+        """
+        return (
             self.read_text('METADATA')
             or self.read_text('PKG-INFO')
             # This last clause is here to support old egg-info files.  Its
@@ -574,7 +583,18 @@ class Distribution(metaclass=abc.ABCMeta):
             # (which points to the egg-info file) attribute unchanged.
             or self.read_text('')
         )
-        return self._assemble_message(self._ensure_metadata_present(text))
+
+    def _has_metadata(self) -> bool:
+        """
+        Whether this distribution supplies metadata.
+
+        Reads the metadata, as the interface offers nothing cheaper:
+        ``locate_file`` resolves against the package root and not the
+        metadata, and every other member loads the metadata or parses
+        it. A subclass able to detect the metadata without reading it
+        should override this (python/importlib_metadata#534).
+        """
+        return bool(self._metadata_text())
 
     @staticmethod
     def _assemble_message(text: str) -> PackageMetadata:
@@ -1078,6 +1098,24 @@ class PathDistribution(Distribution):
 
     read_text.__doc__ = Distribution.read_text.__doc__
 
+    def _has_metadata(self) -> bool:
+        """
+        Detect the metadata file without opening it
+        (python/importlib_metadata#534).
+
+        The last clause is for an old-style egg-info file, whose
+        metadata is the distribution's own path; a metadata directory
+        is not itself metadata. ``SimplePath`` doesn't name
+        ``is_file``, but only these legacy paths reach that clause and
+        they arrive as a ``pathlib.Path`` or a ``zipfile.Path``, both
+        of which supply it.
+        """
+        return (
+            self._path.joinpath('METADATA').exists()
+            or self._path.joinpath('PKG-INFO').exists()
+            or self._path.is_file()  # type: ignore[attr-defined]
+        )
+
     def locate_file(self, path: str | os.PathLike[str]) -> SimplePath:
         return self._path.parent / path
 
@@ -1146,6 +1184,25 @@ def version(distribution_name: str) -> str:
         "Version" metadata key.
     """
     return distribution(distribution_name).version
+
+
+def _safe_has_metadata(dist: IDistribution) -> bool:
+    """
+    ``dist._has_metadata()``, for a distribution that may not supply it.
+
+    A provider's own ``Distribution`` subclass derives from
+    ``importlib.metadata`` and is passed through unadapted (#486), so
+    it has none; read its metadata as the default would. It supplies
+    no ``_metadata_text`` either, hence the unbound call.
+
+    Such a distribution cannot be asked for ``metadata`` behind a trap
+    instead. The ``MetadataNotFound`` it raises is the one from
+    ``importlib.metadata``, a different class from this package's,
+    which no trap of ours would catch.
+    """
+    with suppress(AttributeError):
+        return dist._has_metadata()  # type: ignore[attr-defined]
+    return bool(Distribution._metadata_text(dist))  # type: ignore[arg-type]
 
 
 _unique = functools.partial(
