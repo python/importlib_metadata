@@ -9,6 +9,31 @@ for more detail.
 
 from __future__ import annotations
 
+__lazy_modules__ = {
+    'contextlib',
+    'email',
+    f'{__name__}._collections',
+    f'{__name__}.compat',
+}
+"""
+Imports to defer until something first reads the name they bind (PEP 810).
+
+Honored by the interpreter from Python 3.15 and simply ignored before it.
+
+Only a name that no module-level statement reads belongs here. A class
+base, a decorator, or a class attribute is evaluated as this module's
+body runs, so deferring its imports would save nothing: that is what
+keeps ``pathlib``, ``re``, and ``textwrap`` off this list
+(python/importlib_metadata#554).
+
+A module that something else imports eagerly is also left off, however
+late this module reads it, so that the declaration promises only what it
+delivers. ``collections`` is the case to watch: ``typing`` imports it.
+
+Naming the package through ``__name__`` keeps the declaration identical
+in the stdlib, where this module is ``importlib.metadata``.
+"""
+
 import abc
 import collections
 import email

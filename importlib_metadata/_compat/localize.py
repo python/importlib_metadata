@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING, cast
 
 import importlib_metadata
 
-from ..compat import py312
-
 if TYPE_CHECKING:
     import email.message
     import importlib.metadata
@@ -55,9 +53,11 @@ def dist(
     if isinstance(dist, importlib_metadata.Distribution):
         return dist
 
-    # only a foreign dist gets this far, so defer the cost of the import
-    # (python/cpython#109829)
+    # only a foreign dist gets this far, so defer the cost of the imports
+    # (python/cpython#109829, #554)
     import importlib.metadata
+
+    from ..compat import py312
 
     if isinstance(dist, importlib.metadata.PathDistribution):
         return importlib_metadata.PathDistribution(cast('SimplePath', dist._path))
@@ -77,6 +77,9 @@ def unimplemented(dist) -> list[str]:
     """
     The members IDistribution requires that dist's class doesn't supply.
     """
+    # deferred for performance (#554)
+    from ..compat import py312
+
     required = py312.required(importlib_metadata.IDistribution)
     return sorted(attr for attr in required if not hasattr(type(dist), attr))
 

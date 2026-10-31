@@ -1,4 +1,3 @@
-import platform
 import sys
 
 __all__ = ['NullFinder', 'install']
@@ -46,11 +45,15 @@ class NullFinder:
         return None
 
 
-def pypy_partial(val):
+def pypy_partial(val):  # pragma: no cover
     """
     Adjust for variable stacklevel on partial under PyPy.
 
     Workaround for #327.
     """
+    # the only reader of platform, and no longer called from anywhere, so
+    # don't make every import pay for it (#554)
+    import platform
+
     is_pypy = platform.python_implementation() == 'PyPy'
     return val + is_pypy

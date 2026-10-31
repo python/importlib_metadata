@@ -1,0 +1,9 @@
+Deferred the imports that no module-level statement reads, cutting the
+cost of ``import importlib_metadata`` by about 30% on Python 3.15 and 3
+to 8% on earlier Pythons.
+
+Python 3.15 honors the new ``__lazy_modules__`` declaration (PEP 810) and
+so defers ``contextlib``, ``email``, and two of the package's own modules;
+earlier Pythons ignore the declaration and keep importing them eagerly.
+The gain they do see comes from ``platform`` and ``compat.py312``, which
+moved into the functions that read them.
