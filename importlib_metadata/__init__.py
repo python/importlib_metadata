@@ -35,7 +35,8 @@ from ._compat import (
     install,
     localize,
 )
-from ._functools import apply, compose, method_cache, noop, pass_none, passthrough
+from ._compat._functools import apply, compose
+from ._functools import method_cache, noop, pass_none, passthrough
 from ._itertools import always_iterable, bucket, unique_everseen
 from ._meta import (
     IDistribution,
