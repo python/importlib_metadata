@@ -1,0 +1,6 @@
+``MetadataPathFinder`` is now installed on ``sys.meta_path`` only after the
+module is fully initialized. Previously it was installed partway through, so
+anything walking ``sys.meta_path`` during that window, such as another thread
+calling ``entry_points()``, would raise ``NameError: name 'PathDistribution'
+is not defined``. An import interrupted in that window left the half-built
+finder installed for the life of the process, failing every subsequent lookup.
