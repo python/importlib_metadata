@@ -3,6 +3,8 @@ import importlib
 import io
 import pickle
 import re
+import subprocess
+import sys
 import unittest
 
 import pyfakefs.fake_filesystem_unittest as ffs
@@ -106,6 +108,48 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
             group='grp',
         )
         assert ep.load() is importlib_metadata
+
+
+class LazyImportTests(unittest.TestCase):
+    """
+    The imports at module scope cost no more than the deferred ones did.
+    """
+
+    def test_declared_modules_stay_unloaded(self):
+        """
+        Importing the package loads none of the modules it declares lazy.
+
+        ``importlib.abc`` goes first because the package imports it
+        eagerly and, on some Pythons, it reaches ``inspect`` through
+        ``importlib.resources``. Taking the snapshot after it leaves only
+        what the declaration itself governs.
+
+        Ref python/importlib_metadata#554.
+        """
+        script = (
+            'import sys, importlib.abc; before = frozenset(sys.modules); '
+            'import importlib_metadata as md; '
+            'print(*sorted(md.__lazy_modules__ & (sys.modules.keys() - before)))'
+        )
+        proc = subprocess.run(
+            [sys.executable, '-c', script],
+            capture_output=True,
+            encoding='utf-8',
+            check=True,
+        )
+        assert not proc.stdout.split(), f'imported eagerly: {proc.stdout.strip()}'
+
+    def test_declared_modules_resolve(self):
+        """
+        Reading a lazy name yields the module itself, not a stand-in.
+
+        The backport binds a proxy that resolves on first attribute
+        access, so a name read for anything else -- ``isinstance``, a
+        ``type()`` comparison -- could see the proxy instead.
+        """
+        assert importlib_metadata.Message is importlib_metadata._adapters.Message
+        assert importlib_metadata.csv.reader is importlib.import_module('csv').reader
+        assert isinstance(importlib_metadata.json.loads('{}'), dict)
 
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
