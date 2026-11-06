@@ -18,6 +18,7 @@ for ``importlib.metadata``.
    :maxdepth: 1
 
    api
+   caveats
    migration
    history
 
