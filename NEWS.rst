@@ -1,3 +1,80 @@
+v10.1.0
+=======
+
+Features
+--------
+
+- Detecting whether a distribution supplies metadata no longer reads or parses
+  that metadata where the metadata directory can be inspected instead, so
+  retrieving a distribution by name, which prefers the valid candidates, is
+  substantially faster.
+- Reverted the preference for the greater metadata directory added in v9.1.0.
+  The ordering was lexicographic on the directory name and not on the parsed
+  version, so it only approximated a preference for the newer version. Where a
+  path supplies more than one metadata directory for a distribution, discovery
+  once again reports them in the order the path supplies
+  (python/cpython#100666).
+
+
+Bugfixes
+--------
+
+- ``entry_points()`` now prefers distributions whose metadata is readable, so
+  an empty metadata directory left behind by an unclean upgrade no longer
+  shadows the valid one of the same name and suppresses its entry points.
+  Invalid distributions are deferred to the end of the enumeration rather than
+  dropped. (#534)
+- The preference for valid distributions no longer propagates the
+  ``MetadataNotFound`` of a distribution that a provider derived from
+  ``importlib.metadata``, whose exception is a different class from this
+  package's and so escaped the preference rather than marking the distribution
+  invalid.
+
+
+v10.0.0
+=======
+
+Features
+--------
+
+- Added ``IDistribution`` and ``IPackagePath`` protocols so consumers can target a stable, shared interface across ``importlib.metadata`` and ``importlib_metadata``. A provider supplying its own ``Distribution`` subclass is warned about only when the class omits members that interface requires, not merely because it derives from ``importlib.metadata``. ``origin`` is exempt from that expectation until support for Python 3.12 is dropped, as there is none to inherit before Python 3.13. (#486)
+
+
+Deprecations and Removals
+-------------------------
+
+- When providers supply objects from ``importlib.metadata``, they are now adapted to the classes from ``importlib_metadata``. (#486)
+
+
+v9.1.0
+======
+
+Features
+--------
+
+- Removed support for Python 3.10, now end-of-life.
+- Where a path supplies more than one metadata directory for a distribution,
+  as an interrupted or unclean upgrade may leave behind, discovery now prefers
+  the greater one by reverse lexicographic ordering of the directory names, so
+  the stale metadata no longer shadows the version in use
+  (python/cpython#100666).
+
+
+Bugfixes
+--------
+
+- A missing required metadata field (``Name`` or ``Version``) now raises a
+  ``KeyError`` that names the field and identifies the distribution, which
+  ``PathDistribution`` renders as its metadata path. (#508)
+- Restored lazy validation of ``EntryPoint.value``, deferring the ``ValueError``
+  for an invalid value until a component is accessed or the entry point is
+  loaded, so one malformed entry point no longer prevents entry points in other
+  groups from being selected. (#523)
+- ``importlib_metadata.diagnose`` no longer crashes on a metadata directory
+  that has no metadata file or whose metadata declares no name. Such
+  distributions are now reported by their location. (#548)
+
+
 v9.0.1
 ======
 

@@ -1,4 +1,6 @@
+import contextlib
 import importlib
+import io
 import pickle
 import re
 import unittest
@@ -13,6 +15,7 @@ from importlib_metadata import (
     MetadataNotFound,
     PackageNotFoundError,
     _unique,
+    diagnose,
     distributions,
     entry_points,
     metadata,
@@ -52,6 +55,25 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_abc_enforced(self):
         with self.assertRaises(TypeError):
             type('DistributionSubclass', (Distribution,), {})()
+
+    @fixtures.parameterize(
+        dict(text='Name: foo\nVersion: 1.0\n', expected=True),
+        dict(text=None, expected=False),
+    )
+    def test_detects_metadata_by_reading(self, text, expected):
+        """
+        A distribution that isn't path-based takes the default
+        detection, which reads what it cannot otherwise detect.
+        """
+
+        class Provided(Distribution):
+            def read_text(self, filename):
+                return text if filename == 'METADATA' else None
+
+            def locate_file(self, path):
+                return None  # pragma: no cover
+
+        assert Provided()._has_metadata() is expected
 
     @fixtures.parameterize(
         dict(name=None),
@@ -157,6 +179,40 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
         dist = Distribution.from_name('foo')
         assert dist.version == "1.0"
 
+    def test_invalid_dists_deferred(self):
+        """
+        Preferring the valid dists defers the invalid ones to the end
+        rather than dropping them.
+        """
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(self.make_pkg('foo-4.1'), self.site_dir)
+        dists = list(Distribution._prefer_valid(Distribution.discover(name='foo')))
+        assert len(dists) == 2
+        assert dists[0].version == "1.0"
+
+    def test_entry_points_from_valid_dist(self):
+        """
+        Entry points come from the valid dist even when an invalid one
+        of the same name is discovered first.
+
+        Ref python/importlib_metadata#534.
+        """
+        # as in test_valid_dists_preferred, bracket the valid dist so that
+        # on most file systems it is never naturally first.
+        fixtures.build_files(self.make_pkg('foo-4.0', files={}), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg(
+                'foo-4.1',
+                files={
+                    'METADATA': "VERSION: 1.0",
+                    'entry_points.txt': '[shadowed]\nep = foo:main\n',
+                },
+            ),
+            self.site_dir,
+        )
+        fixtures.build_files(self.make_pkg('foo-4.2', files={}), self.site_dir)
+        assert entry_points(group='shadowed').names == {'ep'}
+
     def test_missing_metadata(self):
         """
         Dists with a missing metadata file should raise ``MetadataNotFound``.
@@ -168,6 +224,41 @@ class InvalidMetadataTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCa
             _ = Distribution.from_name('foo').metadata
         with self.assertRaises(MetadataNotFound):
             metadata('foo')
+
+    def test_diagnose_reports_invalid(self):
+        """
+        The diagnostic should report invalid dists by location
+        rather than crashing on them.
+
+        Ref python/importlib_metadata#548.
+        """
+        fixtures.build_files(self.make_pkg('nameless-1.0'), self.site_dir)
+        fixtures.build_files(self.make_pkg('empty-1.0', files={}), self.site_dir)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            diagnose.inspect(str(self.site_dir))
+        report = out.getvalue()
+        assert 'empty-1.0.dist-info (no metadata)' in report
+        assert 'nameless-1.0.dist-info (metadata without a name)' in report
+
+    def test_missing_required_metadata(self):
+        """
+        A missing required metadata field should raise a ``KeyError``
+        naming the field and locating the distribution.
+
+        Ref python/importlib_metadata#508.
+        """
+        fixtures.build_files(self.make_pkg('nameless-4.4'), self.site_dir)
+        fixtures.build_files(
+            self.make_pkg('unversioned-4.4', files=dict(METADATA='Name: unversioned')),
+            self.site_dir,
+        )
+        nameless = Distribution.at(self.site_dir / 'nameless-4.4.dist-info')
+        with self.assertRaisesRegex(KeyError, 'Name.*nameless-4.4.dist-info'):
+            nameless.name
+        unversioned = Distribution.at(self.site_dir / 'unversioned-4.4.dist-info')
+        with self.assertRaisesRegex(KeyError, 'Version.*unversioned-4.4.dist-info'):
+            unversioned.version
 
 
 class NonASCIITests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
