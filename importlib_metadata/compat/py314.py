@@ -1,9 +1,14 @@
 import sys
 
+native_lazy_imports = sys.version_info >= (3, 15)
+"""
+Whether the interpreter honors ``__lazy_modules__`` itself (PEP 810).
+"""
 
-class native:
+
+class nothing:
     """
-    A context that does nothing, as the interpreter defers the imports itself.
+    A context that does nothing, the interpreter deferring the imports itself.
     """
 
     def __enter__(self):
@@ -22,6 +27,30 @@ def backport():  # pragma: no cover
     return lazy_importer()
 
 
-# Python 3.15 honors __lazy_modules__ natively (PEP 810); only earlier
-# versions need the imports routed through the backport.
-lazy_importer = native if sys.version_info >= (3, 15) else backport
+def itself(value):
+    """
+    The value as bound, the interpreter having resolved it already.
+    """
+    return value
+
+
+def resolved(value):  # pragma: no cover
+    """
+    The object the backport's proxy stands for.
+    """
+    from lazy_importer import resolve
+
+    return resolve(value)
+
+
+lazy_importer = nothing if native_lazy_imports else backport
+
+resolve = itself if native_lazy_imports else resolved
+"""
+Supply a lazy name where the object itself is what matters.
+
+A proxy passes attribute access and calls through to the object it
+stands for, so most uses of a lazy name need nothing. ``isinstance``
+and other operations on the object itself see the proxy, and silently
+get the wrong answer, so those must resolve the name first.
+"""

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 import importlib_metadata
 
 from ..compat import py312
-from ..compat.py314 import lazy_importer
+from ..compat.py314 import lazy_importer, resolve
 
 __lazy_modules__ = {'importlib.metadata', 'importlib_metadata._adapters'}
 """
@@ -104,7 +104,8 @@ def message(
     >>> type(local)
     <class 'importlib_metadata._adapters.Message'>
     """
-    if isinstance(input, Message):
+    # resolve, as a lazy Message would answer isinstance() as no match
+    if isinstance(input, resolve(Message)):
         return input
     return Message(input)
 

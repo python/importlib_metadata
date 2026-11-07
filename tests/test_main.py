@@ -139,17 +139,44 @@ class LazyImportTests(unittest.TestCase):
         )
         assert not proc.stdout.split(), f'imported eagerly: {proc.stdout.strip()}'
 
-    def test_declared_modules_resolve(self):
+    def test_reading_through_a_lazy_name(self):
         """
-        Reading a lazy name yields the module itself, not a stand-in.
+        Attribute access on a lazy name reaches the real module.
 
-        The backport binds a proxy that resolves on first attribute
-        access, so a name read for anything else -- ``isinstance``, a
-        ``type()`` comparison -- could see the proxy instead.
+        Note that the name itself need not be the module: before 3.15 the
+        backport binds a proxy that passes attribute access through, so
+        this holds while ``is`` comparison against the module does not.
         """
-        assert importlib_metadata.Message is importlib_metadata._adapters.Message
         assert importlib_metadata.csv.reader is importlib.import_module('csv').reader
         assert isinstance(importlib_metadata.json.loads('{}'), dict)
+        assert importlib_metadata.inspect.getmodulename('f.py') == 'f'
+
+    def test_adapted_message_passes_through(self):
+        """
+        An already adapted message survives localization unchanged.
+
+        ``localize.message`` asks ``isinstance`` about a lazy name, which
+        a proxy answers as no match however the object relates to it, and
+        so wrongly adapts the message a second time. Run as a subprocess
+        because reading the name anywhere resolves it for good, which
+        every other test here would do first.
+
+        Ref python/importlib_metadata#554.
+        """
+        script = (
+            'import email.message, importlib; '
+            'from importlib_metadata._compat import localize; '
+            'adapters = importlib.import_module("importlib_metadata._adapters"); '
+            'msg = adapters.Message(email.message.Message()); '
+            'print(localize.message(msg) is msg)'
+        )
+        proc = subprocess.run(
+            [sys.executable, '-c', script],
+            capture_output=True,
+            encoding='utf-8',
+            check=True,
+        )
+        assert proc.stdout.strip() == 'True', 'the message was adapted twice'
 
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
