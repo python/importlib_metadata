@@ -1310,8 +1310,4 @@ def _top_level_inferred(dist):
     return filter(importable_name, opt_names)
 
 
-# Install the finder only after the module is fully initialized. Installing it
-# earlier would publish a finder whose globals are still incomplete, and
-# anything walking sys.meta_path in that window (another thread, a finalizer)
-# would fail to resolve PathDistribution (#525).
 install(MetadataPathFinder)
