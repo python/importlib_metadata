@@ -27,7 +27,6 @@ class FinderInstallTests(unittest.TestCase):
 
         def capture(cls):
             snapshots.append(set(sys._getframe(1).f_globals))
-            return cls
 
         spec = importlib.util.find_spec('importlib_metadata')
         with contextlib.ExitStack() as stack:

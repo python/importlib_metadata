@@ -13,14 +13,15 @@ def install(cls):
     DistributionFinder.
 
     Call this only once the calling module is fully initialized, from
-    its end rather than as a decorator on the class. The installed
-    finder resolves PathDistribution from that module's globals, so
-    installing it any earlier publishes a finder that anything walking
-    sys.meta_path would trip over (#525).
+    its end. The installed finder resolves PathDistribution from that
+    module's globals, so installing it any earlier publishes a finder
+    that anything walking sys.meta_path would trip over (#525).
+
+    Returns nothing, so that use as a class decorator fails outright
+    rather than reopening that window.
     """
     sys.meta_path.append(cls())
     disable_stdlib_finder()
-    return cls
 
 
 def disable_stdlib_finder():
