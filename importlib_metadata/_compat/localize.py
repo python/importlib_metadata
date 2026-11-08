@@ -6,23 +6,20 @@ from typing import TYPE_CHECKING, cast
 import importlib_metadata
 
 from ..compat import py312
-from ..compat.py314 import lazy_importer, resolve
+from ..compat.py314 import lazy_importer
 
-__lazy_modules__ = {'importlib.metadata', 'importlib_metadata._adapters'}
+__lazy_modules__ = {'importlib.metadata', 'importlib_metadata'}
 """
 Imports to defer until first use (PEP 810).
 
 Only a foreign distribution reaches the code that reads these, so the
 cost belongs to that caller and not to every import of the package.
-
-As in the parent module, the adapters are imported by member so that
-the module to defer is ``_adapters`` and not this package.
 """
 
 with lazy_importer():
     import importlib.metadata
 
-    from .._adapters import Message
+    from .. import _adapters
 
 if TYPE_CHECKING:
     import email.message
@@ -93,8 +90,8 @@ def unimplemented(dist) -> list[str]:
 
 
 def message(
-    input: Message | email.message.Message,
-) -> Message:
+    input: _adapters.Message | email.message.Message,
+) -> _adapters.Message:
     """
     Ensure a message is adapted to an importlib_metadata.Message.
 
@@ -104,10 +101,9 @@ def message(
     >>> type(local)
     <class 'importlib_metadata._adapters.Message'>
     """
-    # resolve, as a lazy Message would answer isinstance() as no match
-    if isinstance(input, resolve(Message)):
+    if isinstance(input, _adapters.Message):
         return input
-    return Message(input)
+    return _adapters.Message(input)
 
 
 def package_path(

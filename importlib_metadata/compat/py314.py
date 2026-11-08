@@ -1,10 +1,5 @@
 import sys
 
-native_lazy_imports = sys.version_info >= (3, 15)
-"""
-Whether the interpreter honors ``__lazy_modules__`` itself (PEP 810).
-"""
-
 
 class nothing:
     """
@@ -27,30 +22,23 @@ def backport():  # pragma: no cover
     return lazy_importer()
 
 
-def itself(value):
-    """
-    The value as bound, the interpreter having resolved it already.
-    """
-    return value
-
-
-def resolved(value):  # pragma: no cover
-    """
-    The object the backport's proxy stands for.
-    """
-    from lazy_importer import resolve
-
-    return resolve(value)
-
-
-lazy_importer = nothing if native_lazy_imports else backport
-
-resolve = itself if native_lazy_imports else resolved
+lazy_importer = nothing if sys.version_info >= (3, 15) else backport
 """
-Supply a lazy name where the object itself is what matters.
+Defer the imports in the block that follows, before 3.15 as after.
 
-A proxy passes attribute access and calls through to the object it
-stands for, so most uses of a lazy name need nothing. ``isinstance``
-and other operations on the object itself see the proxy, and silently
-get the wrong answer, so those must resolve the name first.
+Two properties of the emulation shape how a module may declare its lazy
+imports. Neither holds from 3.15, which defers them natively.
+
+A lazy name is bound to a proxy. Attribute access and calls reach the
+object it stands for, so ``csv.reader`` and ``_adapters.Message`` behave,
+but ``isinstance`` and anything else handed the object itself see the
+proxy and get the wrong answer in silence. Reach such an object through
+a module (``_adapters.Message``), or resolve the name with
+``lazy_importer.resolve`` before testing it.
+
+``from . import <submodule>`` names the package as the module to defer.
+That is fine from another module, but in the package's own ``__init__``
+the proxy stands for the module being executed and resolves itself
+through the globals entry that is the proxy, until the stack is
+exhausted. Import the member there instead.
 """

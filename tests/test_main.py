@@ -155,11 +155,12 @@ class LazyImportTests(unittest.TestCase):
         """
         An already adapted message survives localization unchanged.
 
-        ``localize.message`` asks ``isinstance`` about a lazy name, which
-        a proxy answers as no match however the object relates to it, and
-        so wrongly adapts the message a second time. Run as a subprocess
-        because reading the name anywhere resolves it for good, which
-        every other test here would do first.
+        ``localize.message`` tests it with ``isinstance``, reaching the
+        class through a lazy module so that the name resolves first. A
+        proxy named directly answers as no match however the object
+        relates to it, and the message would be adapted a second time.
+        Run as a subprocess because reading a lazy name resolves it for
+        good, which every other test here would do first.
 
         Ref python/importlib_metadata#554.
         """

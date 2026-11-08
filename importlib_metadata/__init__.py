@@ -64,9 +64,9 @@ than importing inside those functions leaves the dependencies visible.
 Python 3.15 honors this declaration itself; earlier versions reach the
 same end through the context below.
 
-Note that the adapters are imported by member and not as ``from .
-import _adapters``, which names this package as the module to defer
-and so would defer nothing, the package being mid-import.
+The adapters are imported by member rather than as ``from . import
+_adapters``, which names this package as the module to defer and which
+no emulation can honor from inside the package itself.
 """
 
 with lazy_importer():
