@@ -1031,7 +1031,6 @@ class Prepared:
         return bool(self.name)
 
 
-@install
 class MetadataPathFinder(NullFinder, DistributionFinder):
     """A degenerate finder for distribution packages on the file system.
 
@@ -1310,3 +1309,6 @@ def _top_level_inferred(dist):
         return '.' not in name
 
     return filter(importable_name, opt_names)
+
+
+install(MetadataPathFinder)

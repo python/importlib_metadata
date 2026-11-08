@@ -6,15 +6,22 @@ __all__ = ['NullFinder', 'install']
 
 def install(cls):
     """
-    Class decorator for installation on sys.meta_path.
+    Install cls on sys.meta_path.
 
     Adds the backport DistributionFinder to sys.meta_path and
     attempts to disable the finder functionality of the stdlib
     DistributionFinder.
+
+    Call this only once the calling module is fully initialized, from
+    its end. The installed finder resolves PathDistribution from that
+    module's globals, so installing it any earlier publishes a finder
+    that anything walking sys.meta_path would trip over (#525).
+
+    Returns nothing, so that use as a class decorator fails outright
+    rather than reopening that window.
     """
     sys.meta_path.append(cls())
     disable_stdlib_finder()
-    return cls
 
 
 def disable_stdlib_finder():
