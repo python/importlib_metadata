@@ -1,0 +1,8 @@
+Restored ``csv``, ``inspect``, ``json``, ``zipfile``, ``_adapters``, and
+``importlib.metadata`` to module scope, where a reader can see what the
+module depends on, instead of hiding them in the functions that use them
+for performance. They are declared in ``__lazy_modules__`` and so stay
+deferred, and deferred alike on every supported Python: 3.15 honors the
+declaration natively (PEP 810) and earlier Pythons reach the same
+behavior through the ``lazy-importer`` backport, which is now a
+dependency there.

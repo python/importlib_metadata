@@ -3,6 +3,8 @@ import importlib
 import io
 import pickle
 import re
+import subprocess
+import sys
 import unittest
 
 import pyfakefs.fake_filesystem_unittest as ffs
@@ -106,6 +108,36 @@ class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
             group='grp',
         )
         assert ep.load() is importlib_metadata
+
+
+class LazyImportTests(unittest.TestCase):
+    """
+    The imports at module scope cost no more than the deferred ones did.
+    """
+
+    def test_lazy_modules_stay_unloaded(self):
+        """
+        Importing the package loads none of its ``__lazy_modules__``.
+
+        ``importlib.abc`` goes first because the package imports it
+        eagerly and, on some Pythons, it reaches ``inspect`` through
+        ``importlib.resources``. Taking the snapshot after it leaves only
+        what the declaration itself governs.
+
+        Ref python/importlib_metadata#554.
+        """
+        script = (
+            'import sys, importlib.abc; before = frozenset(sys.modules); '
+            'import importlib_metadata as md; '
+            'print(*sorted(md.__lazy_modules__ & (sys.modules.keys() - before)))'
+        )
+        proc = subprocess.run(
+            [sys.executable, '-c', script],
+            capture_output=True,
+            encoding='utf-8',
+            check=True,
+        )
+        assert not proc.stdout.split(), f'imported eagerly: {proc.stdout.strip()}'
 
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):

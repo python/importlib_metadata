@@ -45,6 +45,39 @@ from ._meta import (
     SimplePath,
 )
 from .compat import py311
+from .compat.py314 import lazy_importer
+
+__lazy_modules__ = {
+    'csv',
+    'inspect',
+    'json',
+    # 'zipfile' in the stdlib, which needs no overlay
+    'zipp.compat.overlay',
+    f'{__name__}._adapters',
+}
+"""
+Imports to defer until first use (PEP 810).
+
+Each of them costs more than the path that reads it is traveled, so
+deferring keeps that cost off every other caller. Stating it here rather
+than importing inside those functions leaves the dependencies visible.
+
+Python 3.15 honors this declaration itself; earlier versions reach the
+same end through the context below.
+
+The adapters are imported by member rather than as ``from . import
+_adapters``, which names this package as the module to defer and which
+no emulation can honor from inside the package itself.
+"""
+
+with lazy_importer():
+    import csv
+    import inspect
+    import json
+
+    from zipp.compat.overlay import zipfile
+
+    from ._adapters import Message
 
 __all__ = [
     'Distribution',
@@ -599,10 +632,7 @@ class Distribution(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _assemble_message(text: str) -> PackageMetadata:
-        # deferred for performance (python/cpython#109829)
-        from . import _adapters
-
-        return _adapters.Message(email.message_from_string(text))
+        return Message(email.message_from_string(text))
 
     def _ensure_metadata_present(self, text: str | None) -> str:
         if text is not None:
@@ -663,10 +693,6 @@ class Distribution(metaclass=abc.ABCMeta):
 
         @pass_none
         def make_files(lines):
-            # Delay csv import, since Distribution.files is not as widely used
-            # as other parts of importlib.metadata
-            import csv
-
             return starmap(make_file, csv.reader(lines))
 
         @pass_none
@@ -788,9 +814,6 @@ class Distribution(metaclass=abc.ABCMeta):
         return self._load_json('direct_url.json')
 
     def _load_json(self, filename):
-        # Deferred for performance (python/importlib_metadata#503)
-        import json
-
         return pass_none(json.loads)(
             self.read_text(filename),
             object_hook=lambda data: types.SimpleNamespace(**data),
@@ -908,9 +931,6 @@ class FastPath:
         return []
 
     def zip_children(self):
-        # deferred for performance (python/importlib_metadata#502)
-        from zipp.compat.overlay import zipfile
-
         zip_path = zipfile.Path(self.root)
         names = zip_path.root.namelist()
         self.joinpath = zip_path.joinpath
@@ -1296,9 +1316,6 @@ def _get_toplevel_name(name: IPackagePath) -> str:
     >>> _get_toplevel_name(PackagePath('foo.dist-info'))
     'foo.dist-info'
     """
-    # Defer import of inspect for performance (python/cpython#118761)
-    import inspect
-
     return _topmost(name) or inspect.getmodulename(name) or str(name)
 
 

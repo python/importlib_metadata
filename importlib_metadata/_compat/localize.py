@@ -6,12 +6,24 @@ from typing import TYPE_CHECKING, cast
 import importlib_metadata
 
 from ..compat import py312
+from ..compat.py314 import lazy_importer
 
-if TYPE_CHECKING:
-    import email.message
+__lazy_modules__ = {'importlib.metadata', 'importlib_metadata'}
+"""
+Imports to defer until first use (PEP 810).
+
+Only a foreign distribution reaches the code that reads these, so the
+cost belongs to that caller and not to every import of the package.
+"""
+
+with lazy_importer():
     import importlib.metadata
 
     from .. import _adapters
+
+if TYPE_CHECKING:
+    import email.message
+
     from .._meta import SimplePath
 
 
@@ -55,10 +67,6 @@ def dist(
     if isinstance(dist, importlib_metadata.Distribution):
         return dist
 
-    # only a foreign dist gets this far, so defer the cost of the import
-    # (python/cpython#109829)
-    import importlib.metadata
-
     if isinstance(dist, importlib.metadata.PathDistribution):
         return importlib_metadata.PathDistribution(cast('SimplePath', dist._path))
     # Warn on what the interface requires and the class omits, rather than
@@ -93,9 +101,6 @@ def message(
     >>> type(local)
     <class 'importlib_metadata._adapters.Message'>
     """
-    # deferred for performance (python/cpython#109829)
-    from .. import _adapters
-
     if isinstance(input, _adapters.Message):
         return input
     return _adapters.Message(input)
