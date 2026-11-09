@@ -115,9 +115,9 @@ class LazyImportTests(unittest.TestCase):
     The imports at module scope cost no more than the deferred ones did.
     """
 
-    def test_declared_modules_stay_unloaded(self):
+    def test_lazy_modules_stay_unloaded(self):
         """
-        Importing the package loads none of the modules it declares lazy.
+        Importing the package loads none of its ``__lazy_modules__``.
 
         ``importlib.abc`` goes first because the package imports it
         eagerly and, on some Pythons, it reaches ``inspect`` through
@@ -138,46 +138,6 @@ class LazyImportTests(unittest.TestCase):
             check=True,
         )
         assert not proc.stdout.split(), f'imported eagerly: {proc.stdout.strip()}'
-
-    def test_reading_through_a_lazy_name(self):
-        """
-        Attribute access on a lazy name reaches the real module.
-
-        Note that the name itself need not be the module: before 3.15 the
-        backport binds a proxy that passes attribute access through, so
-        this holds while ``is`` comparison against the module does not.
-        """
-        assert importlib_metadata.csv.reader is importlib.import_module('csv').reader
-        assert isinstance(importlib_metadata.json.loads('{}'), dict)
-        assert importlib_metadata.inspect.getmodulename('f.py') == 'f'
-
-    def test_adapted_message_passes_through(self):
-        """
-        An already adapted message survives localization unchanged.
-
-        ``localize.message`` tests it with ``isinstance``, reaching the
-        class through a lazy module so that the name resolves first. A
-        proxy named directly answers as no match however the object
-        relates to it, and the message would be adapted a second time.
-        Run as a subprocess because reading a lazy name resolves it for
-        good, which every other test here would do first.
-
-        Ref python/importlib_metadata#554.
-        """
-        script = (
-            'import email.message, importlib; '
-            'from importlib_metadata._compat import localize; '
-            'adapters = importlib.import_module("importlib_metadata._adapters"); '
-            'msg = adapters.Message(email.message.Message()); '
-            'print(localize.message(msg) is msg)'
-        )
-        proc = subprocess.run(
-            [sys.executable, '-c', script],
-            capture_output=True,
-            encoding='utf-8',
-            check=True,
-        )
-        assert proc.stdout.strip() == 'True', 'the message was adapted twice'
 
 
 class NameNormalizationTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):

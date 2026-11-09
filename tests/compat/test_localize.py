@@ -5,6 +5,7 @@ providers into their ``importlib_metadata`` counterparts (#486).
 
 import importlib.metadata as stdlib
 import pathlib
+import subprocess
 import sys
 import unittest
 import warnings
@@ -177,3 +178,38 @@ class ConformanceCheckTests(unittest.TestCase):
             warnings.simplefilter('always')
             assert localize.dist(hostile) is hostile
         assert not [str(warning.message) for warning in caught]
+
+
+class LazyAdaptersTests(unittest.TestCase):
+    """
+    Adapting a message withstands the adapters being imported lazily.
+    """
+
+    def test_adapted_message_passes_through(self):
+        """
+        An already adapted message survives localization unchanged.
+
+        ``localize.message`` tests the message with ``isinstance``,
+        reaching the class through a lazily imported module so that the
+        name resolves first. Were the class the lazy name itself, before
+        3.15 it would be a proxy, which answers as no match however the
+        object relates to it, and the message would be adapted a second
+        time. Run as a subprocess because reading a lazy name resolves it
+        for good, which any other test would do first.
+
+        Ref python/importlib_metadata#554.
+        """
+        script = (
+            'import email.message, importlib; '
+            'from importlib_metadata._compat import localize; '
+            'adapters = importlib.import_module("importlib_metadata._adapters"); '
+            'msg = adapters.Message(email.message.Message()); '
+            'print(localize.message(msg) is msg)'
+        )
+        proc = subprocess.run(
+            [sys.executable, '-c', script],
+            capture_output=True,
+            encoding='utf-8',
+            check=True,
+        )
+        assert proc.stdout.strip() == 'True', 'the message was adapted twice'
