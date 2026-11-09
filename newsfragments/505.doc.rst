@@ -1,1 +1,0 @@
-Added a caveats page describing how this package and ``importlib.metadata`` interoperate: the two class hierarchies, the protocols both satisfy, and what that asks of consumers and of custom providers.

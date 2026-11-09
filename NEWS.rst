@@ -1,3 +1,37 @@
+v10.2.0
+=======
+
+Features
+--------
+
+- Restored ``csv``, ``inspect``, ``json``, ``zipfile``, ``_adapters``, and
+  ``importlib.metadata`` to module scope, where a reader can see what the
+  module depends on, instead of hiding them in the functions that use them
+  for performance. They are declared in ``__lazy_modules__`` and so stay
+  deferred, and deferred alike on every supported Python: 3.15 honors the
+  declaration natively (PEP 810) and earlier Pythons reach the same
+  behavior through the ``lazy-importer`` backport, which is now a
+  dependency there. (#554)
+
+
+Bugfixes
+--------
+
+- ``MetadataPathFinder`` is now installed on ``sys.meta_path`` only after the
+  module is fully initialized. Previously it was installed partway through, so
+  anything walking ``sys.meta_path`` during that window, such as another thread
+  calling ``entry_points()``, would raise ``NameError: name 'PathDistribution'
+  is not defined``. An import interrupted in that window left the half-built
+  finder installed for the life of the process, failing every subsequent lookup. (#525)
+- Return ``License-File``, ``Import-Name``, and ``Import-Namespace`` as lists in JSON-compatible metadata, including when only one value is present, and retain all repeated values as required by PEP 566.
+
+
+Improved Documentation
+----------------------
+
+- Added a caveats page describing how this package and ``importlib.metadata`` interoperate: the two class hierarchies, the protocols both satisfy, and what that asks of consumers and of custom providers. (#505)
+
+
 v10.1.0
 =======
 
