@@ -311,6 +311,24 @@ class APITests(
         assert len(md['requires_dist']) == 2
         assert md['keywords'] == ['SAMPLE', 'PACKAGE']
 
+    @fixtures.parameterize(
+        dict(value='sample,package', expected=['sample', 'package']),
+        dict(value='sample, package', expected=['sample', 'package']),
+        dict(value='sample package,tool', expected=['sample package', 'tool']),
+    )
+    def test_as_json_comma_separated_keywords(self, value, expected):
+        """
+        Core Metadata and the tools that write it separate keywords with
+        commas.
+        """
+        content = (
+            'Metadata-Version: 2.4\nName: distinfo-pkg\nVersion: 1.0.0\n'
+            f'Keywords: {value}\n'
+        )
+        path = self.site_dir / 'distinfo_pkg-1.0.0.dist-info' / 'METADATA'
+        path.write_text(content, encoding='utf-8')
+        assert metadata('distinfo-pkg').json['keywords'] == expected
+
 
 class LegacyDots(fixtures.DistInfoPkgWithDotLegacy, unittest.TestCase):
     def test_name_normalization(self):

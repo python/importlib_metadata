@@ -132,7 +132,13 @@ class Message(email.message.Message):
         def transform(key):
             value = self.get_all(key) if key in self.multiple_use_keys else self[key]
             if key == 'Keywords':
-                value = re.split(r'\s+', value)
+                # Core Metadata separates keywords with commas; older
+                # metadata (and PEP 566) used whitespace.
+                value = (
+                    [keyword.strip() for keyword in value.split(',')]
+                    if ',' in value
+                    else re.split(r'\s+', value)
+                )
             tk = key.lower().replace('-', '_')
             return tk, value
 
