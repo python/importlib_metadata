@@ -68,6 +68,21 @@ functions for easy access to the most common metadata:
 - :ref:`files` provides file-like access to the data blobs backing
   the metadata.
 
+.. _packages-distributions:
+
+packages_distributions()
+========================
+
+``packages_distributions()`` maps importable top-level package and module names
+to the distributions that provide them. When available, it uses the
+distribution's ``top_level.txt`` file before falling back to inferring names
+from the installed file list.
+
+``top_level.txt`` is a legacy, setuptools-specific metadata file rather than a
+requirement of the distribution metadata standards. Build backends are
+therefore not required to provide it, and the mapping may be incomplete when a
+distribution also does not expose enough file metadata for inference.
+
 pkg_resources.find_distributions()
 ==================================
 
@@ -81,4 +96,3 @@ pkg_resources.get_distribution()
 
 Similar to ``distributions``, the ``distribution()`` function provides
 access to a single distribution by name.
-
