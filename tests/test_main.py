@@ -1,6 +1,7 @@
 import contextlib
 import importlib
 import io
+import pathlib
 import pickle
 import re
 import subprocess
@@ -16,6 +17,7 @@ from importlib_metadata import (
     EntryPoint,
     MetadataNotFound,
     PackageNotFoundError,
+    PackagePath,
     _unique,
     diagnose,
     distributions,
@@ -84,6 +86,54 @@ class BasicTests(fixtures.DistInfoPkg, unittest.TestCase):
     def test_invalid_inputs_to_from_name(self, name):
         with self.assertRaises(ValueError):
             Distribution.from_name(name)
+
+
+class PackagePathTests(unittest.TestCase):
+    @fixtures.parameterize(
+        dict(path='pkg\\module.py', expected='pkg/module.py'),
+        dict(path='pkg\\mixed/name.py', expected='pkg/mixed/name.py'),
+        dict(path='pkg/mixed/name.py', expected='pkg/mixed/name.py'),
+        dict(
+            path='C:\\venv\\Scripts\\sample.exe',
+            expected='C:/venv/Scripts/sample.exe',
+        ),
+    )
+    def test_normalizes_windows_separators(self, path, expected):
+        package_path = PackagePath(path)
+        expected_path = pathlib.PurePosixPath(expected)
+
+        assert package_path.as_posix() == expected
+        assert str(package_path) == expected
+        assert package_path.parts == expected_path.parts
+        assert package_path.name == expected_path.name
+        assert package_path.parent.as_posix() == expected_path.parent.as_posix()
+        assert package_path.suffix == expected_path.suffix
+
+
+class RecordPathTests(fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase):
+    def test_files_normalize_windows_separators(self):
+        fixtures.build_files(
+            {
+                'pkg': {
+                    'module.py': '',
+                    'mixed': {'name.py': ''},
+                },
+                'pkg-1.0.dist-info': {
+                    'METADATA': 'Name: pkg\nVersion: 1.0\n',
+                    'RECORD': 'pkg\\module.py,,\npkg/mixed\\name.py,,\n',
+                },
+            },
+            self.site_dir,
+        )
+
+        files = Distribution.from_name('pkg').files
+        assert files is not None
+
+        assert [path.as_posix() for path in files] == [
+            'pkg/module.py',
+            'pkg/mixed/name.py',
+        ]
+        assert files[0].name == 'module.py'
 
 
 class ImportTests(fixtures.DistInfoPkg, unittest.TestCase):
