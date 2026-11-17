@@ -418,12 +418,29 @@ class EntryPoints(tuple):
         )
 
 
+def _normalize_record_path(path):
+    """
+    RECORD files may separate directories with backslashes on Windows.
+    The paths describe package-relative locations, so treat backslashes
+    as separators everywhere for consistent, portable results.
+    """
+    return os.fspath(path).replace('\\', '/')
+
+
 class PackagePath(pathlib.PurePosixPath):
     """A reference to a path in a package"""
 
     hash: FileHash | None
     size: int
     dist: IDistribution
+
+    def __new__(cls, *args):
+        return super().__new__(cls, *map(_normalize_record_path, args))
+
+    def __init__(self, *args):
+        # Python 3.12 moved path parsing from __new__ to __init__.
+        if pathlib.PurePosixPath.__init__ is not object.__init__:
+            super().__init__(*map(_normalize_record_path, args))
 
     def read_text(self, encoding: str = 'utf-8') -> str:
         return self.locate().read_text(encoding=encoding)

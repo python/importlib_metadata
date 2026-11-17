@@ -1,0 +1,4 @@
+``PackagePath`` now treats backslashes in RECORD entries as directory
+separators on every platform. ``name``, ``parent``, ``suffix``, and
+``as_posix()`` are therefore consistent for Windows-style paths, while POSIX
+paths are unchanged.
