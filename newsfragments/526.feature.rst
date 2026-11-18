@@ -1,0 +1,1 @@
+Use declared import names and namespaces in ``packages_distributions()`` when a distribution provides them.

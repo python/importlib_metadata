@@ -1274,6 +1274,9 @@ def packages_distributions() -> Mapping[str, list[str]]:
     Return a mapping of top-level packages to their
     distributions.
 
+    Prefer declared import names and namespaces to legacy top-level
+    metadata or inference from installed files.
+
     >>> import collections.abc
     >>> pkgs = packages_distributions()
     >>> all(isinstance(dist, collections.abc.Sequence) for dist in pkgs.values())
@@ -1281,9 +1284,44 @@ def packages_distributions() -> Mapping[str, list[str]]:
     """
     pkg_to_dist = collections.defaultdict(list)
     for dist in distributions():
-        for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
-            pkg_to_dist[pkg].append(dist.metadata['Name'])
+        try:
+            metadata = dist.metadata
+        except Exception:
+            # The legacy mapper only read metadata for contributors.
+            if any(_top_level_declared(dist) or _top_level_inferred(dist)):
+                raise
+            continue
+
+        names = _top_level_from_metadata(metadata)
+        if names is None:
+            names = _top_level_declared(dist) or _top_level_inferred(dist)
+        for pkg in names:
+            pkg_to_dist[pkg].append(metadata['Name'])
     return dict(pkg_to_dist)
+
+
+def _top_level_from_metadata(metadata: PackageMetadata) -> Iterable[str] | None:
+    exclusive = metadata.get_all('Import-Name')
+    shared = metadata.get_all('Import-Namespace')
+    if exclusive is None and shared is None:
+        return None
+
+    def import_names(values):
+        return [value.partition(';')[0].strip() for value in values or ()]
+
+    exclusive_names = import_names(exclusive)
+    shared_names = import_names(shared)
+    if conflicts := set(exclusive_names).intersection(shared_names):
+        names = ', '.join(sorted(conflicts))
+        raise ValueError(
+            f'Names listed in both Import-Name and Import-Namespace: {names}'
+        )
+
+    return dict.fromkeys(
+        name.partition('.')[0]
+        for name in itertools.chain(exclusive_names, shared_names)
+        if name
+    )
 
 
 def _top_level_declared(dist):

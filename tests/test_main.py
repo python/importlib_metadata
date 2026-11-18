@@ -493,6 +493,145 @@ class PackagesDistributionsPrebuiltTest(fixtures.ZipFixtures, unittest.TestCase)
 class PackagesDistributionsTest(
     fixtures.OnSysPath, fixtures.SiteDir, unittest.TestCase
 ):
+    def test_packages_distributions_prefers_import_metadata(self):
+        fixtures.build_files(
+            {
+                'sample_declared-1.0.dist-info': {
+                    'METADATA': """
+                        Metadata-Version: 2.5
+                        Name: sample-declared
+                        Version: 1.0
+                        Import-Name: _sample_private ; private
+                        Import-Name: sample_namespace.client
+                        Import-Namespace: sample_namespace
+                        Import-Namespace: sample_independent_namespace
+                        """,
+                    'top_level.txt': 'sample_legacy',
+                },
+                'sample_namespace_only-1.0.dist-info': {
+                    'METADATA': """
+                        Metadata-Version: 2.5
+                        Name: sample-namespace-only
+                        Version: 1.0
+                        Import-Namespace: sample_namespace
+                        """,
+                },
+            },
+            prefix=self.site_dir,
+        )
+
+        result = packages_distributions()
+        assert result['_sample_private'] == ['sample-declared']
+        assert sorted(result['sample_namespace']) == [
+            'sample-declared',
+            'sample-namespace-only',
+        ]
+        assert result['sample_independent_namespace'] == ['sample-declared']
+        assert 'sample_namespace.client' not in result
+        assert 'sample_legacy' not in result
+
+    def test_packages_distributions_explicitly_declares_no_imports(self):
+        fixtures.build_files(
+            {
+                'data_only-1.0.dist-info': {
+                    'METADATA': """
+                        Metadata-Version: 2.5
+                        Name: data-only
+                        Version: 1.0
+                        Import-Name:
+                        """,
+                    'RECORD': 'sample_share/data.txt,,\n',
+                },
+                'sample_share': {'data.txt': ''},
+            },
+            prefix=self.site_dir,
+        )
+
+        assert 'sample_share' not in packages_distributions()
+
+    def test_packages_distributions_rejects_ambiguous_import_metadata(self):
+        fixtures.build_files(
+            {
+                'sample_ambiguous-1.0.dist-info': {
+                    'METADATA': """
+                        Metadata-Version: 2.5
+                        Name: sample-ambiguous
+                        Version: 1.0
+                        Import-Name: sample_ambiguous ; private
+                        Import-Namespace: sample_ambiguous
+                        """,
+                },
+            },
+            prefix=self.site_dir,
+        )
+
+        with self.assertRaisesRegex(ValueError, 'sample_ambiguous'):
+            packages_distributions()
+
+    def test_packages_distributions_rejects_ambiguous_dotted_import_metadata(self):
+        fixtures.build_files(
+            {
+                'sample_ambiguous-1.0.dist-info': {
+                    'METADATA': """
+                        Metadata-Version: 2.5
+                        Name: sample-ambiguous
+                        Version: 1.0
+                        Import-Name: sample_ambiguous.client
+                        Import-Namespace: sample_ambiguous
+                        Import-Namespace: sample_ambiguous.client
+                        """,
+                },
+            },
+            prefix=self.site_dir,
+        )
+
+        with self.assertRaisesRegex(ValueError, r'sample_ambiguous\.client'):
+            packages_distributions()
+
+    def test_packages_distributions_skips_empty_dist_info(self):
+        fixtures.build_files({'sample_empty-1.0.dist-info': {}}, prefix=self.site_dir)
+        packages_distributions()
+
+    def test_packages_distributions_skips_unreadable_metadata_without_names(self):
+        broken = self.site_dir / 'sample_broken-1.0.dist-info'
+        broken.mkdir()
+        (broken / 'METADATA').write_bytes(b'\xff')
+        fixtures.build_files(
+            {
+                'sample_okay-1.0.dist-info': {
+                    'METADATA': 'Name: sample-okay\nVersion: 1.0',
+                    'top_level.txt': 'sample_okay',
+                }
+            },
+            prefix=self.site_dir,
+        )
+        assert packages_distributions()['sample_okay'] == ['sample-okay']
+
+    def test_packages_distributions_reports_unreadable_metadata_for_legacy_name(self):
+        broken = self.site_dir / 'sample_broken-1.0.dist-info'
+        broken.mkdir()
+        (broken / 'METADATA').write_bytes(b'\xff')
+        (broken / 'top_level.txt').write_text('sample_broken', encoding='utf-8')
+        with self.assertRaises(UnicodeDecodeError):
+            packages_distributions()
+
+    def test_packages_distributions_reports_unreadable_metadata_for_inferred_name(self):
+        broken = self.site_dir / 'sample_broken-1.0.dist-info'
+        broken.mkdir()
+        (broken / 'METADATA').write_bytes(b'\xff')
+        (broken / 'RECORD').write_text('sample_broken.py,,\n', encoding='utf-8')
+        (self.site_dir / 'sample_broken.py').touch()
+        with self.assertRaises(UnicodeDecodeError):
+            packages_distributions()
+
+    def test_packages_distributions_reports_missing_metadata_for_legacy_name(self):
+        fixtures.build_files(
+            {'sample_missing-1.0.dist-info': {'top_level.txt': 'sample_missing'}},
+            prefix=self.site_dir,
+        )
+        with self.assertRaises(MetadataNotFound):
+            packages_distributions()
+
     def test_packages_distributions_neither_toplevel_nor_files(self):
         """
         Test a package built without 'top-level.txt' or a file list.
