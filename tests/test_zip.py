@@ -4,7 +4,7 @@ import sys
 import unittest
 import weakref
 
-from test.support import disable_gc, requires_fork
+from test.support import disable_gc, refcount_test, requires_fork
 
 from importlib_metadata import (
     FastPath,
@@ -54,6 +54,7 @@ class TestZip(fixtures.ZipFixtures, unittest.TestCase):
         dists = list(distributions(path=sys.path[:1]))
         assert len(dists) == 1
 
+    @refcount_test
     def test_zip_closed_when_cache_cleared(self):
         # python/cpython#162342: the zip closes without the cyclic GC
         self.assertEqual(version('example'), '21.12')
