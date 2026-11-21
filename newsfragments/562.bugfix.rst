@@ -1,0 +1,2 @@
+Fix :mod:`importlib.metadata` keeping zip files on :data:`sys.path` open
+after its caches are cleared, which could emit a :exc:`ResourceWarning`.

@@ -2,8 +2,9 @@ import multiprocessing
 import os
 import sys
 import unittest
+import weakref
 
-from test.support import requires_fork
+from test.support import disable_gc, requires_fork
 
 from importlib_metadata import (
     FastPath,
@@ -52,6 +53,16 @@ class TestZip(fixtures.ZipFixtures, unittest.TestCase):
     def test_one_distribution(self):
         dists = list(distributions(path=sys.path[:1]))
         assert len(dists) == 1
+
+    def test_zip_closed_when_cache_cleared(self):
+        # python/cpython#162342: the zip closes without the cyclic GC
+        self.assertEqual(version('example'), '21.12')
+        zip_root = FastPath(sys.path[0]).joinpath.__self__.root
+        file_ref = weakref.ref(zip_root.fp)
+        del zip_root
+        with disable_gc():
+            FastPath.__new__.cache_clear()
+            self.assertIsNone(file_ref())
 
     @warnings_helper.ignore_fork_in_thread_deprecation_warnings()
     @requires_fork()

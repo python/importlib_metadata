@@ -19,10 +19,12 @@ class FreezableDefaultDict(collections.defaultdict):
     """
 
     def __missing__(self, key):
-        return getattr(self, '_frozen', super().__missing__)(key)
+        if getattr(self, '_frozen', False):
+            return self.default_factory()
+        return super().__missing__(key)
 
     def freeze(self):
-        self._frozen = lambda key: self.default_factory()
+        self._frozen = True
 
 
 class Pair(typing.NamedTuple):
