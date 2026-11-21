@@ -1,5 +1,5 @@
 import functools
-import types
+import weakref
 from collections.abc import Callable
 from typing import TypeVar
 
@@ -75,8 +75,14 @@ def method_cache(method, cache_wrapper=None):
     cache_wrapper = cache_wrapper or functools.lru_cache()
 
     def wrapper(self, *args, **kwargs):
-        # it's the first call, replace the method with a cached, bound method
-        bound_method = types.MethodType(method, self)
+        # it's the first call, replace the method with a cached, bound method;
+        # bind through a weakref so self is not in a reference cycle
+        self_ref = weakref.ref(self)
+
+        @functools.wraps(method)
+        def bound_method(*args, **kwargs):
+            return method(self_ref(), *args, **kwargs)
+
         cached_method = cache_wrapper(bound_method)
         setattr(self, method.__name__, cached_method)
         return cached_method(*args, **kwargs)
