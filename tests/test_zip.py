@@ -56,7 +56,7 @@ class TestZip(fixtures.ZipFixtures, unittest.TestCase):
 
     @refcount_test
     def test_zip_closed_when_cache_cleared(self):
-        # python/cpython#162342: the zip closes without the cyclic GC
+        # gh-162342: the zip closes without the cyclic GC
         self.assertEqual(version('example'), '21.12')
         zip_root = FastPath(sys.path[0]).joinpath.__self__.root
         file_ref = weakref.ref(zip_root.fp)
